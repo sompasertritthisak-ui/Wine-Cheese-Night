@@ -352,7 +352,7 @@ html.motion-on .goldline{transform:scaleX(0)}
 .field.invalid .err{opacity:1}
 .field.valid input{border-color:rgba(201,162,39,.5)}
 .count-row{display:flex;gap:.7rem;flex-wrap:wrap}
-.count-row .opt{flex:1 1 64px;min-width:64px;min-height:52px;border:1px solid var(--hair);background:transparent;
+.count-row .opt{flex:1 1 140px;min-width:140px;min-height:52px;border:1px solid var(--hair);background:transparent;
   color:var(--fg);font-family:var(--f-ui);font-size:1.2rem;cursor:pointer;
   transition:border-color var(--t-micro),color var(--t-micro),background var(--t-micro)}
 .count-row .opt:hover{border-color:var(--accent-dim)}
@@ -719,6 +719,11 @@ html.modal-open,html.modal-open body{overflow:hidden}
   color:var(--danger);opacity:0;transition:opacity var(--t-micro)}
 .check-err.on{opacity:1}
 
+.send-err{margin-top:1.4rem;padding:1rem 1.2rem;border:1px solid var(--danger);
+  background:rgba(242,178,92,.08);font-family:var(--f-ui);font-size:.9rem;line-height:1.5;
+  color:var(--fg)}
+.send-err a{color:var(--accent);border-bottom:1px solid var(--accent-dim);text-decoration:none}
+
 /* ============================================================
    §19 — REDUCED MOTION. Atmosphere off, function intact.
    ============================================================ */
@@ -1038,18 +1043,18 @@ html.modal-open,html.modal-open body{overflow:hidden}
       <!-- Step 2 -->
       <fieldset class="step" data-step="2" style="border:0;padding:0;margin:0">
         <h3>Your party</h3>
-        <p class="hint">Places are limited to four adults per family, so that every household has a seat.</p>
+        <p class="hint">This evening is limited to two adults per family, so that every household has a place.</p>
 
         <div class="field">
-          <label id="lbl-count">How many of you? <span class="req" aria-hidden="true">*</span></label>
+          <label id="lbl-count">Will you be coming alone or as a pair? <span class="req" aria-hidden="true">*</span></label>
           <div class="count-row" role="group" aria-labelledby="lbl-count" id="countRow"></div>
-          <div class="help">Adults only. If you need childcare, there is a box for it on the next step.</div>
+          <div class="help">If you need childcare, there is a box for it on the next step.</div>
         </div>
 
         <div class="field" id="f-guests" hidden>
-          <label for="guest2">Who is coming with you?</label>
+          <label for="guest2">Who will be joining you?</label>
           <div class="guest-rows" id="guestRows"></div>
-          <div class="help">Names help us write place cards and greet everyone properly at the gate. Leave any blank if you are not sure yet.</div>
+          <div class="help">This helps us write place cards and greet your guest properly at the gate. Leave it blank if you are not sure yet.</div>
         </div>
 
         <div class="field" id="f-year">
@@ -1090,6 +1095,8 @@ html.modal-open,html.modal-open body{overflow:hidden}
           <div class="help">Vegetarian and halal boards are on the table as standard. Please tell us about any allergies, childcare or anything else here.</div>
         </div>
 
+        <div class="check-err" id="submitErr" role="alert" style="margin-bottom:1.2rem"></div>
+
         <div class="field" id="f-adults">
           <label class="check" for="adults">
             <input type="checkbox" id="adults" name="adults" required
@@ -1098,6 +1105,12 @@ html.modal-open,html.modal-open body{overflow:hidden}
               not to bring our children along on the night.</span>
           </label>
           <div class="check-err" id="e-adults" role="alert"></div>
+        </div>
+
+        <div class="send-err" id="sendErr" role="alert" tabindex="-1" hidden>
+          We could not send your reply just now. Please try again, or send your name and
+          numbers to <a href="https://wa.me/8562093592444">+856 20 935 924 440</a> and the
+          office will add you.
         </div>
 
         <div class="step-nav">
@@ -1157,8 +1170,10 @@ html.modal-open,html.modal-open body{overflow:hidden}
         <canvas id="passCode" width="224" height="224" role="img" aria-label="Guest pass code"></canvas>
         <dl class="pdata">
           <dt>Guest</dt><dd id="passName">—</dd>
+          <dt>Reference</dt><dd id="passRef">—</dd>
           <dt>Party</dt><dd id="passParty">—</dd>
           <dt>Friday 21 August 2026</dt><dd>6:00 PM &middot; Secondary Campus</dd>
+          <dt>Reference</dt><dd id="passRef">&mdash;</dd>
         </dl>
       </div>
       <p class="pass-note">Please show this at the gate on the evening. A copy is on its way to your inbox.</p>
@@ -1193,6 +1208,14 @@ html.modal-open,html.modal-open body{overflow:hidden}
    Motion is an enhancement layer. If any of these fail, the page
    is still complete, readable and submittable.
    ============================================================ */
+/* ============================================================
+   WHERE REPLIES GO
+   Paste the Apps Script Web App URL between the quotes. Until you
+   do, the form shows its confirmation but records nothing — useful
+   for review, useless for counting. Setup steps are in SETUP.md.
+   ============================================================ */
+var ENDPOINT = 'https://script.google.com/macros/s/AKfycbxQl1OoQXdO-NTpcu8-iW9ytRLhDYtRP8eINKYJ4Lf4SJVEgVNhf_NexT7GnchdZMzASA/exec';
+
 var REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 var HAS_GSAP = typeof window.gsap !== 'undefined' && typeof window.ScrollTrigger !== 'undefined';
 var FINE = window.matchMedia('(pointer: fine)').matches;
@@ -1622,9 +1645,9 @@ function rsvp(){
 
   // Party size buttons
   var row = document.getElementById('countRow');
-  [1,2,3,4].forEach(function(n){
+  [1,2].forEach(function(n){
     var b = document.createElement('button');
-    b.type='button'; b.className='opt'; b.textContent = n;
+    b.type='button'; b.className='opt'; b.textContent = n === 1 ? 'Just me' : 'Two of us';
     b.setAttribute('aria-pressed', n===2 ? 'true':'false');
     b.setAttribute('aria-label', n + (n===1?' person':' people'));
     b.setAttribute('data-cursor','Select');
@@ -1755,25 +1778,68 @@ function rsvp(){
     btn.disabled = true;
     btn.firstChild.textContent = 'Sending ';
 
-    /* --- Connect your endpoint here -------------------------
-       fetch('/api/rsvp', { method:'POST',
-         headers:{'Content-Type':'application/json'},
-         body: JSON.stringify(payload) })
-       ------------------------------------------------------ */
+    /* ----------------------------------------------------------------
+       ENDPOINT
+       Paste the Web App URL you get when you deploy Code.gs, and use
+       the same TOKEN in both files. Until the URL is filled in, the
+       form runs in rehearsal mode: everything behaves normally but
+       nothing is written to the sheet.
+       ---------------------------------------------------------------- */
+    var ENDPOINT = '';
+    var TOKEN    = 'pbis-25-wce-7Kq2VmT9';
+
     var payload = {
-      name:  document.getElementById('name').value.trim(),
-      email: document.getElementById('email').value.trim(),
-      party: party,
+      action: 'create',
+      token:  TOKEN,
+      name:   document.getElementById('name').value.trim(),
+      email:  document.getElementById('email').value.trim(),
+      party:  party,
       guests: collectGuests(),
-      year:  document.getElementById('year').value,
-      pref:  document.getElementById('pref').value,
-      notes: document.getElementById('notes').value.trim()
+      year:   document.getElementById('year').value,
+      pref:   document.getElementById('pref').value,
+      notes:  document.getElementById('notes').value.trim(),
+      adults: true
     };
-    setTimeout(function(){
-      confirmed(payload);
+
+    if (!ENDPOINT){
+      setTimeout(function(){
+        payload.reference = 'REHEARSAL';
+        done(payload);
+      }, 850);
+      return;
+    }
+
+    // text/plain keeps this a simple request, so the browser does not
+    // send a preflight that Apps Script cannot answer.
+    fetch(ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(res){
+      if (!res || res.ok !== true) throw new Error(res && res.error || 'Unknown error');
+      payload.reference = res.reference;
+      payload.updated = res.updated;
+      done(payload);
+    })
+    .catch(function(){
       btn.disabled = false;
       btn.firstChild.textContent = 'Send my reply ';
-    }, 850);
+      failed();
+    });
+
+    function done(data){
+      confirmed(data);
+      btn.disabled = false;
+      btn.firstChild.textContent = 'Send my reply ';
+    }
+
+    function failed(){
+      var wrap = document.getElementById('sendErr');
+      wrap.hidden = false;
+      wrap.focus();
+    }
   });
 
   function confirmed(data){
@@ -1788,6 +1854,9 @@ function rsvp(){
     document.getElementById('confirmSaid').textContent =
       'A place is held for ' + (data.party === 1 ? 'you' : data.party + ' of you') +
       ' on Friday 21 August. We have sent the details to ' + data.email + '.';
+    var refEl = document.getElementById('passRef');
+    if (refEl) refEl.textContent = data.reference || '\u2014';
+    document.getElementById('passRef').textContent = data.ref || 'Pending';
     drawPass(data);
     buildInvite(data);
 
@@ -1879,7 +1948,7 @@ function rsvp(){
   function drawPass(data){
     var cv = document.getElementById('passCode');
     var ctx = cv.getContext('2d'), N = 21, cell = cv.width / N;
-    var seedStr = data.name + '|' + data.email + '|' + data.party + '|PBIS-25-WCE';
+    var seedStr = data.ref || (data.name + '|' + data.email + '|' + data.party + '|PBIS-25-WCE');
     var h = 2166136261;
     for (var i=0;i<seedStr.length;i++){ h ^= seedStr.charCodeAt(i); h = Math.imul(h, 16777619); }
     function rnd(){ h ^= h<<13; h ^= h>>>17; h ^= h<<5; return (h>>>0)/4294967296; }
