@@ -65,6 +65,21 @@ h1,h2{font-family:var(--f-display);font-weight:500;margin:0;line-height:1.12;let
 .whoami.viewer{color:var(--stone);border-color:var(--line)}
 .whoami.viewer i{background:var(--stone)}
 .masked{opacity:.72;font-style:italic}
+.dupe-note{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;
+  padding:1.1rem 1.3rem;border:1px solid rgba(242,178,92,.45);
+  background:rgba(242,178,92,.08);margin-bottom:1.3rem}
+.dupe-ico{width:38px;height:38px;flex:none;display:grid;place-items:center;
+  border-radius:50%;border:1px solid rgba(242,178,92,.5)}
+.dupe-ico svg{width:17px;height:17px;stroke:var(--danger);fill:none;stroke-width:1.6;
+  stroke-linecap:round;stroke-linejoin:round}
+.dupe-body{flex:1;min-width:220px}
+.dupe-body b{display:block;font-family:var(--f-label);font-weight:600;font-size:.62rem;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--danger);margin-bottom:.3rem}
+.dupe-body span{font-size:.9rem;color:var(--stone);line-height:1.55}
+.row.is-dupe{background:rgba(242,178,92,.06)}
+.dupe-tag{display:inline-block;margin-left:.5rem;padding:.15rem .5rem;
+  font-family:var(--f-label);font-size:.48rem;letter-spacing:.16em;text-transform:uppercase;
+  border:1px solid rgba(242,178,92,.5);color:var(--danger)}
 .viewer-note{display:flex;gap:.6rem;align-items:flex-start;padding:.9rem 1.1rem;
   border:1px solid var(--line);background:rgba(244,241,232,.04);color:var(--stone);
   font-size:.9rem;margin-bottom:1.3rem}
@@ -251,6 +266,18 @@ input:-webkit-autofill,input:-webkit-autofill:focus{
       <div class="stat"><b id="sNotes">&mdash;</b><span class="label">With children listed</span></div>
     </div>
 
+    <div class="dupe-note hidden" id="dupeNote">
+      <span class="dupe-ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M9 9h10v10H9z"/><path d="M15 5H5v10"/></svg>
+      </span>
+      <span class="dupe-body">
+        <b id="dupeCount"></b>
+        <span>Usually a parent on a slow connection pressing send twice. Removing them
+          keeps the newest RSVP from each family and deletes the older copies.</span>
+      </span>
+      <button class="btn btn-solid" id="dedupe">Remove duplicates</button>
+    </div>
+
     <div class="viewer-note hidden" id="viewerNote">
       <span>You are signed in as a viewer. Email addresses are partly hidden and
         RSVPs cannot be deleted. Ask an administrator if you need either.</span>
@@ -427,7 +454,39 @@ function visible(){
   });
 }
 
+/* The same last eight digits means the same family. */
+function phoneKey(v){
+  var d = String(v || '').replace(/[^0-9]/g, '');
+  return d.length > 8 ? d.slice(-8) : d;
+}
+
+function markDuplicates(){
+  var seen = {}, dupes = 0;
+  // Newest first, so the copy we would keep is the one left unmarked.
+  var sorted = data.slice().sort(function(a,b){
+    return (new Date(b.ts)).getTime() - (new Date(a.ts)).getTime();
+  });
+  sorted.forEach(function(r){
+    var k = phoneKey(r.phone);
+    r.dupe = false;
+    if (!k) return;
+    if (seen[k]){ r.dupe = true; dupes++; } else seen[k] = true;
+  });
+  return dupes;
+}
+
 function render(){
+  var dupes = markDuplicates();
+  var note = $('dupeNote');
+  if (dupes > 0 && role === 'administrator'){
+    note.classList.remove('hidden');
+    $('dupeCount').textContent = dupes === 1
+      ? '1 duplicate RSVP found'
+      : dupes + ' duplicate RSVPs found';
+  } else {
+    note.classList.add('hidden');
+  }
+
   var live = data.filter(function(r){ return r.status !== 'Cancelled'; });
   $('sHeads').textContent = live.reduce(function(a,r){ return a + (r.party || 1); }, 0);
   $('sFam').textContent   = live.length;
@@ -442,9 +501,10 @@ function render(){
   var admin = role === 'administrator';
   $('rows').innerHTML = list.map(function(r){
     var st = r.status || 'Confirmed';
-    return '<div class="row" data-ref="' + esc(r.ref) + '">' +
+    return '<div class="row' + (r.dupe ? ' is-dupe' : '') + '" data-ref="' + esc(r.ref) + '">' +
       '<span class="seat" aria-hidden="true">' + (r.party || 1) + '</span>' +
-      '<div class="who"><b>' + esc(r.name) + '</b>' +
+      '<div class="who"><b>' + esc(r.name) +
+        (r.dupe ? '<span class="dupe-tag">Duplicate</span>' : '') + '</b>' +
         '<span' + (admin ? '' : ' class="masked"') + '>' + esc(r.email) + '</span>' +
         (r.guest ? '<span class="with">with ' + esc(r.guest) + '</span>' : '') +
 
@@ -490,6 +550,41 @@ $('rows').addEventListener('click', function(e){
       if (res && res.ok){ toast('Deleted ' + (row ? row.name : ref)); load(true); }
       else { b.disabled = false; toast(res && res.error === 'forbidden'
         ? 'Your account may not delete RSVPs.' : 'That row could not be deleted.'); }
+    })
+    .catch(function(){ b.disabled = false; toast('No connection.'); });
+});
+
+/* ---------------- duplicates ---------------- */
+$('dedupe').addEventListener('click', function(){
+  var b = this;
+  b.disabled = true;
+  // Ask the server what it would remove before letting anyone remove it.
+  api({ action:'dedupe', token:session, dryRun:true })
+    .then(function(res){
+      if (res && res.error === 'expired'){ expire(); return; }
+      if (!res || !res.ok){ b.disabled = false; toast('Could not check for duplicates.'); return; }
+      if (!res.duplicates){ b.disabled = false; toast('No duplicates to remove.'); load(true); return; }
+
+      var names = (res.families || []).map(function(f){
+        return '  \u2022 ' + f.name + ' (' + f.copies + ' copies)';
+      }).join('\n');
+
+      if (!confirm('Remove ' + res.duplicates + ' duplicate RSVP' +
+          (res.duplicates === 1 ? '' : 's') + '?\n\n' + names +
+          '\n\nThe most recent RSVP from each family is kept. The older copies ' +
+          'are deleted from the spreadsheet and cannot be undone here.')){
+        b.disabled = false;
+        return;
+      }
+
+      api({ action:'dedupe', token:session })
+        .then(function(r2){
+          b.disabled = false;
+          if (r2 && r2.ok){ toast('Removed ' + r2.removed + ' duplicate' +
+            (r2.removed === 1 ? '' : 's')); load(true); }
+          else toast('Could not remove the duplicates.');
+        })
+        .catch(function(){ b.disabled = false; toast('No connection.'); });
     })
     .catch(function(){ b.disabled = false; toast('No connection.'); });
 });
