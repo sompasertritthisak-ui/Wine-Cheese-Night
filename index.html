@@ -357,6 +357,8 @@ html.motion-on .goldline{transform:scaleX(0)}
 .field select option{background:var(--bg-2);color:var(--fg)}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent-solid)}
 .field .help{font-size:.76rem;color:var(--fg-2);margin-top:.5rem}
+.opt-tag{font-family:var(--f-ui);text-transform:none;letter-spacing:normal;
+  font-size:.8rem;color:var(--fg-2);margin-left:.15rem}
 .field .err{display:flex;align-items:center;gap:.45rem;font-size:.78rem;color:var(--danger);
   margin-top:.5rem;min-height:1.1rem;opacity:0;transition:opacity var(--t-micro)}
 .field.invalid input,.field.invalid select{border-color:var(--danger)}
@@ -715,17 +717,27 @@ html.modal-open,html.modal-open body{overflow:hidden}
 .guest-rows label{display:block;font-size:.58rem;letter-spacing:.24em;text-transform:uppercase;
   color:var(--fg-2);margin-bottom:.45rem}
 
-.check{display:flex;gap:1rem;align-items:flex-start;padding:1.1rem 1.2rem;cursor:pointer;
+/* The acknowledgement is a label inside .field, so it was inheriting the
+   uppercase Cinzel treatment meant for field captions, and the box was
+   inheriting the 52px minimum height meant for text inputs. Both reset. */
+.check{display:flex;gap:.9rem;align-items:center;padding:1rem 1.15rem;cursor:pointer;
   border:1px solid rgba(208,169,58,.34);background:rgba(208,169,58,.05);
+  font-family:var(--f-ui);font-size:.95rem;font-weight:400;letter-spacing:normal;
+  text-transform:none;color:var(--fg);margin:0;
   transition:border-color var(--t-micro) var(--e-out),background var(--t-micro) var(--e-out)}
 .check:hover{border-color:var(--gold);background:rgba(208,169,58,.09)}
-.check input{appearance:none;-webkit-appearance:none;flex:none;width:24px;height:24px;
-  margin:.15rem 0 0;border:1.5px solid var(--gold);background:transparent;cursor:pointer;
-  position:relative;border-radius:0;transition:background var(--t-micro) var(--e-out)}
+.check input{appearance:none;-webkit-appearance:none;flex:none;
+  width:22px;height:22px;min-height:22px;min-width:22px;padding:0;margin:0;
+  border:1.5px solid var(--gold);background:transparent;cursor:pointer;
+  position:relative;border-radius:2px;align-self:flex-start;margin-top:.15rem;
+  transition:background var(--t-micro) var(--e-out),box-shadow var(--t-micro)}
+.check input:hover{box-shadow:0 0 0 4px rgba(208,169,58,.12)}
 .check input:checked{background:var(--gold)}
-.check input:checked::after{content:"";position:absolute;left:7px;top:2px;width:7px;height:13px;
-  border:solid var(--forest-deep);border-width:0 2px 2px 0;transform:rotate(42deg)}
-.check span{font-family:var(--f-ui);font-size:.95rem;line-height:1.55;color:var(--fg)}
+.check input:checked::after{content:"";position:absolute;left:6.5px;top:2px;
+  width:6px;height:11px;border:solid var(--forest-deep);border-width:0 2px 2px 0;
+  transform:rotate(42deg)}
+.check span{font-family:var(--f-ui);font-size:.95rem;font-weight:400;line-height:1.5;
+  letter-spacing:normal;text-transform:none;color:var(--fg);margin:0}
 .check.invalid{border-color:var(--danger);background:rgba(242,178,92,.08)}
 .check-err{min-height:1.1rem;margin-top:.55rem;font-family:var(--f-ui);font-size:.78rem;
   color:var(--danger);opacity:0;transition:opacity var(--t-micro)}
@@ -1774,9 +1786,9 @@ body{padding-top:0}
         </div>
 
         <div class="field" id="f-notes">
-          <label for="notes">Dietary requirements, childcare, anything else</label>
+          <label for="notes"><span data-t="f.message">Message</span> <span class="opt-tag">(optional)</span></label>
           <textarea id="notes" name="notes" rows="3"></textarea>
-          <div class="help">Vegetarian and halal boards are on the table as standard. Please tell us about any allergies, childcare or anything else here.</div>
+          <div class="help" data-t="f.messageHelp">Allergies, childcare, or anything else we should know. Vegetarian and halal boards are on the table as standard.</div>
         </div>
 
         <div class="check-err" id="submitErr" role="alert" style="margin-bottom:1.2rem"></div>
@@ -2491,19 +2503,11 @@ function rsvp(){
     btn.disabled = true;
     document.getElementById('submitLabel').textContent = 'Sending';
 
-    /* ----------------------------------------------------------------
-       ENDPOINT
-       Paste the Web App URL you get when you deploy Code.gs, and use
-       the same TOKEN in both files. Until the URL is filled in, the
-       form runs in rehearsal mode: everything behaves normally but
-       nothing is written to the sheet.
-       ---------------------------------------------------------------- */
-    var ENDPOINT = '';
-    var TOKEN    = 'pbis-25-wce-7Kq2VmT9';
-
+    /* ENDPOINT is declared once at the top of this script. Do not
+       redeclare it here: a local copy shadows the real one and every
+       RSVP silently runs in rehearsal mode. */
     var payload = {
       action: 'create',
-      token:  TOKEN,
       name:   document.getElementById('name').value.trim(),
       email:  document.getElementById('email').value.trim(),
       party:  party,
@@ -2515,10 +2519,13 @@ function rsvp(){
     };
 
     if (!ENDPOINT){
+      // No web app configured. Say so plainly rather than showing a
+      // confirmation for something that was never recorded.
+      console.warn('No ENDPOINT set — this RSVP was not saved.');
       setTimeout(function(){
-        payload.reference = 'REHEARSAL';
+        payload.reference = 'NOT SAVED — no endpoint configured';
         done(payload);
-      }, 850);
+      }, 600);
       return;
     }
 
@@ -2532,11 +2539,12 @@ function rsvp(){
     .then(function(r){ return r.json(); })
     .then(function(res){
       if (!res || res.ok !== true) throw new Error(res && res.error || 'Unknown error');
-      payload.reference = res.reference;
+      payload.reference = res.ref || res.reference;
       payload.updated = res.updated;
       done(payload);
     })
-    .catch(function(){
+    .catch(function(err){
+      console.error('RSVP could not be saved:', err);
       btn.disabled = false;
       var lbl = document.getElementById('submitLabel');
       lbl.textContent = lbl.getAttribute('data-en') || 'Send my RSVP';
@@ -2977,7 +2985,9 @@ var T = {
   'map.sub':{lo:'ວິທຍາເຂດມັທທະຍົມ PBIS · ເດີ່ນບອນເຕະ',th:'วิทยาเขตมัธยม PBIS · สนามฟุตบอล',zh:'PBIS 中学部校区 · 足球场区域',vi:'Cơ sở Trung học PBIS · khu sân bóng',ko:'PBIS 중등부 캠퍼스 · 축구장',ja:'PBIS中等部キャンパス · サッカー場',fr:'Campus secondaire PBIS · terrain de football'},
   'map.cta':{lo:'ດູເສ໊ນທາງ',th:'ดูเส้นทาง',zh:'查看路线',vi:'Xem chỉ đường',ko:'길찾기',ja:'ルートを見る',fr:'Itinéraire'},
   'map.cta2':{lo:'ເສ໊ນທາງ',th:'䃢ส้นทาง',zh:'路线',vi:'Chỉ đường',ko:'길찾기',ja:'ルート',fr:'Itinéraire'},
-  'map.note':{lo:'ຈອດລົດໄດ້ທາງຂ້າງວິທຍາເຂດ. ເຂົ້າປະຕູໃໝ່ ແລ້ວເດີນຕາມໂຄມໄຟໄປທີ່ເດີ່ນບອນເຕະ — ປະມານ 2 ນາທີຊ້ົນ',th:'จอดรถได้ที่ถนนข้างโรงเรียน เข้าทางประตูหลัก แล้วเดินตามโคมไฟไปสนามฟุตบอล — เดินราว 2 นาที',zh:'可在校园侧路停车，从正门进入后沿灯笼步行约两分钟即到足球场。',vi:'Có chỗ đậu xe ở đường bên cạnh trường. Vào cổng chính và đi theo đèn lồng khoảng hai phút.',ko:'학교 옆 도로에 주차하시고, 정문으로 들어와 등을 따라 두 분가량 걸으세요.',ja:'駐車は校地横の道路へ。正門から入り、灯籠に沿って徒歩2分です。',fr:'Stationnement sur la voie latérale du campus. Entrez par le portail principal et suivez les lanternes, deux minutes à pied.'}
+  'map.note':{lo:'ຈອດລົດໄດ້ທາງຂ້າງວິທຍາເຂດ. ເຂົ້າປະຕູໃໝ່ ແລ້ວເດີນຕາມໂຄມໄຟໄປທີ່ເດີ່ນບອນເຕະ — ປະມານ 2 ນາທີຊ້ົນ',th:'จอดรถได้ที่ถนนข้างโรงเรียน เข้าทางประตูหลัก แล้วเดินตามโคมไฟไปสนามฟุตบอล — เดินราว 2 นาที',zh:'可在校园侧路停车，从正门进入后沿灯笼步行约两分钟即到足球场。',vi:'Có chỗ đậu xe ở đường bên cạnh trường. Vào cổng chính và đi theo đèn lồng khoảng hai phút.',ko:'학교 옆 도로에 주차하시고, 정문으로 들어와 등을 따라 두 분가량 걸으세요.',ja:'駐車は校地横の道路へ。正門から入り、灯籠に沿って徒歩2分です。',fr:'Stationnement sur la voie latérale du campus. Entrez par le portail principal et suivez les lanternes, deux minutes à pied.'},
+  'f.message':{lo:'ຂໍ້ຄວາມ',th:'ข้อความ',zh:'留言',vi:'Lời nhắn',ko:'메시지',ja:'メッセージ',fr:'Message'},
+  'f.messageHelp':{lo:'ອາການແພ້, ການເບິ່ງແຍງເດັກ, ຫຼືສິ່ງອື່ນທີ່ຄວນຮູ້. ມີອາຫານເຈ ແລະ ຮາລານ ຕະຫຼອດ.',th:'การแพ้อาหาร การดูแลเด็ก หรือสิ่งอื่นที่ควรทราบ มีอาหารมังสวิรัติและฮาลาลตลอดงาน',zh:'过敏、儿童看护，或其他需要告知的事。现场备有素食与清真选项。',vi:'Dị ứng, trông trẻ, hoặc bất cứ điều gì khác. Luôn có lựa chọn chay và halal.',ko:'알레르기, 아이 돌봄, 그 밖에 알려주실 점. 채식과 할랄 음식이 기본으로 준비됩니다.',ja:'アレルギー、お子さまの見守りなどご自由に。ベジタリアンとハラールもご用意します。',fr:'Allergies, garde d’enfants, ou toute autre précision. Options végétariennes et halal servies d’office.'}
 };
 
 function language(){
