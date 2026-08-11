@@ -208,7 +208,7 @@ input:-webkit-autofill,input:-webkit-autofill:focus{
     <div class="crest" role="img" aria-label="Panyathip British International School"></div>
     <p class="label">Parent Appreciation Wine &amp; Cheese Evening</p>
     <h1>The RSVP list</h1>
-    <p class="sub">Friday 21 August 2026</p>
+    <p class="sub">Friday 4 September 2026</p>
     <label class="label" for="usr">Username</label>
     <input type="text" id="usr" autocomplete="username" spellcheck="false" autocapitalize="none">
     <label class="label" for="pwd">Password</label>
@@ -224,7 +224,7 @@ input:-webkit-autofill,input:-webkit-autofill:focus{
     <div class="crest" role="img" aria-label="PBIS"></div>
     <div class="bar-id">
       <b>Wine &amp; Cheese Evening</b>
-      <span>Friday 21 August 2026 &middot; Secondary Campus</span>
+      <span>Friday 4 September 2026 &middot; Secondary Campus</span>
     </div>
     <div class="bar-actions">
       <button class="btn" id="refresh">
@@ -248,7 +248,7 @@ input:-webkit-autofill,input:-webkit-autofill:focus{
       <div class="stat hero-stat"><b id="sHeads">&mdash;</b><span class="label">Coming</span></div>
       <div class="stat"><b id="sFam">&mdash;</b><span class="label">Families</span></div>
       <div class="stat"><b id="sPairs">&mdash;</b><span class="label">Coming as a pair</span></div>
-      <div class="stat"><b id="sNotes">&mdash;</b><span class="label">Needs attention</span></div>
+      <div class="stat"><b id="sNotes">&mdash;</b><span class="label">With children listed</span></div>
     </div>
 
     <div class="viewer-note hidden" id="viewerNote">
@@ -258,7 +258,7 @@ input:-webkit-autofill,input:-webkit-autofill:focus{
 
     <p class="deadline">
       <b id="cdLabel">RSVP closes</b>
-      <span id="cdText">Tuesday 18 August 2026</span>
+      <span id="cdText">Friday 28 August 2026</span>
     </p>
 
     <div class="tools">
@@ -267,7 +267,7 @@ input:-webkit-autofill,input:-webkit-autofill:focus{
       </span>
       <span class="chips" role="group" aria-label="Filter">
         <button class="chip" data-f="all" aria-pressed="true">All</button>
-        <button class="chip" data-f="notes" aria-pressed="false">With notes</button>
+        <button class="chip" data-f="notes" aria-pressed="false">With children</button>
         <button class="chip" data-f="pairs" aria-pressed="false">Pairs</button>
         <button class="chip" data-f="cancelled" aria-pressed="false">Cancelled</button>
       </span>
@@ -277,7 +277,7 @@ input:-webkit-autofill,input:-webkit-autofill:focus{
     <div class="list" id="list">
       <div class="row head" aria-hidden="true">
         <span></span><span>Guest</span><span>Reference</span>
-        <span>Year group &middot; drink</span><span class="status">Status</span><span></span>
+        <span>Children</span><span class="status">Status</span><span></span>
       </div>
       <div id="rows"></div>
       <div class="empty hidden" id="empty">
@@ -417,12 +417,12 @@ function esc(v){
 function visible(){
   var q = ($('q').value || '').toLowerCase();
   return data.filter(function(r){
-    if (filter === 'notes' && !(r.notes || '').trim()) return false;
+    if (filter === 'notes' && !(r.children || '').trim()) return false;
     if (filter === 'pairs' && r.party !== 2) return false;
     if (filter === 'cancelled' && r.status !== 'Cancelled') return false;
     if (filter !== 'cancelled' && filter !== 'all' && r.status === 'Cancelled') return false;
     if (!q) return true;
-    return (r.name + ' ' + r.email + ' ' + r.ref + ' ' + r.guest + ' ' + r.notes)
+    return (r.name + ' ' + r.email + ' ' + r.phone + ' ' + r.ref + ' ' + r.guest + ' ' + r.children)
       .toLowerCase().indexOf(q) > -1;
   });
 }
@@ -432,7 +432,7 @@ function render(){
   $('sHeads').textContent = live.reduce(function(a,r){ return a + (r.party || 1); }, 0);
   $('sFam').textContent   = live.length;
   $('sPairs').textContent = live.filter(function(r){ return r.party === 2; }).length;
-  $('sNotes').textContent = live.filter(function(r){ return (r.notes || '').trim(); }).length;
+  $('sNotes').textContent = live.filter(function(r){ return (r.children || '').trim(); }).length;
 
   var list = visible();
   $('count').textContent = list.length + (list.length === 1 ? ' RSVP' : ' RSVPs');
@@ -447,13 +447,10 @@ function render(){
       '<div class="who"><b>' + esc(r.name) + '</b>' +
         '<span' + (admin ? '' : ' class="masked"') + '>' + esc(r.email) + '</span>' +
         (r.guest ? '<span class="with">with ' + esc(r.guest) + '</span>' : '') +
-        (r.notes ? '<span class="note-flag"><svg viewBox="0 0 24 24"><path d="M12 8v5"/>' +
-          '<circle cx="12" cy="16.5" r=".6"/><circle cx="12" cy="12" r="9"/></svg>' +
-          esc(r.notes) + '</span>' : '') +
+
       '</div>' +
       '<span class="ref">' + esc(r.ref) + '</span>' +
-      '<span class="meta"><em>' + esc(r.year || '\u2014') + '</em>' +
-        esc(r.pref || 'No preference') + '</span>' +
+      '<span class="meta">' + (r.children ? esc(r.children) : '<em>\u2014</em>') + '</span>' +
       '<span class="status"><span class="pill ' + st.toLowerCase() + '">' + esc(st) + '</span></span>' +
       '<span class="act">' + (admin
         ? '<button class="icon-btn" data-del="' + esc(r.ref) + '" ' +
@@ -510,9 +507,9 @@ $('emails').addEventListener('click', function(){
 
 $('csv').addEventListener('click', function(){
   if (role !== 'administrator'){ toast('Only an administrator can export the list.'); return; }
-  var head = ['Reference','Name','Email','Party','Guest','Year group','Drink','Notes','Status'];
+  var head = ['Reference','Name','Phone','Email','Party','Guest','Children','Status'];
   var body = data.map(function(r){
-    return [r.ref,r.name,r.email,r.party,r.guest,r.year,r.pref,r.notes,r.status]
+    return [r.ref,r.name,r.phone,r.email,r.party,r.guest,r.children,r.status]
       .map(function(v){ return '"' + String(v == null ? '' : v).replace(/"/g,'""') + '"'; })
       .join(',');
   });
@@ -527,18 +524,18 @@ $('csv').addEventListener('click', function(){
 
 /* ---------------- deadline ---------------- */
 function countdown(){
-  var end = new Date('2026-08-18T23:59:59+07:00').getTime();
+  var end = new Date('2026-08-28T23:59:59+07:00').getTime();
   function tick(){
     var left = end - Date.now();
     if (left <= 0){
       $('cdLabel').textContent = 'RSVP closed';
-      $('cdText').textContent = 'Tuesday 18 August 2026';
+      $('cdText').textContent = 'Friday 28 August 2026';
       return;
     }
     var d = Math.floor(left/86400000), h = Math.floor(left/3600000) % 24;
     $('cdLabel').textContent = 'RSVP closes in';
     $('cdText').textContent = d + (d === 1 ? ' day ' : ' days ') + h +
-      (h === 1 ? ' hour' : ' hours') + ' \u00b7 Tuesday 18 August 2026';
+      (h === 1 ? ' hour' : ' hours') + ' \u00b7 Friday 28 August 2026';
     setTimeout(tick, 60000);
   }
   tick();
