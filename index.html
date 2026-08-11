@@ -381,15 +381,17 @@ html.motion-on .goldline{transform:scaleX(0)}
 .tick path{stroke-dasharray:44;stroke-dashoffset:44;stroke-width:2}
 .confirm h3{font-size:clamp(1.8rem,4vw,2.6rem);margin-bottom:.6rem}
 .confirm .said{color:var(--fg-2);font-size:.9rem;margin-bottom:2.4rem}
-.pass{border:1px solid var(--accent-dim);background:var(--bg-3);padding:clamp(1.4rem,3vw,2rem);
-  display:grid;grid-template-columns:auto 1fr;gap:clamp(1.2rem,3vw,2rem);align-items:center;text-align:left}
-.pass canvas{width:112px;height:112px;background:var(--white);padding:8px;flex:none}
+.pass{border:1px solid var(--accent-dim);background:var(--bg-3);
+  padding:clamp(1.4rem,3vw,2rem);text-align:left}
+
+.pass-where{display:block;margin-top:.35rem;font-family:var(--f-ui);font-size:.92rem}
+.pass-where a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-dim)}
+.pass-where a:hover{border-color:var(--accent)}
 .pass .pdata dt{font-size:.58rem;letter-spacing:.26em;text-transform:uppercase;color:var(--accent-solid);margin-bottom:.25rem}
-.pass .pdata dd{margin:0 0 .9rem;font-family:var(--f-ui);font-weight:500;font-size:1.2rem;line-height:1.2}
+.pass .pdata dd{margin:0 0 1.1rem;font-family:var(--f-ui);font-weight:500;font-size:1.2rem;line-height:1.2}
 .pass .pdata dd:last-child{margin-bottom:0}
 .pass-note{font-size:.7rem;color:var(--fg-2);margin-top:1rem;text-align:left;letter-spacing:.02em}
-@media (max-width:520px){.pass{grid-template-columns:1fr;justify-items:center;text-align:center}
-  .pass .pdata{text-align:center}}
+@media (max-width:520px){.pass{text-align:left}}
 
 /* Footer */
 .foot{padding:2.6rem var(--gutter) 3.4rem;border-top:1px solid var(--hair);
@@ -1851,16 +1853,17 @@ body{padding-top:0}
       <p class="said" id="confirmSaid"></p>
 
       <div class="pass" id="pass">
-        <canvas id="passCode" width="224" height="224" role="img" aria-label="Guest pass code"></canvas>
         <dl class="pdata">
-          <dt>Guest</dt><dd id="passName">—</dd>
-          <dt>Reference</dt><dd id="passRef">—</dd>
-          <dt>Party</dt><dd id="passParty">—</dd>
-          <dt>Friday 21 August 2026</dt><dd>5:30 PM &middot; Secondary Campus</dd>
-          <dt>Reference</dt><dd id="passRef">&mdash;</dd>
+          <dt data-t="pass.guest">Guest</dt><dd id="passName">&mdash;</dd>
+          <dt data-t="pass.party">Your party</dt><dd id="passParty">&mdash;</dd>
+          <dt data-t="pass.when">Friday 21 August 2026</dt>
+          <dd>5:30 &ndash; 8:30 PM<span class="pass-where">
+            <a href="https://maps.app.goo.gl/JstxKuhuFRgiBN7v7" target="_blank" rel="noopener"
+               data-t="pass.where">PBIS Secondary Campus &middot; football field area</a></span></dd>
+          <dt data-t="pass.ref">Reference</dt><dd id="passRef">&mdash;</dd>
         </dl>
       </div>
-      <p class="pass-note">Please show this at the gate on the evening. A copy is on its way to your inbox.</p>
+      <p class="pass-note">Please show this at the gate on the evening. A confirmation is on its way to your inbox.</p>
         </div>
 
     <div class="modal-actions">
@@ -2580,7 +2583,6 @@ function rsvp(){
     var refEl = document.getElementById('passRef');
     if (refEl) refEl.textContent = data.reference || '\u2014';
     document.getElementById('passRef').textContent = data.ref || 'Pending';
-    drawPass(data);
     buildInvite(data);
 
     openModal(modal, card);
@@ -2667,31 +2669,7 @@ function rsvp(){
     } catch(e){ btn.style.display = 'none'; }
   }
 
-  // Guest pass mark. Deterministic from the guest's own details, so
-  // two people never get the same one. Swap the drawing call for your
-  // ticketing provider's QR when the backend is wired up.
-  function drawPass(data){
-    var cv = document.getElementById('passCode');
-    var ctx = cv.getContext('2d'), N = 21, cell = cv.width / N;
-    var seedStr = data.ref || (data.name + '|' + data.email + '|' + data.party + '|PBIS-25-WCE');
-    var h = 2166136261;
-    for (var i=0;i<seedStr.length;i++){ h ^= seedStr.charCodeAt(i); h = Math.imul(h, 16777619); }
-    function rnd(){ h ^= h<<13; h ^= h>>>17; h ^= h<<5; return (h>>>0)/4294967296; }
 
-    ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0,0,cv.width,cv.height);
-    ctx.fillStyle = '#0A3220';
-    function finder(ox,oy){
-      ctx.fillRect(ox*cell, oy*cell, 7*cell, 7*cell);
-      ctx.fillStyle = '#FFFFFF'; ctx.fillRect((ox+1)*cell,(oy+1)*cell,5*cell,5*cell);
-      ctx.fillStyle = '#0A3220'; ctx.fillRect((ox+2)*cell,(oy+2)*cell,3*cell,3*cell);
-    }
-    for (var y=0;y<N;y++) for (var x=0;x<N;x++){
-      var inFinder = (x<8&&y<8)||(x>N-9&&y<8)||(x<8&&y>N-9);
-      if (inFinder) continue;
-      if (rnd() > 0.52) ctx.fillRect(x*cell, y*cell, cell, cell);
-    }
-    finder(0,0); finder(N-7,0); finder(0,N-7);
-  }
 }
 
 /* ============================================================
@@ -2987,7 +2965,12 @@ var T = {
   'map.cta2':{lo:'ເສ໊ນທາງ',th:'䃢ส้นทาง',zh:'路线',vi:'Chỉ đường',ko:'길찾기',ja:'ルート',fr:'Itinéraire'},
   'map.note':{lo:'ຈອດລົດໄດ້ທາງຂ້າງວິທຍາເຂດ. ເຂົ້າປະຕູໃໝ່ ແລ້ວເດີນຕາມໂຄມໄຟໄປທີ່ເດີ່ນບອນເຕະ — ປະມານ 2 ນາທີຊ້ົນ',th:'จอดรถได้ที่ถนนข้างโรงเรียน เข้าทางประตูหลัก แล้วเดินตามโคมไฟไปสนามฟุตบอล — เดินราว 2 นาที',zh:'可在校园侧路停车，从正门进入后沿灯笼步行约两分钟即到足球场。',vi:'Có chỗ đậu xe ở đường bên cạnh trường. Vào cổng chính và đi theo đèn lồng khoảng hai phút.',ko:'학교 옆 도로에 주차하시고, 정문으로 들어와 등을 따라 두 분가량 걸으세요.',ja:'駐車は校地横の道路へ。正門から入り、灯籠に沿って徒歩2分です。',fr:'Stationnement sur la voie latérale du campus. Entrez par le portail principal et suivez les lanternes, deux minutes à pied.'},
   'f.message':{lo:'ຂໍ້ຄວາມ',th:'ข้อความ',zh:'留言',vi:'Lời nhắn',ko:'메시지',ja:'メッセージ',fr:'Message'},
-  'f.messageHelp':{lo:'ອາການແພ້, ການເບິ່ງແຍງເດັກ, ຫຼືສິ່ງອື່ນທີ່ຄວນຮູ້. ມີອາຫານເຈ ແລະ ຮາລານ ຕະຫຼອດ.',th:'การแพ้อาหาร การดูแลเด็ก หรือสิ่งอื่นที่ควรทราบ มีอาหารมังสวิรัติและฮาลาลตลอดงาน',zh:'过敏、儿童看护，或其他需要告知的事。现场备有素食与清真选项。',vi:'Dị ứng, trông trẻ, hoặc bất cứ điều gì khác. Luôn có lựa chọn chay và halal.',ko:'알레르기, 아이 돌봄, 그 밖에 알려주실 점. 채식과 할랄 음식이 기본으로 준비됩니다.',ja:'アレルギー、お子さまの見守りなどご自由に。ベジタリアンとハラールもご用意します。',fr:'Allergies, garde d’enfants, ou toute autre précision. Options végétariennes et halal servies d’office.'}
+  'f.messageHelp':{lo:'ອາການແພ້, ການເບິ່ງແຍງເດັກ, ຫຼືສິ່ງອື່ນທີ່ຄວນຮູ້. ມີອາຫານເຈ ແລະ ຮາລານ ຕະຫຼອດ.',th:'การแพ้อาหาร การดูแลเด็ก หรือสิ่งอื่นที่ควรทราบ มีอาหารมังสวิรัติและฮาลาลตลอดงาน',zh:'过敏、儿童看护，或其他需要告知的事。现场备有素食与清真选项。',vi:'Dị ứng, trông trẻ, hoặc bất cứ điều gì khác. Luôn có lựa chọn chay và halal.',ko:'알레르기, 아이 돌봄, 그 밖에 알려주실 점. 채식과 할랄 음식이 기본으로 준비됩니다.',ja:'アレルギー、お子さまの見守りなどご自由に。ベジタリアンとハラールもご用意します。',fr:'Allergies, garde d’enfants, ou toute autre précision. Options végétariennes et halal servies d’office.'},
+  'pass.guest':{lo:'ຜູ້ຮ່ວມງານ',th:'ผู้ร่วมงาน',zh:'宾客',vi:'Khách mời',ko:'참석자',ja:'ご芳名',fr:'Invité'},
+  'pass.party':{lo:'ຈຳນວນຜູ້ມາຮ່ວມ',th:'จำนวนผู้ร่วมงาน',zh:'人数',vi:'Số người',ko:'인원',ja:'ご人数',fr:'Votre groupe'},
+  'pass.when':{lo:'ວັນສຸກ ທີ 21 ສິງຫາ 2026',th:'วันศุกร์ที่ 21 สิงหาคม 2026',zh:'2026年8月21日星期五',vi:'Thứ Sáu, 21 tháng 8 năm 2026',ko:'2026년 8월 21일 금요일',ja:'2026年8月21日（金）',fr:'Vendredi 21 août 2026'},
+  'pass.where':{lo:'ວິທະຍາເຂດມັດທະຍົມ PBIS · ເດີ່ນບອນເຕະ',th:'วิทยาเขตมัธยม PBIS · สนามฟุตบอล',zh:'PBIS 中学部校区 · 足球场区域',vi:'Cơ sở Trung học PBIS · khu sân bóng',ko:'PBIS 중등부 캠퍼스 · 축구장',ja:'PBIS中等部キャンパス · サッカー場',fr:'Campus secondaire PBIS · terrain de football'},
+  'pass.ref':{lo:'ເລກອ້າງອີງ',th:'เลขอ้างอิง',zh:'编号',vi:'Mã tham chiếu',ko:'참조 번호',ja:'受付番号',fr:'Référence'}
 };
 
 function language(){
