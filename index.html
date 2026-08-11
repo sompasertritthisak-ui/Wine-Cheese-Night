@@ -1368,7 +1368,7 @@ html.modal-open,html.modal-open body{overflow:hidden}
              Secondary Campus ->  Primary Campus
          The reply deadline (Friday 28 August) appears in the hero,
          the card header, step 3, the details grid and the countdown
-         in the script. The .ics dates live in buildInvite().
+         in the script. The email's dates live in EVENT in Code.gs.
          The running order in section 03 also needs its times shifted.
          ══════════════════════════════════════════════════════════════ -->
     <div class="wordmark hero-phase" data-phase="2">
@@ -1700,9 +1700,6 @@ html.modal-open,html.modal-open body{overflow:hidden}
       <a class="btn" href="https://maps.app.goo.gl/JstxKuhuFRgiBN7v7" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" aria-hidden="true" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7"><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg>
         <span data-t="map.cta2">Directions</span>
-      </a>
-      <a class="btn" id="icsBtn" href="#" download="PBIS-Wine-and-Cheese-Night.ics">
-        <span data-t="confirm.cal">Add to calendar</span> <span class="arrow" aria-hidden="true">&darr;</span>
       </a>
       <button type="button" class="btn btn-ghost" data-close data-t="confirm.close">Close</button>
     </div>
@@ -2346,7 +2343,6 @@ function rsvp(){
       ' on Friday 4 September.' +
       (data.email && !data.blind ? ' We have sent the details to ' + data.email + '.' :
        data.email ? ' A confirmation is on its way to ' + data.email + '.' : '');
-    buildInvite(data);
 
     openModal(modal, card);
 
@@ -2403,31 +2399,7 @@ function rsvp(){
     }
   }
 
-  function buildInvite(data){
-    var btn = document.getElementById('icsBtn');
-    if (!btn) return;
-    var kids = (data.children || []).map(function(c){ return c.name + ' (' + c.year + ')'; }).join(', ');
-    var ics = [
-      'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//PBIS//Wine and Cheese Night//EN',
-      'BEGIN:VEVENT',
-      'UID:pbis-wcn-4sep2026@pbis.edu.la',
-      'DTSTAMP:20260811T000000Z',
-      'DTSTART:20260904T103000Z',   // 17:30 Vientiane, UTC+7
-      'DTEND:20260904T133000Z',     // 20:30 Vientiane
-      'SUMMARY:PBIS Parent Appreciation Wine & Cheese Night',
-      'LOCATION:PBIS Secondary Campus, Football Field Area, Saphanthong Neua, Sisattanak, Vientiane',
-      'GEO:17.95414;102.6316592',
-      'DESCRIPTION:Reserved for ' + data.name +
-        (data.guests.length ? ' with ' + data.guests.join(', ') : '') +
-        ' (' + data.party + ' in total). An evening for adults. Smart casual. ' +
-        (kids ? 'Children at PBIS: ' + kids + '. ' : '') +
-        'Map: https://maps.app.goo.gl/JstxKuhuFRgiBN7v7',
-      'END:VEVENT','END:VCALENDAR'
-    ].join('\r\n');
-    try {
-      btn.href = URL.createObjectURL(new Blob([ics], { type:'text/calendar;charset=utf-8' }));
-    } catch(e){ btn.style.display = 'none'; }
-  }
+
 }
 
 /* ============================================================
@@ -2660,7 +2632,6 @@ var T = {
   'f.alone':{lo:'ມາຄົນດຽວ',th:'มาคนเดียว',zh:'仅本人',vi:'Chỉ mình tôi',ko:'혼자',ja:'ひとりで',fr:'Seul(e)'},
   'f.pair':{lo:'ມາສອງຄົນ',th:'มาสองท่าน',zh:'两位',vi:'Hai người',ko:'두 명',ja:'ふたりで',fr:'À deux'},
   'confirm.title':{lo:'ການຈອງຂອງທ່ານໄດ້ຮັບການຢືນຢັນແລ້ວ',th:'ยืนยันที่นั่งของท่านแล้ว',zh:'您的席位已确认',vi:'Chỗ của bạn đã được xác nhận',ko:'자리가 확정되었습니다',ja:'お席が確定しました',fr:'Votre place est confirmée'},
-  'confirm.cal':{lo:'ເພີ່ມໃສ່ປະຕິທິນ',th:'เพิ่มลงในปฏิทิน',zh:'加入日历',vi:'Thêm vào lịch',ko:'캘린더에 추가',ja:'カレンダーに追加',fr:'Ajouter au calendrier'},
   'confirm.close':{lo:'ປິດ',th:'ปิด',zh:'关闭',vi:'Đóng',ko:'닫기',ja:'閉じる',fr:'Fermer'},
   'foot.thanks':{lo:'ຂອບໃຈທີ່ເປັນສ່ວນໜຶ່ງຂອງການເດີນທາງຂອງພວກເຮົາ',th:'ขอบคุณที่เป็นส่วนหนึ่งของการเดินทางของเรา',zh:'感谢您与我们同行',vi:'Cảm ơn bạn đã đồng hành cùng chúng tôi',ko:'저희 여정에 함께해 주셔서 감사합니다',ja:'私たちの歩みを共にしてくださりありがとうございます',fr:'Merci de faire partie de notre histoire'},
   'gate.reassure':{lo:'ການຕອບຮັບໃຊ້ເວລາປະມານ 1 ນາທີ',th:'ใช้เวลาตอบรับราว 1 นาที',zh:'回覆约需一分钟',vi:'Chỉ mất khoảng một phút',ko:'회신은 1분이면 충분합니다',ja:'返信は1分ほどです',fr:'La réponse prend une minute'},
