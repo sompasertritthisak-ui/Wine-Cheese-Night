@@ -1099,6 +1099,44 @@ html.modal-open,html.modal-open body{overflow:hidden}
   .modal-actions .btn{width:100%;justify-content:center}}
 
 /* ============================================================
+   THE FOOTNOTES
+   Quiet by design. The privacy line matters most: this page now
+   collects a parent's number and a child's name, and a school
+   that says nothing about that looks careless.
+   ============================================================ */
+.foot{display:block;padding:clamp(2.4rem,5vw,3.4rem) var(--gutter)
+  calc(clamp(2.4rem,5vw,3.4rem) + env(safe-area-inset-bottom));
+  border-top:1px solid var(--hair);background:var(--bg);text-transform:none;
+  letter-spacing:normal;font-family:var(--f-ui)}
+.foot-top{display:flex;gap:1.4rem 2rem;justify-content:space-between;
+  align-items:center;flex-wrap:wrap}
+.foot-brand{display:flex;align-items:center;gap:1.2rem}
+.foot-brand b{display:block;font-family:var(--f-label);font-weight:600;font-size:.62rem;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--cream);line-height:1.6}
+.foot-brand a{display:block;font-family:var(--f-ui);font-size:.9rem;color:var(--fg-2);
+  text-decoration:none;border-bottom:1px solid rgba(208,169,58,.28);
+  padding-bottom:1px;width:fit-content;letter-spacing:normal;text-transform:none}
+.foot-brand a:hover{color:var(--gold-lit);border-color:var(--gold)}
+.foot-years{font-family:var(--f-label);font-size:.58rem;letter-spacing:.26em;
+  text-transform:uppercase;color:var(--accent)}
+.foot-rule{height:1px;margin:clamp(1.6rem,3.5vw,2.2rem) 0;
+  background:linear-gradient(90deg,rgba(208,169,58,.4),rgba(244,241,232,.08) 60%,transparent)}
+.foot-deadline{margin:0 0 1.2rem;font-size:.95rem;color:var(--cream);max-width:62ch}
+.foot-deadline a{color:var(--accent);text-decoration:none;
+  border-bottom:1px solid var(--accent-dim)}
+.foot-deadline a:hover{border-color:var(--accent)}
+.foot-notes{display:grid;gap:.6rem;max-width:70ch}
+.foot-notes p{margin:0;font-size:.82rem;line-height:1.65;color:var(--fg-2)}
+.foot-legal{display:flex;flex-wrap:wrap;gap:.5rem .8rem;align-items:center;
+  margin:clamp(1.6rem,3.5vw,2.2rem) 0 0;font-family:var(--f-label);
+  font-size:.54rem;letter-spacing:.22em;text-transform:uppercase;color:var(--fg-2);opacity:.75}
+.foot-legal .sep{color:var(--accent-solid)}
+@media (max-width:640px){
+  .foot-top{flex-direction:column;align-items:flex-start;gap:1.1rem}
+  .foot-brand{gap:1rem}
+}
+
+/* ============================================================
    §19 — REDUCED MOTION. Atmosphere off, function intact.
    ============================================================ */
 @media (prefers-reduced-motion:reduce){
@@ -1594,13 +1632,34 @@ html.modal-open,html.modal-open body{overflow:hidden}
 </div>
 
 <footer class="foot">
-  <span class="foot-brand">
-    <span class="crest crest-sm" role="img"
-          aria-label="Panyathip British International School"></span>
-    <span>Panyathip British International School<br>
-      <a href="https://maps.app.goo.gl/JstxKuhuFRgiBN7v7" target="_blank" rel="noopener">Secondary Campus, Vientiane</a></span>
-  </span>
-  <span><a href="tel:+8562093592444">+856 20 935 924 440</a></span>
+  <div class="foot-top">
+    <span class="foot-brand">
+      <span class="crest crest-sm" role="img"
+            aria-label="Panyathip British International School"></span>
+      <span>
+        <b>Panyathip British International School</b>
+        <a href="https://maps.app.goo.gl/JstxKuhuFRgiBN7v7" target="_blank" rel="noopener">Secondary Campus, Vientiane</a>
+      </span>
+    </span>
+    <span class="foot-years" data-t="foot.years">Celebrating twenty-five years &middot; 2001&ndash;2026</span>
+  </div>
+
+  <div class="foot-rule" aria-hidden="true"></div>
+
+  <p class="foot-deadline" data-t="foot.deadline">RSVP closes Friday 28 August 2026. If you have not
+    replied yet, there is still time &mdash; <a href="#rsvp">it takes about a minute</a>.</p>
+
+  <div class="foot-notes">
+    <p data-t="foot.privacy">The details you give us are used only to plan this evening. They are held
+      by the school office, are not shared outside it, and are deleted once the evening has passed.</p>
+    <p data-t="foot.private">A private invitation for PBIS families. Please do not share it publicly.</p>
+  </div>
+
+  <p class="foot-legal">
+    <span data-t="foot.copyright">&copy; 2026 Panyathip British International School</span>
+    <span class="sep" aria-hidden="true">&middot;</span>
+    <span data-t="foot.rights">Vientiane, Lao PDR</span>
+  </p>
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -2200,8 +2259,8 @@ function rsvp(){
     function failed(){
       reset();
       var el = document.getElementById('submitErr');
-      el.textContent = 'We could not send your RSVP just now. Please try again, or call the ' +
-                       'school office on +856 20 935 924 440.';
+      el.textContent = 'We could not send your RSVP just now. Please try again, or let ' +
+                       'the school office know and they will add you.';
       el.classList.add('on');
     }
     document.getElementById('submitErr').classList.remove('on');
@@ -2315,7 +2374,7 @@ function rsvp(){
         (data.guests.length ? ' with ' + data.guests.join(', ') : '') +
         ' (' + data.party + ' in total). An evening for adults. Smart casual. ' +
         (kids ? 'Children at PBIS: ' + kids + '. ' : '') +
-        'Map: https://maps.app.goo.gl/JstxKuhuFRgiBN7v7 | Office: +856 20 935 924 440',
+        'Map: https://maps.app.goo.gl/JstxKuhuFRgiBN7v7',
       'END:VEVENT','END:VCALENDAR'
     ].join('\r\n');
     try {
@@ -2608,7 +2667,13 @@ var T = {
   'step.family':{lo:'ຄອບຄົວ',th:'ครอบครัว',zh:'家庭',vi:'Gia đình',ko:'가족',ja:'ご家族',fr:'Famille'},
   'tk.children2':{lo:'ງານນີ້ສຳລັບຜູ້ໃຫຍ່ ແຕ່ສາມາດຈັດກິດຈະກຳເບິ່ງແຍງເດັກຢູ່ວິທະຍາເຂດມັດທະຍົມໄດ້ — ກະລຸນາແຈ້ງໃນຄຳຕອບຮັບ',th:'งานนี้สำหรับผู้ใหญ่ แต่สามารถจัดกิจกรรมดูแลเด็กที่วิทยาเขตมัธยมได้ โปรดระบุในคำตอบรับ',zh:'活动仅限成人，但中学部校区可安排儿童看护 — 请在回覆中注明。',vi:'Sự kiện dành cho người lớn, nhưng có thể sắp xếp trông trẻ tại cơ sở Trung học — vui lòng ghi chú khi phản hồi.',ko:'성인을 위한 자리이지만 중등부 캠퍼스에서 아이 돌봄을 준비할 수 있습니다 — 회신 시 알려 주세요.',ja:'大人向けの催しですが、中等部キャンパスでお子さまの見守りをご用意できます。ご返信にお書き添えください。',fr:'Soirée réservée aux adultes, mais une garde peut être organisée sur le campus secondaire — indiquez-le dans votre réponse.'},
   'tk.field':{lo:'ເດີ່ນບອນເຕະ',th:'สนามฟุตบอล',zh:'足球场区域',vi:'Khu sân bóng',ko:'축구장 구역',ja:'サッカー場エリア',fr:'Terrain de football'},
-  'tk.hours':{lo:'ເປີດ 17:30 · ປິດ 20:30',th:'เปิด 17:30 · ปิด 20:30',zh:'17:30 开放 · 20:30 结束',vi:'Mở 17:30 · đóng 20:30',ko:'17:30 개방 · 20:30 종료',ja:'17:30開場 · 20:30終了',fr:'Ouverture 17h30 · fermeture 20h30'}
+  'tk.hours':{lo:'ເປີດ 17:30 · ປິດ 20:30',th:'เปิด 17:30 · ปิด 20:30',zh:'17:30 开放 · 20:30 结束',vi:'Mở 17:30 · đóng 20:30',ko:'17:30 개방 · 20:30 종료',ja:'17:30開場 · 20:30終了',fr:'Ouverture 17h30 · fermeture 20h30'},
+  'foot.years':{lo:'ສະເຫຼີມສະຫຼອງ 25 ປີ · 2001–2026',th:'ฉลองครบรอบ 25 ปี · 2001–2026',zh:'庆祝二十五周年 · 2001–2026',vi:'Kỷ niệm hai mươi lăm năm · 2001–2026',ko:'25주년을 기념하며 · 2001–2026',ja:'創立25周年 · 2001–2026',fr:'Vingt-cinq ans · 2001–2026'},
+  'foot.deadline':{lo:'ປິດຮັບການຕອບຮັບ ວັນສຸກ ທີ 28 ສິງຫາ 2026. ຖ້າທ່ານຍັງບໍ່ທັນຕອບ ຍັງມີເວລາ — ໃຊ້ເວລາປະມານ 1 ນາທີ.',th:'ปิดรับการตอบรับวันศุกร์ที่ 28 สิงหาคม 2026 หากท่านยังไม่ได้ตอบ ยังมีเวลา — ใช้เวลาราวหนึ่งนาที',zh:'回覆截止 2026 年 8 月 28 日星期五。若您尚未回覆，仍来得及 — 约需一分钟。',vi:'Hạn phản hồi: thứ Sáu, 28 tháng 8 năm 2026. Nếu bạn chưa trả lời, vẫn còn kịp — chỉ mất khoảng một phút.',ko:'회신 마감은 2026년 8월 28일 금요일입니다. 아직이시라면 시간이 있습니다 — 1분이면 됩니다.',ja:'ご返信の締切は2026年8月28日（金）です。まだの方もお時間があります — 1分ほどで完了します。',fr:'Clôture des réponses le vendredi 28 août 2026. Il est encore temps — cela prend une minute.'},
+  'foot.privacy':{lo:'ຂໍ້ມູນທີ່ທ່ານໃຫ້ ຖືກໃຊ້ພຽງເພື່ອຈັດງານຄ່ຳຄືນນີ້ ເກັບຮັກສາໂດຍຫ້ອງການໂຮງຮຽນ ບໍ່ມີການແບ່ງປັນອອກນອກ ແລະ ຈະຖືກລຶບຫຼັງງານສິ້ນສຸດ',th:'ข้อมูลที่ท่านให้ ใช้เพื่อจัดงานค่ำคืนนี้เท่านั้น เก็บรักษาโดยสำนักงานโรงเรียน ไม่เผยแพร่ภายนอก และจะถูกลบหลังจบงาน',zh:'您提供的信息仅用于筹办本次活动，由学校办公室保管，不会外传，并将在活动结束后删除。',vi:'Thông tin bạn cung cấp chỉ dùng để tổ chức buổi tối này, do văn phòng nhà trường lưu giữ, không chia sẻ ra ngoài và sẽ được xoá sau sự kiện.',ko:'제공하신 정보는 이 저녁 행사를 준비하는 데에만 사용되며, 학교 사무실이 보관하고 외부에 공유하지 않으며 행사 종료 후 삭제됩니다.',ja:'ご記入いただいた情報は本催しの準備にのみ使用し、学校事務室が保管します。外部には共有せず、終了後に削除いたします。',fr:'Les informations fournies servent uniquement à organiser cette soirée. Elles sont conservées par le secrétariat, ne sont pas partagées et sont supprimées après l’événement.'},
+  'foot.private':{lo:'ຄຳເຊີນສ່ວນຕົວສຳລັບຄອບຄົວ PBIS ກະລຸນາຢ່າເຜີຍແຜ່ຕໍ່ສາທາລະນະ',th:'คำเชิญส่วนตัวสำหรับครอบครัว PBIS กรุณาอย่าเผยแพร่สู่สาธารณะ',zh:'这是发给 PBIS 家庭的私人邀请，请勿公开分享。',vi:'Thiệp mời riêng dành cho các gia đình PBIS. Vui lòng không chia sẻ công khai.',ko:'PBIS 가족을 위한 비공개 초대장입니다. 외부에 공유하지 말아 주세요.',ja:'PBISのご家族向けの非公開のご招待です。公開の場での共有はお控えください。',fr:'Invitation privée réservée aux familles PBIS. Merci de ne pas la partager publiquement.'},
+  'foot.copyright':{lo:'© 2026 ໂຮງຮຽນ ປັນຍາທິບ ບຣິດຕິດ ອິນເຕີແນຊັນນອລ',th:'© 2026 โรงเรียนนานาชาติปันยาทิพ',zh:'© 2026 班雅提英国国际学校',vi:'© 2026 Trường Quốc tế Panyathip',ko:'© 2026 파냐팁 브리티시 국제학교',ja:'© 2026 パンヤティップ英国国際学校',fr:'© 2026 Panyathip British International School'},
+  'foot.rights':{lo:'ວຽງຈັນ, ສປປ ລາວ',th:'เวียงจันทน์ สปป.ลาว',zh:'老挝万象',vi:'Viêng Chăn, Lào',ko:'라오스 비엔티안',ja:'ラオス・ビエンチャン',fr:'Vientiane, Lao PDR'}
 };
 
 function language(){
