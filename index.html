@@ -2250,13 +2250,16 @@ function rsvp(){
       throttled: 'Too many RSVPs at once. Please wait a minute and try again.',
       busy:      'The list is busy right now. Please try again in a moment.',
       expired:     'Your session timed out. Please refresh the page and try again.',
+      failed:      'Something went wrong at our end saving your RSVP. Please let the ' +
+                   'school office know and they will add you.',
       unreachable: 'We cannot reach the RSVP service. Please let the school office ' +
                    'know so they can add you, and we will look into it.'
     };
 
     function failed(res){
       reset();
-      if (res) console.error('RSVP refused by the server:', res);
+      if (res) console.error('RSVP refused by the server:', res,
+                             res.detail ? '\nDetail: ' + res.detail : '');
       var el = document.getElementById('submitErr');
       el.textContent =
         (res && res.message) ? res.message :
