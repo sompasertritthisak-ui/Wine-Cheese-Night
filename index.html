@@ -1137,6 +1137,77 @@ html.modal-open,html.modal-open body{overflow:hidden}
 }
 
 /* ============================================================
+   THE BAR — weight and presence
+   The nav was set in the same quiet grey as body copy, which is
+   fine on a page you are reading and wrong on a bar you are
+   meant to navigate from.
+   ============================================================ */
+:root{ --bar-h:86px; }
+.bar{padding-top:.85rem;padding-bottom:.85rem;gap:1.2rem}
+.bar-brand{gap:.95rem;align-items:center}
+.bar-brand .crest{width:clamp(52px,6vw,66px);margin:0;flex:none}
+.bar-id b{display:block;font-family:var(--f-label);font-weight:700;
+  font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--cream);line-height:1.4;max-width:22ch}
+.bar-id span{display:block;font-family:var(--f-label);font-weight:600;
+  font-size:.56rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--gold-lit);margin-top:.2rem}
+.bar-nav a{font-weight:700;font-size:.62rem;letter-spacing:.2em;color:var(--cream);
+  opacity:.85}
+.bar-nav a:hover,.bar-nav a[aria-current="true"]{opacity:1;color:var(--gold-lit)}
+.bar .btn,.bar-cta{font-weight:700}
+.lang{font-weight:700}
+.lang #langNow{font-weight:700;color:var(--cream)}
+
+/* ============================================================
+   The crest must clear the bar. The hero reserves room for it
+   rather than letting a fixed header crop the artwork.
+   ============================================================ */
+.hero{padding-top:calc(var(--bar-h) + 34px + env(safe-area-inset-top));
+  min-height:100dvh;align-content:center}
+@media (max-width:900px){
+  :root{ --bar-h:74px; }
+  .bar-id b{font-size:.58rem;max-width:16ch}
+  .bar-id span{font-size:.5rem}
+}
+@media (max-width:640px){
+  .hero{min-height:auto;
+    padding-top:calc(var(--bar-h) + 26px + env(safe-area-inset-top));
+    padding-bottom:52px}
+  .bar-brand .crest{width:46px}
+  .bar-id b{font-size:.54rem;letter-spacing:.12em;max-width:13ch}
+}
+
+/* ============================================================
+   TOUCH TARGETS
+   The bar controls are compact on a desktop pointer and too small
+   for a thumb. They grow on the devices where that matters.
+   ============================================================ */
+@media (pointer:coarse){
+  .bar .btn,.bar-cta{min-height:46px;padding:.7rem 1.25rem}
+  .lang{height:46px}
+  .modal-close{width:48px;height:48px}
+  .child-remove{height:52px}
+  .bar-nav a{padding:.85rem 0}
+}
+
+/* The honeypot. Positioned out of view rather than display:none, because
+   some automated fillers skip hidden fields and we want them to find it. */
+.hp{position:absolute!important;left:-9999px!important;top:auto!important;
+  width:1px!important;height:1px!important;overflow:hidden!important;
+  opacity:0!important;pointer-events:none!important}
+
+/* While an RSVP is in flight. On a slow connection the wait is the reason
+   people press send a second time, so the button has to look busy. */
+.btn.is-sending{cursor:progress;opacity:.85}
+.btn.is-sending .arrow{display:none}
+.btn.is-sending::after{content:"";width:14px;height:14px;flex:none;
+  border:1.5px solid rgba(7,37,23,.35);border-top-color:var(--forest-deep);
+  border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.btn.is-sending::after{animation:none}}
+
+/* ============================================================
    §19 — REDUCED MOTION. Atmosphere off, function intact.
    ============================================================ */
 @media (prefers-reduced-motion:reduce){
@@ -1235,10 +1306,11 @@ html.modal-open,html.modal-open body{overflow:hidden}
 
 <header class="bar" id="bar">
   <a class="bar-brand" href="#top">
-    <span class="crest" role="img" aria-label="Panyathip British International School"></span>
-    <span>
-      <b>Panyathip British</b>
-      <span data-t="bar.tag">Wine &amp; Cheese Evening</span>
+    <span class="crest" role="img"
+          aria-label="Panyathip British International School, 25th Anniversary"></span>
+    <span class="bar-id">
+      <b>Panyathip British International School</b>
+      <span data-t="bar.tag">25th Anniversary</span>
     </span>
   </a>
   <nav class="bar-nav" aria-label="Sections">
@@ -1442,6 +1514,13 @@ html.modal-open,html.modal-open body{overflow:hidden}
             <span aria-hidden="true">+</span> <span data-t="f.addChild">Add another child</span>
           </button>
           <div class="help" data-t="f.childrenHelp">This helps us seat families with children in the same year together.</div>
+        </div>
+
+        <!-- Not for people. Left empty by anyone who cannot see it, filled
+             in by anything that completes every field it finds. -->
+        <div class="hp" aria-hidden="true">
+          <label for="website">Website</label>
+          <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
         </div>
 
         <div class="check-err" id="submitErr" role="alert" style="margin-bottom:1.2rem"></div>
@@ -1995,6 +2074,13 @@ function cursor(){
 function rsvp(){
   var form = document.getElementById('rsvpForm');
   if (!form) return;
+  var opened = Date.now();   // a person takes longer than three seconds
+  var sending = false;
+
+  /* One id for this visit. Every attempt carries it, so if a parent on a
+     slow connection presses send twice, the server recognises the second
+     as the first repeated rather than a new family. */
+  var rid = 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
   var steps = Array.prototype.slice.call(form.querySelectorAll('.step'));
   var fill = document.getElementById('stepFill');
   var counter = document.getElementById('stepCount');
@@ -2231,12 +2317,21 @@ function rsvp(){
       document.getElementById('adults').focus();
       return;
     }
+    // Belt and braces: the button is disabled, and a flag blocks any
+    // submit that gets through anyway (Enter key, double tap, autofill).
+    if (sending) return;
+    sending = true;
+
     var btn = document.getElementById('submitBtn');
     btn.disabled = true;
-    document.getElementById('submitLabel').textContent = 'Sending';
+    btn.classList.add('is-sending');
+    document.getElementById('submitLabel').textContent = 'Sending your RSVP';
 
     var payload = {
       action:   'create',
+      rid:      rid,
+      website:  document.getElementById('website').value,   // must stay empty
+      elapsed:  Date.now() - opened,
       name:     document.getElementById('name').value.trim(),
       phone:    document.getElementById('phone').value.trim(),
       email:    document.getElementById('email').value.trim(),
@@ -2247,7 +2342,9 @@ function rsvp(){
     };
 
     function reset(){
+      sending = false;
       btn.disabled = false;
+      btn.classList.remove('is-sending');
       var lbl = document.getElementById('submitLabel');
       lbl.textContent = lbl.getAttribute('data-en') || 'Send my RSVP';
     }
@@ -2256,11 +2353,13 @@ function rsvp(){
       confirmed(payload);
       reset();
     }
-    function failed(){
+    function failed(res){
       reset();
       var el = document.getElementById('submitErr');
-      el.textContent = 'We could not send your RSVP just now. Please try again, or let ' +
-                       'the school office know and they will add you.';
+      el.textContent = (res && res.message)
+        ? res.message
+        : 'We could not send your RSVP just now. Please try again, or let ' +
+          'the school office know and they will add you.';
       el.classList.add('on');
     }
     document.getElementById('submitErr').classList.remove('on');
@@ -2280,11 +2379,18 @@ function rsvp(){
       body: JSON.stringify(payload)
     })
     .then(function(r){ return r.json(); })
-    .then(function(res){ if (res && res.ok) done(res); else failed(); })
+    .then(function(res){ if (res && res.ok) done(res); else failed(res); })
     .catch(function(err){ console.error('RSVP could not be saved:', err); failed(); });
   });
 
   /* ---- confirmation ---- */
+  // Nothing a guest types is ever put into markup as-is.
+  function esc(v){
+    return String(v == null ? '' : v).replace(/[&<>"']/g, function(c){
+      return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+    });
+  }
+
   function confirmed(data){
     var modal = document.getElementById('confirmModal');
     var card  = document.getElementById('confirmCard');
@@ -2446,6 +2552,9 @@ function seal(){
     if (opened) return;
     opened = true;
     off();
+    // Land on the top of the page, with the crest whole. If the guest
+    // nudged the wheel to open the seal, that scroll must not carry over.
+    window.scrollTo(0, 0);
     document.documentElement.classList.remove('gate-shut');
 
     if (!MOTION){ finish(); return; }
@@ -2505,6 +2614,7 @@ function seal(){
       .to({}, { duration:1.3 }, 0.85);
 
     function finish(){
+      window.scrollTo(0, 0);
       gate.classList.add('gone');
       bar.classList.add('in');
       if (window.ScrollTrigger) ScrollTrigger.refresh();
@@ -2581,7 +2691,7 @@ var T = {
   'gate.cta':{lo:'ເປີດຄຳເຊີນ',th:'เปิดผนึก',zh:'启封',vi:'Mở thiệp mời',ko:'봉인 열기',ja:'封を開ける',fr:'Briser le sceau'},
   'gate.note':{lo:'ງານຕອນແລງເພື່ອຂອບໃຈຄອບຄົວທີ່ຊ່ວຍສ້າງ 25 ປີ ຂອງໂຮງຮຽນ',th:'ค่ำคืนแห่งการขอบคุณครอบครัวที่อยู่เบื้องหลัง 25 ปีของโรงเรียน',zh:'感谢陪伴学校走过二十五年的每一个家庭。',vi:'Một buổi tối tri ân các gia đình đã đồng hành cùng nhà trường suốt 25 năm.',ko:'학교의 25년을 함께해 주신 가족들께 감사드리는 저녁입니다.',ja:'学校の25年を支えてくださったご家族に感謝する夕べです。',fr:'Une soirée pour remercier les familles derrière vingt-cinq ans de notre école.'},
   'gate.date':{lo:'ວັນສຸກ ທີ 4 ກັນຍາ 2026',th:'วันศุกร์ที่ 4 กันยายน 2026',zh:'2026年9月4日星期五',vi:'Thứ Sáu, 4 tháng 9 năm 2026',ko:'2026년 9월 4일 금요일',ja:'2026年9月4日（金）',fr:'Vendredi 4 septembre 2026'},
-  'bar.tag':{lo:'ງານແວັງ ແລະ ເນີຍແຂງ',th:'ค่ำคืนไวน์และชีส',zh:'品酒与芝士之夜',vi:'Dạ tiệc rượu vang và phô mai',ko:'와인 & 치즈의 밤',ja:'ワイン＆チーズの夕べ',fr:'Soirée vin et fromage'},
+  'bar.tag':{lo:'ຄົບຮອບ 25 ປີ',th:'ครบรอบ 25 ปี',zh:'二十五周年',vi:'Kỷ niệm 25 năm',ko:'25주년',ja:'創立25周年',fr:'25e anniversaire'},
   'nav.invitation':{lo:'ຄຳເຊີນ',th:'คำเชิญ',zh:'邀请',vi:'Thiệp mời',ko:'초대장',ja:'ご招待',fr:'L\'invitation'},
   'nav.evening':{lo:'ງານຕອນແລງ',th:'ค่ำคืนนี้',zh:'当晚流程',vi:'Buổi tối',ko:'저녁 일정',ja:'当日の流れ',fr:'La soirée'},
   'nav.pairing':{lo:'ການຈັບຄູ່',th:'การจับคู่',zh:'配对',vi:'Kết hợp',ko:'페어링',ja:'ペアリング',fr:'Les accords'},
