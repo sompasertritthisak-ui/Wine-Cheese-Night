@@ -221,7 +221,6 @@ html.motion-on .goldline{transform:scaleX(0)}
 .glass-svg{position:absolute;left:78%;top:54%;transform:translate(-50%,-50%);
   height:min(72vh,660px);width:auto;opacity:.42;transition:opacity var(--t-story) var(--e-out)}
 @media (max-width:1180px){.glass-svg{left:84%;opacity:.3}}
-.glass-stage.webgl .glass-svg{opacity:0}
 @media (max-width:760px){.glass-svg{left:50%;top:60%;height:52vh;opacity:.16}}
 
 /* ============================================================
@@ -1785,7 +1784,6 @@ function heroSequence(){
   tl.from('.hero-ambient', { opacity:0, duration:1.2 }, 0)
     // Phase 2 — identity
     .to('[data-phase="2"]', { opacity:1, y:0, duration:.9 }, 0.35)
-    .from('.wordmark .mark', { letterSpacing:'0.9em', duration:1.4, ease:'power4.out' }, 0.35)
     // Phase 3 — the line draws: anticipation
     .to('.goldline', { opacity:1, scaleX:1, duration:1.1, ease:'power2.inOut' }, 1.05)
     // Phase 4 — the event
@@ -1868,100 +1866,6 @@ function candles(){
 }
 
 /* ============================================================
-   3. THE GLASS — one hero object, no more (§6)
-   WebGL if the browser is willing; the drawn glass stays if not.
-   ============================================================ */
-function glass(){
-  var stage = document.getElementById('glassStage');
-  if (!stage || REDUCE || !MOTION) return;
-  var small = window.matchMedia('(max-width: 760px)').matches;
-  if (small) return; // §20 — no WebGL on phones
-
-  import('https://cdnjs.cloudflare.com/ajax/libs/three/0.160.0/three.module.min.js')
-    .then(function(THREE){ build(THREE); })
-    .catch(function(){ /* drawn glass remains. Nothing to report. */ });
-
-  function build(THREE){
-    var renderer;
-    try {
-      renderer = new THREE.WebGLRenderer({ alpha:true, antialias:true });
-    } catch(e){ return; }
-    renderer.setPixelRatio(Math.min(devicePixelRatio||1, 1.75));
-    renderer.setSize(stage.clientWidth, stage.clientHeight);
-    stage.appendChild(renderer.domElement);
-
-    var scene = new THREE.Scene();
-    var cam = new THREE.PerspectiveCamera(32, stage.clientWidth/stage.clientHeight, 0.1, 60);
-    cam.position.set(0, 0.2, 8.6);
-
-    var group = new THREE.Group(); scene.add(group);
-
-    var P = THREE.Vector2 ? function(x,y){ return new THREE.Vector2(x,y); } : null;
-    var profile = [[0,0],[.92,0],[.94,.06],[.14,.14],[.10,.16],[.10,1.12],[.16,1.20],
-                   [.34,1.36],[.52,1.62],[.64,1.96],[.69,2.34],[.68,2.66]]
-                  .map(function(p){ return P(p[0],p[1]); });
-
-    var glassMat = new THREE.MeshPhysicalMaterial({
-      color:0xF6F2E8, roughness:0.06, metalness:0, transparent:true, opacity:0.20,
-      side:THREE.DoubleSide, depthWrite:false
-    });
-    var g = new THREE.Mesh(new THREE.LatheGeometry(profile, 96), glassMat);
-    group.add(g);
-
-    var wineProfile = [[0,1.22],[.22,1.30],[.42,1.52],[.56,1.80],[.62,2.02],[0,2.02]]
-                      .map(function(p){ return P(p[0],p[1]); });
-    var wine = new THREE.Mesh(
-      new THREE.LatheGeometry(wineProfile, 96),
-      new THREE.MeshPhysicalMaterial({ color:0xD8B457, roughness:0.16, metalness:0,
-        transparent:true, opacity:0.9, side:THREE.DoubleSide })
-    );
-    group.add(wine);
-    group.position.y = -1.35;
-    group.position.x = 2.6;   // clear of the crest and headline
-
-    scene.add(new THREE.AmbientLight(0xFFE6B8, 0.35));
-    var key = new THREE.PointLight(0xFFC978, 26, 26); key.position.set(-3.2, 2.6, 3.4); scene.add(key);
-    var rim = new THREE.PointLight(0xD0A93A, 22, 24); rim.position.set(3.4, 1.4, -2.6); scene.add(rim);
-    var fill = new THREE.PointLight(0x1B7A46, 12, 20); fill.position.set(1.4,-1.8, 2.4); scene.add(fill);
-
-    stage.classList.add('webgl');
-
-    var tx = 0, ty = 0, cx = 0, cy = 0, scrollY = 0, running = true;
-    addEventListener('pointermove', function(e){
-      tx = (e.clientX/innerWidth - .5) * 0.34;
-      ty = (e.clientY/innerHeight - .5) * 0.18;
-    }, {passive:true});
-    addEventListener('scroll', function(){ scrollY = window.scrollY || 0; }, {passive:true});
-    addEventListener('resize', function(){
-      cam.aspect = stage.clientWidth/stage.clientHeight; cam.updateProjectionMatrix();
-      renderer.setSize(stage.clientWidth, stage.clientHeight);
-    }, {passive:true});
-
-    var clock = 0;
-    function loop(){
-      if (!running) return;
-      requestAnimationFrame(loop);
-      clock += 0.006;
-      cx += (tx - cx) * 0.045; cy += (ty - cy) * 0.045;
-      group.rotation.y = cx + clock * 0.14;
-      group.rotation.x = cy * 0.6 + Math.sin(clock * 0.9) * 0.012;
-      group.position.y = -1.35 + Math.sin(clock * 1.1) * 0.035 - Math.min(scrollY, 900) * 0.0016;
-      group.position.x = 2.6 + cx * 0.5;
-      renderer.render(scene, cam);
-    }
-    loop();
-
-    // Stop rendering the moment the hero leaves the viewport. (§21)
-    if ('IntersectionObserver' in window){
-      new IntersectionObserver(function(e){
-        var on = e[0].isIntersecting;
-        if (on && !running){ running = true; loop(); } else if (!on) { running = false; }
-      },{threshold:0}).observe(stage);
-    }
-  }
-}
-
-/* ============================================================
    4. SECTION REVEALS + HORIZONTAL EVENING (§4, §17)
    ============================================================ */
 function scrollStory(){
@@ -1973,31 +1877,6 @@ function scrollStory(){
       scrollTrigger:{ trigger:el, start:'top 86%', once:true }
     });
   });
-
-  // The beats arrive in the order the evening happens, not all at once.
-  gsap.to('.beat', {
-    opacity:1, y:0, duration:.7, stagger:.09, ease:'power3.out',
-    scrollTrigger:{ trigger:'#evening', start:'top 68%', once:true }
-  });
-
-  // Horizontal only where the horizontal movement means something:
-  // the evening runs left to right because time does.
-  var vp = document.getElementById('eveningViewport');
-  var track = document.getElementById('eveningTrack');
-  if (vp && track && DESKTOP){
-    ScrollTrigger.matchMedia({
-      '(min-width: 901px)': function(){
-        var dist = function(){ return Math.max(0, track.scrollWidth - vp.clientWidth + 40); };
-        gsap.to(track, {
-          x: function(){ return -dist(); }, ease:'none',
-          scrollTrigger:{
-            trigger:'#evening', start:'top top', end:function(){ return '+=' + dist(); },
-            pin:true, scrub:0.6, invalidateOnRefresh:true, anticipatePin:1
-          }
-        });
-      }
-    });
-  }
 
   // Orientation — §15
   var bar = document.querySelector('.progress-bar');
@@ -2353,14 +2232,27 @@ function rsvp(){
       confirmed(payload);
       reset();
     }
+    /* Say which thing went wrong. A single "could not send" leaves a
+       parent retrying the same mistake, and leaves the office guessing. */
+    var REASONS = {
+      invalid:   'Please check your name and phone number — the number needs ' +
+                 'at least eight digits, and any email must be a full address.',
+      throttled: 'Too many RSVPs at once. Please wait a minute and try again.',
+      busy:      'The list is busy right now. Please try again in a moment.',
+      expired:   'Your session timed out. Please refresh the page and try again.'
+    };
+
     function failed(res){
       reset();
+      if (res) console.error('RSVP refused by the server:', res);
       var el = document.getElementById('submitErr');
-      el.textContent = (res && res.message)
-        ? res.message
-        : 'We could not send your RSVP just now. Please try again, or let ' +
-          'the school office know and they will add you.';
+      el.textContent =
+        (res && res.message) ? res.message :
+        (res && REASONS[res.error]) ? REASONS[res.error] :
+        'We could not send your RSVP just now. Please try again, or let ' +
+        'the school office know and they will add you.';
       el.classList.add('on');
+      el.scrollIntoView({ behavior: REDUCE ? 'auto' : 'smooth', block:'center' });
     }
     document.getElementById('submitErr').classList.remove('on');
 
@@ -2857,7 +2749,6 @@ function init(){
   bar();
   language();
   candles();
-  glass();
   scrollStory();
   cursor();
   rsvp();
