@@ -430,10 +430,11 @@ html.motion-on .goldline{transform:scaleX(0)}
 .title-rule{display:flex;align-items:center;justify-content:center;gap:1rem;
   margin:.2rem auto 1.6rem;max-width:520px;color:var(--accent-solid)}
 .title-rule i{flex:1;height:1px;background:linear-gradient(90deg,transparent,currentColor)}
-.title-rule i+i{background:linear-gradient(90deg,currentColor,transparent)}
+.title-rule i:last-of-type{background:linear-gradient(90deg,currentColor,transparent)}
 .title-rule svg{flex:none;opacity:.9}
-.deadline{margin-top:1.1rem;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;
-  color:var(--fg-2)}
+.deadline{margin:1.1rem auto 0;max-width:none;text-align:center;
+  font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--fg-2)}
+.hero [data-phase="6"]{display:flex;flex-direction:column;align-items:center;gap:.2rem}
 .band-note{margin-top:1.6rem;font-size:.8rem;color:var(--fg-2);max-width:none}
 .det dd .script{font-size:1.6rem}
 
@@ -689,7 +690,7 @@ html.motion-on .goldline{transform:scaleX(0)}
 .modal-rule{display:flex;align-items:center;justify-content:center;gap:.9rem;
   margin:0 auto 1.5rem;max-width:280px;color:var(--gold)}
 .modal-rule i{flex:1;height:1px;background:linear-gradient(90deg,transparent,currentColor)}
-.modal-rule i+i{background:linear-gradient(90deg,currentColor,transparent)}
+.modal-rule i:last-of-type{background:linear-gradient(90deg,currentColor,transparent)}
 .modal-close{position:absolute;top:.7rem;right:.7rem;width:44px;height:44px;
   display:grid;place-items:center;background:transparent;border:0;cursor:pointer;
   color:var(--stone);font-size:1.3rem;line-height:1;border-radius:50%;
@@ -1391,7 +1392,7 @@ body{padding-top:0}
     <div class="hero-meta hero-phase" data-phase="5">
       <span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>Friday 21 August 2026</span>
       <span class="dot" aria-hidden="true"></span>
-      <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>6:00 &ndash; 8:00 PM</span>
+      <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>5:30 &ndash; 8:30 PM</span>
       <span class="dot" aria-hidden="true"></span>
       <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg>PBIS Secondary Campus</span>
     </div>
@@ -1463,17 +1464,17 @@ body{padding-top:0}
   <div class="evening-viewport" id="eveningViewport">
     <div class="track" id="eveningTrack">
       <article class="beat">
-        <span class="time">6:00 PM</span>
+        <span class="time">5:30 PM</span>
         <h3>Arrive</h3>
-        <p>The field-side courtyard opens as the light goes. A glass is in your hand before your bag is off your shoulder.</p>
+        <p>The field-side courtyard opens while the light is still going. A glass is in your hand before your bag is off your shoulder.</p>
       </article>
       <article class="beat">
-        <span class="time">6:20 PM</span>
+        <span class="time">6:00 PM</span>
         <h3>Welcome</h3>
         <p>A few words from the Head to mark twenty-five years, and that is the whole of the formal programme.</p>
       </article>
       <article class="beat">
-        <span class="time">6:40 PM</span>
+        <span class="time">6:30 PM</span>
         <h3>Wine</h3>
         <p>Four bottles, poured and introduced — two white, two red, with sparkling grape and iced tea alongside for anyone not drinking.</p>
       </article>
@@ -1483,9 +1484,9 @@ body{padding-top:0}
         <p>A long board of four, from fresh goat to a proper blue, with grapes, walnuts, honey and warm bread.</p>
       </article>
       <article class="beat">
-        <span class="time">7:40 PM</span>
+        <span class="time">7:50 PM</span>
         <h3>Conversation</h3>
-        <p>The part that matters. The courtyard lights come down at eight, and nobody is hurried before then.</p>
+        <p>The part that matters. The lights come down at half past eight, and nobody is hurried before then.</p>
       </article>
     </div>
   </div>
@@ -1581,7 +1582,7 @@ body{padding-top:0}
         <span class="dd">21</span>
         <span class="mon" data-t="tk.mon">August</span>
         <span class="yy">2026</span>
-        <span class="doors" data-t="tk.doors">Doors open from six</span>
+        <span class="doors" data-t="tk.doors">Doors open from half past five</span>
       </div>
 
       <div class="tk-rows">
@@ -1589,7 +1590,7 @@ body{padding-top:0}
           <span class="tk-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span>
           <div>
             <dt><span data-t="tk.time">Time</span> <span class="lao" lang="lo">ເວລາ</span></dt>
-            <dd>6:00 &ndash; 8:00 PM
+            <dd>5:30 &ndash; 8:30 PM
               <small data-t="tk.timeNote">Arrive any time in the first half hour</small></dd>
           </div>
         </div>
@@ -1843,7 +1844,7 @@ body{padding-top:0}
           <dt>Guest</dt><dd id="passName">—</dd>
           <dt>Reference</dt><dd id="passRef">—</dd>
           <dt>Party</dt><dd id="passParty">—</dd>
-          <dt>Friday 21 August 2026</dt><dd>6:00 PM &middot; Secondary Campus</dd>
+          <dt>Friday 21 August 2026</dt><dd>5:30 PM &middot; Secondary Campus</dd>
           <dt>Reference</dt><dd id="passRef">&mdash;</dd>
         </dl>
       </div>
@@ -2641,8 +2642,8 @@ function rsvp(){
       'BEGIN:VEVENT',
       'UID:pbis-wce-21aug2026@pbis.edu.la',
       'DTSTAMP:20260810T000000Z',
-      'DTSTART:20260821T110000Z',   // 18:00 Vientiane, UTC+7
-      'DTEND:20260821T130000Z',     // 20:00 Vientiane
+      'DTSTART:20260821T103000Z',   // 17:30 Vientiane, UTC+7
+      'DTEND:20260821T133000Z',     // 20:30 Vientiane
       'SUMMARY:PBIS Parent Appreciation Wine & Cheese Evening',
       'LOCATION:PBIS Secondary Campus, Football Field Area, Saphanthong Neua, Sisattanak, Vientiane',
       'GEO:17.95414;102.6316592',
@@ -2959,7 +2960,7 @@ var T = {
   're.private':{lo:'ເຫັນໄດ້ສະເພາະຫ້ອງການໂຮງຮຽນ',th:'เห็นเฉพาะสำนักงานโรงเรียน',zh:'仅学校办公室可见',vi:'Chỉ văn phòng nhà trường xem được',ko:'학교 사무실만 확인합니다',ja:'学校事務室のみが見ます',fr:'Vu uniquement par le secrétariat'},
   'tk.dow':{lo:'ວັນສຸກ',th:'วันศุกร์',zh:'星期五',vi:'Thứ Sáu',ko:'금요일',ja:'金曜日',fr:'Vendredi'},
   'tk.mon':{lo:'ສິງຫາ',th:'สิงหาคม',zh:'八月',vi:'Tháng 8',ko:'8월',ja:'8月',fr:'Août'},
-  'tk.doors':{lo:'ເປີດປະຕູແຕ່ 18:00 ໂມງ',th:'เปิดประตูเวลา 18:00 น.',zh:'18:00 开放入场',vi:'Mở cửa từ 18:00',ko:'오후 6시 입장',ja:'午後6時開場',fr:'Ouverture à 18h'},
+  'tk.doors':{lo:'ເປີດປະຕູແຕ່ 17:30 ໂມງ',th:'เปิดประตูเวลา 17:30 น.',zh:'17:30 开放入场',vi:'Mở cửa từ 17:30',ko:'오후 5시 30분 입장',ja:'午後5時30分開場',fr:'Ouverture à 17h30'},
   'tk.time':{lo:'ເວລາ',th:'เวลา',zh:'时间',vi:'Thời gian',ko:'시간',ja:'時間',fr:'Horaire'},
   'tk.timeNote':{lo:'ມາເຖິງໄດ້ໃນຄຶ່ງຊົ່ວໂມງແຣກ',th:'มาถึงได้ภายในครึ่งชั่วโมงแรก',zh:'前半小时内到场即可',vi:'Có thể đến trong nửa giờ đầu',ko:'첫 30분 이내 아무 때나 오셔도 됩니다',ja:'最初の30分以内にご到着ください',fr:'Arrivée libre dans la première demi-heure'},
   'tk.where':{lo:'ສະຖານທີ່',th:'สถานที่',zh:'地点',vi:'Địa điểm',ko:'장소',ja:'会場',fr:'Lieu'},
