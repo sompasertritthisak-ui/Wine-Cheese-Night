@@ -1757,7 +1757,7 @@ html.modal-open,html.modal-open body{overflow:hidden}
    do, the form shows its confirmation but records nothing — useful
    for review, useless for counting. Setup steps are in SETUP.md.
    ============================================================ */
-var ENDPOINT = 'https://script.google.com/macros/s/AKfycbxQl1OoQXdO-NTpcu8-iW9ytRLhDYtRP8eINKYJ4Lf4SJVEgVNhf_NexT7GnchdZMzASA/exec';
+var ENDPOINT = 'https://script.google.com/macros/s/AKfycbyyp8ihiEzN1cG_YHdJsGSQNPGZap9dYy-izSIcF-B11fxVxb3XVJpRYmW8m9kbVaGVUw/exec';
 
 var REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 var HAS_GSAP = typeof window.gsap !== 'undefined' && typeof window.ScrollTrigger !== 'undefined';
@@ -2239,7 +2239,9 @@ function rsvp(){
                  'at least eight digits, and any email must be a full address.',
       throttled: 'Too many RSVPs at once. Please wait a minute and try again.',
       busy:      'The list is busy right now. Please try again in a moment.',
-      expired:   'Your session timed out. Please refresh the page and try again.'
+      expired:     'Your session timed out. Please refresh the page and try again.',
+      unreachable: 'We cannot reach the RSVP service. Please let the school office ' +
+                   'know so they can add you, and we will look into it.'
     };
 
     function failed(res){
@@ -2270,9 +2272,25 @@ function rsvp(){
       headers:{ 'Content-Type':'text/plain;charset=utf-8' },
       body: JSON.stringify(payload)
     })
-    .then(function(r){ return r.json(); })
+    .then(function(r){
+      /* A healthy web app answers with JSON. If Google hands back HTML it
+         is a sign-in or permissions page, which means the deployment is
+         not set to "Anyone" — worth saying so plainly rather than
+         reporting a generic failure. */
+      return r.text().then(function(t){
+        try { return JSON.parse(t); }
+        catch (e) {
+          console.error('The RSVP service replied with this instead of JSON:',
+                        r.status, t.slice(0, 400));
+          return { ok:false, error:'unreachable' };
+        }
+      });
+    })
     .then(function(res){ if (res && res.ok) done(res); else failed(res); })
-    .catch(function(err){ console.error('RSVP could not be saved:', err); failed(); });
+    .catch(function(err){
+      console.error('RSVP could not be saved:', err);
+      failed({ error:'unreachable' });
+    });
   });
 
   /* ---- confirmation ---- */
