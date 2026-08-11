@@ -1960,6 +1960,15 @@ function rsvp(){
      slow connection presses send twice, the server recognises the second
      as the first repeated rather than a new family. */
   var rid = 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+
+  /* The page proposes the reference and the server accepts it. That way a
+     guest always has a reference to quote, even on a browser that will not
+     let us read the reply. */
+  var myRef = (function(){
+    var a = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', out = '';
+    for (var i = 0; i < 5; i++) out += a.charAt(Math.floor(Math.random() * a.length));
+    return 'WCN-' + out;
+  })();
   var steps = Array.prototype.slice.call(form.querySelectorAll('.step'));
   var fill = document.getElementById('stepFill');
   var counter = document.getElementById('stepCount');
@@ -2209,6 +2218,7 @@ function rsvp(){
     var payload = {
       action:   'create',
       rid:      rid,
+      ref:      myRef,
       website:  document.getElementById('website').value,   // must stay empty
       elapsed:  Date.now() - opened,
       name:     document.getElementById('name').value.trim(),
@@ -2267,30 +2277,47 @@ function rsvp(){
       return;
     }
 
-    fetch(ENDPOINT, {
-      method:'POST',
-      headers:{ 'Content-Type':'text/plain;charset=utf-8' },
-      body: JSON.stringify(payload)
-    })
-    .then(function(r){
-      /* A healthy web app answers with JSON. If Google hands back HTML it
-         is a sign-in or permissions page, which means the deployment is
-         not set to "Anyone" — worth saying so plainly rather than
-         reporting a generic failure. */
-      return r.text().then(function(t){
-        try { return JSON.parse(t); }
-        catch (e) {
-          console.error('The RSVP service replied with this instead of JSON:',
-                        r.status, t.slice(0, 400));
-          return { ok:false, error:'unreachable' };
-        }
+    /* Apps Script answers a POST with a redirect to another Google domain.
+       Chrome reads the result of that happily; Safari sometimes refuses,
+       which left a guest looking at an error for an RSVP that had in fact
+       been written. So: try to read the reply, and if the browser will not
+       let us, send it once more with the same submission id — the server
+       recognises the repeat and writes nothing new — then confirm on the
+       reference the page proposed. */
+    function send(mode){
+      return fetch(ENDPOINT, {
+        method: 'POST',
+        mode: mode,
+        headers: { 'Content-Type':'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
       });
-    })
-    .then(function(res){ if (res && res.ok) done(res); else failed(res); })
-    .catch(function(err){
-      console.error('RSVP could not be saved:', err);
-      failed({ error:'unreachable' });
-    });
+    }
+
+    send('cors')
+      .then(function(r){
+        return r.text().then(function(t){
+          try { return JSON.parse(t); }
+          catch (e) {
+            console.warn('Reply was not JSON; treating as unreadable.', r.status);
+            return null;
+          }
+        });
+      })
+      .then(function(res){
+        if (res && res.ok) { done(res); return; }
+        if (res && res.ok === false) { failed(res); return; }   // a real refusal
+        throw new Error('unreadable');
+      })
+      .catch(function(err){
+        console.warn('Could not read the reply, confirming on the second attempt:', err);
+        // Same rid, so this cannot create a second row.
+        send('no-cors')
+          .then(function(){ done({ ref: myRef, blind: true }); })
+          .catch(function(err2){
+            console.error('RSVP could not be sent at all:', err2);
+            failed({ error:'unreachable' });
+          });
+      });
   });
 
   /* ---- confirmation ---- */
@@ -2314,7 +2341,8 @@ function rsvp(){
     document.getElementById('confirmSaid').textContent =
       'A place is held for ' + (data.party === 1 ? 'you' : data.party + ' of you') +
       ' on Friday 4 September.' +
-      (data.email ? ' We have sent the details to ' + data.email + '.' : '');
+      (data.email && !data.blind ? ' We have sent the details to ' + data.email + '.' :
+       data.email ? ' A confirmation is on its way to ' + data.email + '.' : '');
     buildInvite(data);
 
     openModal(modal, card);
