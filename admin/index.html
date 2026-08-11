@@ -96,8 +96,11 @@ main{padding:clamp(22px,4vw,40px) var(--gutter) 90px;max-width:1320px;margin:0 a
 .btn-danger{border-color:rgba(242,178,92,.4);color:var(--danger)}
 .btn-danger:hover{border-color:var(--danger);background:rgba(242,178,92,.09);color:var(--danger)}
 .btn[disabled]{opacity:.45;cursor:not-allowed}
-.btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7;
-  stroke-linecap:round;stroke-linejoin:round}
+.btn svg{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-width:1.6;
+  stroke-linecap:round;stroke-linejoin:round;opacity:.9}
+.btn:hover svg{opacity:1}
+.bar-sep{width:1px;align-self:stretch;background:var(--line);margin:0 .2rem}
+.bar-actions{gap:.5rem}
 
 /* One rule for every field, so the username and the password are the
    same object. Typed selectors were letting text inputs fall through to
@@ -243,6 +246,18 @@ input:-webkit-autofill,input:-webkit-autofill:focus{
 .arrive:hover{border-color:var(--gold);background:rgba(208,169,58,.1)}
 .row.arrived{background:rgba(26,107,65,.22)}
 .row.arrived .arrive{background:var(--forest-3);border-color:var(--forest-3);color:var(--cream)}
+.door-actions{display:flex;gap:.5rem}
+.noshow{min-height:56px;padding:.8rem 1.1rem;white-space:nowrap;background:transparent;
+  border:1px solid var(--line);color:var(--stone);font-family:var(--f-label);font-weight:600;
+  font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;
+  transition:all var(--t-micro)}
+.noshow:hover{border-color:var(--danger);color:var(--danger);background:rgba(242,178,92,.08)}
+.row.noshown{background:rgba(242,178,92,.07)}
+.row.noshown .noshow{background:rgba(242,178,92,.16);border-color:var(--danger);color:var(--danger)}
+.row.noshown .who b{opacity:.72}
+.pill.noshow-pill{border-color:rgba(242,178,92,.45);color:var(--danger)}
+@media (max-width:640px){.door-actions{flex-direction:column}
+  .arrive,.noshow{width:100%;min-height:48px}}
 
 /* ---------------- edit / add sheet ---------------- */
 .sheet{position:fixed;inset:0;z-index:110;display:none;align-items:center;
@@ -332,26 +347,27 @@ select option{background:var(--forest);color:var(--cream)}
     </div>
     <div class="bar-actions">
       <button class="btn" id="refresh">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/></svg>
         Refresh</button>
       <button class="btn" id="emails">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13"/><path d="m3 7 9 6 9-6"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="4" width="11" height="13" rx="1.5"/><path d="M15 20H5.5A1.5 1.5 0 0 1 4 18.5V7"/></svg>
         Copy emails</button>
       <span class="whoami" id="whoami"></span>
+      <span class="bar-sep" aria-hidden="true"></span>
       <button class="btn" id="addBtn">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-4A3.5 3.5 0 0 0 5 18.5V20"/><circle cx="10.5" cy="8" r="3.5"/><path d="M18 7v6M15 10h6"/></svg>
         Add RSVP</button>
       <button class="btn" id="doorBtn">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h8"/><path d="M11 12h9"/><path d="m17 8 4 4-4 4"/></svg>
         Door mode</button>
       <button class="btn" id="printBtn">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6"/><rect x="4" y="9" width="16" height="7"/><path d="M8 16h8v5H8z"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="7" rx="1.5"/><path d="M7 15h10v5H7z"/><circle cx="17" cy="12" r=".6"/></svg>
         Print list</button>
       <button class="btn" id="csv">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4 20h16"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11"/><path d="m8 10 4 4 4-4"/><path d="M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17"/></svg>
         Export</button>
       <button class="btn" id="signout">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 17l5-5-5-5"/><path d="M20 12H9"/><path d="M12 3H5v18h7"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 3H5.5A1.5 1.5 0 0 0 4 4.5v15A1.5 1.5 0 0 0 5.5 21H10"/><path d="M20 12H9"/><path d="m16 8 4 4-4 4"/></svg>
         Sign out</button>
     </div>
   </header>
@@ -364,6 +380,7 @@ select option{background:var(--forest);color:var(--cream)}
 
     <div class="door-bar">
       <span class="door-count"><span id="doorNum">0 / 0</span><small>Arrived</small></span>
+      <span class="stamp" id="doorMiss"></span>
       <span class="door-search">
         <input type="search" id="doorQ" placeholder="Type a name" aria-label="Find a guest">
       </span>
@@ -417,6 +434,7 @@ select option{background:var(--forest);color:var(--cream)}
         <button class="chip" data-f="all" aria-pressed="true">All</button>
         <button class="chip" data-f="notes" aria-pressed="false">With children</button>
         <button class="chip" data-f="pairs" aria-pressed="false">Pairs</button>
+        <button class="chip" data-f="noshow" aria-pressed="false">No shows</button>
         <button class="chip" data-f="cancelled" aria-pressed="false">Cancelled</button>
       </span>
       <span class="count" id="count"></span>
@@ -460,7 +478,7 @@ select option{background:var(--forest);color:var(--cream)}
       <div class="fld"><label class="label" for="fStatus">Status</label>
         <select id="fStatus">
           <option>Confirmed</option><option>Waitlist</option>
-          <option>Attended</option><option>Cancelled</option>
+          <option>Attended</option><option>No show</option><option>Cancelled</option>
         </select></div>
     </div>
     <div class="fld"><label class="label" for="fGuest">Guest name</label>
@@ -610,6 +628,7 @@ function load(quiet){
       role = res.role || role;
       meta.capacity = res.capacity || meta.capacity;
       meta.arrived  = res.arrived || 0;
+      meta.noShow   = res.noShow || 0;
       meta.years    = res.years || {};
       lastLoad = Date.now();
       render();
@@ -641,6 +660,7 @@ function visible(){
     }
     if (filter === 'notes' && !(r.children || '').trim()) return false;
     if (filter === 'pairs' && r.party !== 2) return false;
+    if (filter === 'noshow' && r.status !== 'No show') return false;
     if (filter === 'cancelled' && r.status !== 'Cancelled') return false;
     if (filter !== 'cancelled' && filter !== 'all' && r.status === 'Cancelled') return false;
     if (!q) return true;
@@ -718,8 +738,9 @@ function render(){
   paintCapacity(live);
   paintYears();
   $('stamp').textContent = ago();
-  $('doorNum').textContent = (meta.arrived || 0) + ' / ' +
-    live.reduce(function(a,r){ return a + (r.party || 1); }, 0);
+  var expected = live.reduce(function(a,r){ return a + (r.party || 1); }, 0);
+  $('doorNum').textContent = (meta.arrived || 0) + ' / ' + expected;
+  $('doorMiss').textContent = (meta.noShow || 0) + ' marked as not arriving';
   $('sHeads').textContent = live.reduce(function(a,r){ return a + (r.party || 1); }, 0);
   $('sFam').textContent   = live.length;
   $('sPairs').textContent = live.filter(function(r){ return r.party === 2; }).length;
@@ -734,7 +755,8 @@ function render(){
   $('rows').innerHTML = list.map(function(r){
     var st = r.status || 'Confirmed';
     return '<div class="row' + (r.dupe ? ' is-dupe' : '') +
-      (r.status === 'Attended' ? ' arrived' : '') + '" data-ref="' + esc(r.ref) + '">' +
+      (r.status === 'Attended' ? ' arrived' : '') +
+      (r.status === 'No show' ? ' noshown' : '') + '" data-ref="' + esc(r.ref) + '">' +
       '<span class="seat" aria-hidden="true">' + (r.party || 1) + '</span>' +
       '<div class="who"><b>' + esc(r.name) +
         (r.dupe ? '<span class="dupe-tag">Duplicate</span>' : '') + '</b>' +
@@ -747,8 +769,12 @@ function render(){
       '<span class="status"><span class="pill ' + st.toLowerCase() + '">' + esc(st) + '</span></span>' +
       '<span class="act">' + (
         doorMode
-          ? '<button class="arrive" data-arrive="' + esc(r.ref) + '">' +
-            (r.status === 'Attended' ? 'Arrived' : 'Check in') + '</button>'
+          ? '<span class="door-actions">' +
+              '<button class="arrive" data-arrive="' + esc(r.ref) + '">' +
+                (r.status === 'Attended' ? '\u2713 Arrived' : 'Check in') + '</button>' +
+              '<button class="noshow" data-noshow="' + esc(r.ref) + '">' +
+                (r.status === 'No show' ? 'No show' : 'Did not come') + '</button>' +
+            '</span>'
           : (admin
             ? '<button class="icon-btn edit" data-edit="' + esc(r.ref) + '" ' +
               'aria-label="Edit the RSVP from ' + esc(r.name) + '">' +
@@ -844,21 +870,31 @@ $('doorExit').addEventListener('click', function(){ setDoor(false); });
 $('doorQ').addEventListener('input', render);
 
 $('rows').addEventListener('click', function(e){
-  var b = e.target.closest('[data-arrive]');
+  var b = e.target.closest('[data-arrive],[data-noshow]');
   if (!b) return;
-  var ref = b.getAttribute('data-arrive');
+  var wantsArrival = b.hasAttribute('data-arrive');
+  var ref = b.getAttribute(wantsArrival ? 'data-arrive' : 'data-noshow');
   var row = data.filter(function(r){ return r.ref === ref; })[0];
   if (!row) return;
-  var next = row.status === 'Attended' ? 'Confirmed' : 'Attended';
+  // Pressing the same button again undoes it, for the inevitable mis-tap.
+  var next = wantsArrival
+    ? (row.status === 'Attended' ? 'Confirmed' : 'Attended')
+    : (row.status === 'No show'  ? 'Confirmed' : 'No show');
   b.disabled = true;
   api({ action:'update', token:session, ref:ref, status:next })
     .then(function(res){
       b.disabled = false;
       if (res && res.error === 'expired'){ expire(); return; }
       if (res && res.ok){
+        var was = row.status, n = row.party || 1;
+        if (was === 'Attended') meta.arrived -= n;
+        if (was === 'No show')  meta.noShow  -= n;
+        if (next === 'Attended') meta.arrived += n;
+        if (next === 'No show')  meta.noShow  += n;
         row.status = next;
-        meta.arrived += (next === 'Attended' ? (row.party || 1) : -(row.party || 1));
-        toast(next === 'Attended' ? row.name + ' checked in' : row.name + ' un-checked');
+        toast(next === 'Attended' ? row.name + ' checked in'
+            : next === 'No show'  ? row.name + ' marked as not arriving'
+            : row.name + ' set back to confirmed');
         render();
       } else toast('Could not update that guest.');
     })
