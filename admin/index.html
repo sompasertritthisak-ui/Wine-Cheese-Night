@@ -761,7 +761,7 @@ function load(quiet){
   api({ action:'list', token:session })
     .then(function(res){
       if (res && res.error === 'expired'){ expire(); return; }
-      if (!res || !res.ok){ fail(); return; }
+      if (!res || !res.ok){ fail(res); return; }
       data = res.replies || [];
       role = res.role || role;
       meta.capacity = res.capacity || meta.capacity;
@@ -777,10 +777,13 @@ function load(quiet){
     })
     .catch(fail);
 }
-function fail(){
+function fail(res){
+  if (res) console.error('The list could not be read:', res);
   $('rows').innerHTML = '';
   $('empty').classList.remove('hidden');
-  $('emptyMsg').textContent = 'Could not reach the spreadsheet. Check the connection and try Refresh.';
+  $('emptyMsg').textContent = (res && res.detail)
+    ? 'The list could not be read: ' + res.detail
+    : 'Could not reach the spreadsheet. Check the connection and try Refresh.';
 }
 
 function esc(v){
