@@ -157,6 +157,7 @@ input:-webkit-autofill,input:-webkit-autofill:focus{
   border-bottom:1px solid rgba(244,241,232,.08);transition:background var(--t-micro)}
 .row:last-child{border-bottom:0}
 .row:hover{background:rgba(244,241,232,.035)}
+.row.can-open .who{cursor:pointer}
 .row.head{background:rgba(7,37,23,.7);position:sticky;top:70px;z-index:5}
 .row.head span{font-family:var(--f-label);font-size:.54rem;letter-spacing:.2em;
   text-transform:uppercase;color:var(--stone);font-weight:600}
@@ -306,6 +307,84 @@ select option{background:var(--forest);color:var(--cream)}
 }
 .print-head{display:none}
 
+
+/* ---------------- who you are ---------------- */
+.whoami{gap:.6rem;padding:.45rem .9rem}
+.whoami .nm{font-family:var(--f-ui);font-size:.92rem;letter-spacing:normal;
+  text-transform:none;color:var(--cream)}
+.whoami .rl{font-family:var(--f-label);font-size:.5rem;letter-spacing:.2em;
+  text-transform:uppercase}
+.whoami.r-administrator{border-color:rgba(208,169,58,.6)}
+.whoami.r-administrator i,.whoami.r-administrator .rl{color:var(--gold-lit)}
+.whoami.r-admissions i,.whoami.r-admissions .rl{color:#7FC6A0}
+.whoami.r-events i,.whoami.r-events .rl{color:#E7A87C}
+.whoami.r-marketing i,.whoami.r-marketing .rl{color:#9FBEE8}
+.whoami.r-secretary i,.whoami.r-secretary .rl{color:#D7A9D4}
+.whoami.r-director i,.whoami.r-director .rl{color:var(--gold)}
+.whoami i{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+
+/* ---------------- tabs ---------------- */
+.tabs{display:flex;gap:.4rem;border-bottom:1px solid var(--line);margin-bottom:1.6rem;
+  flex-wrap:wrap}
+.tab{background:transparent;border:0;border-bottom:2px solid transparent;
+  padding:.9rem 1.2rem;min-height:48px;cursor:pointer;color:var(--stone);
+  font-family:var(--f-label);font-weight:600;font-size:.6rem;letter-spacing:.2em;
+  text-transform:uppercase;display:flex;align-items:center;gap:.55rem;
+  transition:color var(--t-micro),border-color var(--t-micro)}
+.tab svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.6;
+  stroke-linecap:round;stroke-linejoin:round}
+.tab:hover{color:var(--cream)}
+.tab[aria-selected="true"]{color:var(--gold-lit);border-bottom-color:var(--gold)}
+.panel-view{display:none}
+.panel-view.on{display:block}
+
+/* ---------------- read-only notice ---------------- */
+.ro-note{display:flex;gap:.7rem;align-items:center;padding:.9rem 1.1rem;
+  border:1px solid rgba(208,169,58,.35);background:rgba(208,169,58,.06);
+  color:var(--stone);font-size:.9rem;margin-bottom:1.3rem}
+.ro-note b{color:var(--gold-lit);font-family:var(--f-label);font-size:.58rem;
+  letter-spacing:.2em;text-transform:uppercase}
+
+/* ---------------- guest detail ---------------- */
+.detail{position:fixed;inset:0;z-index:105;display:none;align-items:center;
+  justify-content:center;padding:clamp(12px,4vw,40px)}
+.detail.open{display:flex}
+.detail-card{position:relative;width:min(540px,100%);max-height:90dvh;overflow-y:auto;
+  background:linear-gradient(175deg,var(--forest-2),var(--forest-deep) 65%);
+  border:1px solid rgba(208,169,58,.5);padding:clamp(1.4rem,4vw,2.2rem)}
+.detail-card h2{font-size:1.5rem;color:var(--cream);margin-bottom:.3rem}
+.detail-card .sub{font-family:var(--f-label);font-size:.56rem;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--gold);margin-bottom:1.6rem}
+.dl{display:grid;grid-template-columns:auto 1fr;gap:.7rem 1.4rem;margin-bottom:1.6rem}
+.dl dt{font-family:var(--f-label);font-size:.56rem;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--gold);padding-top:.25rem;white-space:nowrap}
+.dl dd{margin:0;font-size:1.02rem;color:var(--cream);line-height:1.5;word-break:break-word}
+.dl dd a{color:var(--gold-lit);text-decoration:none;border-bottom:1px solid var(--gold-dim)}
+.dl dd small{display:block;color:var(--stone);font-size:.85rem;margin-top:.2rem}
+
+/* ---------------- activity log ---------------- */
+.log-row{display:grid;grid-template-columns:auto 1fr auto;gap:1rem;align-items:baseline;
+  padding:.9rem 1.1rem;border-bottom:1px solid rgba(244,241,232,.08)}
+.log-row:last-child{border-bottom:0}
+.log-who{display:flex;align-items:center;gap:.5rem;white-space:nowrap}
+.log-who b{font-family:var(--f-ui);font-weight:500;font-size:.98rem;color:var(--cream)}
+.log-who i{width:6px;height:6px;border-radius:50%;flex:none}
+.log-who.r-administrator{color:var(--gold-lit)}
+.log-who.r-admissions{color:#7FC6A0}
+.log-who.r-events{color:#E7A87C}
+.log-who.r-marketing{color:#9FBEE8}
+.log-who.r-secretary{color:#D7A9D4}
+.log-who.r-director{color:var(--gold)}
+.log-who b{color:var(--cream)}
+.log-did{color:var(--stone);font-size:.92rem}
+.log-did em{font-style:normal;color:var(--cream)}
+.log-when{font-family:var(--f-label);font-size:.52rem;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--stone);white-space:nowrap}
+@media (max-width:720px){
+  .log-row{grid-template-columns:1fr;gap:.35rem}
+  .log-when{grid-row:1}
+}
+
 @media (max-width:920px){
   .row{grid-template-columns:auto 1fr auto;grid-template-areas:
     "seat who act" "ref meta meta";row-gap:.7rem}
@@ -334,7 +413,7 @@ select option{background:var(--forest);color:var(--cream)}
     <input type="password" id="pwd" autocomplete="current-password">
     <button class="btn btn-solid" id="enter" style="width:100%;margin-top:1.1rem">Sign in</button>
     <p class="err" id="gateErr" role="alert"></p>
-    <p class="label" style="margin-top:1.4rem;opacity:.6;letter-spacing:.2em">School office use only</p>
+    <p class="label" style="margin-top:1.4rem;opacity:.6;letter-spacing:.2em">PBIS staff only</p>
   </div>
 </div>
 
@@ -385,6 +464,23 @@ select option{background:var(--forest);color:var(--cream)}
         <input type="search" id="doorQ" placeholder="Type a name" aria-label="Find a guest">
       </span>
       <button class="btn" id="doorExit">Leave door mode</button>
+    </div>
+
+    <nav class="tabs" role="tablist">
+      <button class="tab" role="tab" data-tab="list" aria-selected="true">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg>
+        RSVPs</button>
+      <button class="tab" role="tab" data-tab="log" aria-selected="false" id="tabLog" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+        Activity log</button>
+    </nav>
+
+    <div class="panel-view on" id="viewList">
+
+    <div class="ro-note hidden" id="roNote">
+      <b>View only</b>
+      <span>Your account can see everything and export, but not change or remove
+        an RSVP. Ask an administrator or a team member if something needs editing.</span>
     </div>
 
     <div class="cap">
@@ -453,11 +549,35 @@ select option{background:var(--forest);color:var(--cream)}
       </div>
     </div>
 
-    <p class="note">This list is read straight from the spreadsheet each time it loads.
+    </div>
+
+    <div class="panel-view" id="viewLog">
+      <p class="note" style="margin-top:0;margin-bottom:1.2rem">Every change made by every
+        account, newest first. Sign-ins are recorded too. This is visible to
+        administrators only.</p>
+      <div class="list" id="logList"></div>
+    </div>
+
+    <p class="note" id="listNote">This list is read straight from the spreadsheet each time it loads.
       Deleting here removes the row from the sheet as well, and cannot be undone from this
       page &mdash; use the sheet's version history if you need one back. To cancel someone
       without losing the record, set their Status to Cancelled in the sheet instead.</p>
   </main>
+</div>
+
+<div class="detail" id="detail" role="dialog" aria-modal="true" aria-labelledby="detName">
+  <div class="sheet-scrim" data-detail-close></div>
+  <div class="detail-card">
+    <button class="modal-close" data-detail-close aria-label="Close"
+      style="position:absolute;top:.6rem;right:.6rem;width:44px;height:44px;background:transparent;border:0;color:var(--stone);font-size:1.3rem;cursor:pointer">&times;</button>
+    <h2 id="detName">&mdash;</h2>
+    <p class="sub" id="detRef">&mdash;</p>
+    <dl class="dl" id="detBody"></dl>
+    <div class="sheet-actions">
+      <button class="btn" data-detail-close>Close</button>
+      <button class="btn btn-solid" id="detEdit">Edit this RSVP</button>
+    </div>
+  </div>
 </div>
 
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
@@ -502,7 +622,12 @@ select option{background:var(--forest);color:var(--cream)}
 var ENDPOINT = 'https://script.google.com/macros/s/AKfycbyyp8ihiEzN1cG_YHdJsGSQNPGZap9dYy-izSIcF-B11fxVxb3XVJpRYmW8m9kbVaGVUw/exec';
 
 var session = '', role = '', data = [], filter = 'all';
-var meta = { capacity:150, arrived:0, years:{}, now:null };
+var meta = { capacity:150, arrived:0, noShow:0, years:{}, now:null };
+/* If the server ever fails to send a permission set, assume the least
+   dangerous thing that still shows the list: read-only. A blank dashboard
+   is a worse failure than a cautious one. */
+var rights = { edit:false, remove:false, export:true, contacts:false, log:false };
+var me = { name:'', role:'', team:'' };
 var doorMode = false, pollTimer = null, lastLoad = null, undoTimer = null;
 var $ = function(id){ return document.getElementById(id); };
 
@@ -572,14 +697,27 @@ function signIn(){
       }
       session = res.token;
       role = res.role;
+      // The server calls these 'can' and 'title'. Read what it actually sends.
+      rights = res.can || {};
+      me = { name: res.name || res.user, role: res.role, team: res.title || '' };
       $('usr').value = ''; $('pwd').value = '';
       $('gate').classList.add('gone');
       $('app').classList.remove('hidden');
 
       var w = $('whoami');
-      w.innerHTML = '<i aria-hidden="true"></i>' + res.user + ' \u00b7 ' + res.role;
-      w.className = 'whoami' + (role === 'administrator' ? '' : ' viewer');
-      $('viewerNote').classList.toggle('hidden', role === 'administrator');
+      w.innerHTML = '<i aria-hidden="true"></i>' +
+        '<span class="nm">' + esc(me.name) + '</span>' +
+        '<span class="rl">' + esc(me.team || me.role) + '</span>';
+      w.className = 'whoami r-' + role;
+
+      // Show only what this account may actually use.
+      $('viewerNote').classList.add('hidden');
+      $('roNote').classList.toggle('hidden', !!rights.edit);
+      $('tabLog').hidden = !rights.log;
+      ['addBtn','doorBtn'].forEach(function(id){ $(id).hidden = !rights.edit; });
+      $('emails').hidden = !rights.contacts;
+      $('csv').hidden = !rights.export;
+      console.info('Signed in as', me.name, '\u2014 role:', role, '\u2014 can:', rights);
 
       countdown();
       load();
@@ -629,6 +767,9 @@ function load(quiet){
       meta.capacity = res.capacity || meta.capacity;
       meta.arrived  = res.arrived || 0;
       meta.noShow   = res.noShow || 0;
+      if (res.can) rights = res.can;
+      if (res.name) me.name = res.name;
+      if (res.title) me.team = res.title;
       meta.years    = res.years || {};
       lastLoad = Date.now();
       render();
@@ -751,10 +892,11 @@ function render(){
   $('empty').classList.toggle('hidden', list.length > 0);
   if (!list.length && data.length) $('emptyMsg').textContent = 'Nothing matches that search.';
 
-  var admin = role === 'administrator';
+  var admin = !!rights.contacts;      // may see full contact details
+  var canEdit = !!rights.edit;
   $('rows').innerHTML = list.map(function(r){
     var st = r.status || 'Confirmed';
-    return '<div class="row' + (r.dupe ? ' is-dupe' : '') +
+    return '<div class="row' + (r.dupe ? ' is-dupe' : '') + ' can-open' +
       (r.status === 'Attended' ? ' arrived' : '') +
       (r.status === 'No show' ? ' noshown' : '') + '" data-ref="' + esc(r.ref) + '">' +
       '<span class="seat" aria-hidden="true">' + (r.party || 1) + '</span>' +
@@ -775,7 +917,7 @@ function render(){
               '<button class="noshow" data-noshow="' + esc(r.ref) + '">' +
                 (r.status === 'No show' ? 'No show' : 'Did not come') + '</button>' +
             '</span>'
-          : (admin
+          : (canEdit
             ? '<button class="icon-btn edit" data-edit="' + esc(r.ref) + '" ' +
               'aria-label="Edit the RSVP from ' + esc(r.name) + '">' +
               '<svg viewBox="0 0 24 24"><path d="M4 20h4l10-10-4-4L4 16z"/>' +
@@ -977,6 +1119,106 @@ $('printBtn').addEventListener('click', function(){
     filter = wasFilter; $('q').value = wasQ; doorMode = wasDoor;
     render();
   }, 120);
+});
+
+/* ---------------- tabs ---------------- */
+document.querySelectorAll('.tab').forEach(function(t){
+  t.addEventListener('click', function(){
+    var which = t.getAttribute('data-tab');
+    document.querySelectorAll('.tab').forEach(function(x){
+      x.setAttribute('aria-selected', x === t ? 'true' : 'false');
+    });
+    $('viewList').classList.toggle('on', which === 'list');
+    $('viewLog').classList.toggle('on', which === 'log');
+    $('listNote').style.display = which === 'list' ? '' : 'none';
+    if (which === 'log') loadLog();
+  });
+});
+
+function loadLog(){
+  $('logList').innerHTML = '<div class="skel"><i></i><i></i></div>'.repeat(3);
+  api({ action:'activity', token:session })
+    .then(function(res){
+      if (res && res.error === 'expired'){ expire(); return; }
+      if (!res || !res.ok){
+        $('logList').innerHTML = '<div class="empty">The log could not be read.</div>';
+        return;
+      }
+      var e = res.entries || [];
+      if (!e.length){
+        $('logList').innerHTML = '<div class="empty">Nothing recorded yet.</div>';
+        return;
+      }
+      $('logList').innerHTML = e.map(function(x){
+        var when = x.ts ? new Date(x.ts) : null;
+        return '<div class="log-row">' +
+          '<span class="log-who r-' + esc(x.role) + '">' +
+            '<i aria-hidden="true" style="background:currentColor"></i>' +
+            '<b>' + esc(x.who) + '</b></span>' +
+          '<span class="log-did"><em>' + esc(x.did) + '</em>' +
+            (x.to ? ' \u2014 ' + esc(x.to) : '') + '</span>' +
+          '<span class="log-when">' + (when
+            ? when.toLocaleString([], { day:'numeric', month:'short',
+                hour:'2-digit', minute:'2-digit' })
+            : '') + '</span>' +
+        '</div>';
+      }).join('');
+    })
+    .catch(function(){
+      $('logList').innerHTML = '<div class="empty">No connection.</div>';
+    });
+}
+
+/* ---------------- guest detail ---------------- */
+var detailRef = null;
+
+function openDetail(ref){
+  var r = data.filter(function(x){ return x.ref === ref; })[0];
+  if (!r) return;
+  detailRef = ref;
+  $('detName').textContent = r.name;
+  $('detRef').textContent = r.ref + ' \u00b7 ' + (r.status || 'Confirmed');
+
+  function row(label, value){
+    if (!value) return '';
+    return '<dt>' + label + '</dt><dd>' + value + '</dd>';
+  }
+  var kids = (r.children || '').split(';').filter(function(k){ return k.trim(); });
+
+  $('detBody').innerHTML =
+    row('Party', r.party + (r.party === 1 ? ' place' : ' places') +
+        (r.guest ? '<small>with ' + esc(r.guest) + '</small>' : '')) +
+    row('Phone', r.phone ? '<a href="tel:' + esc(r.phone).replace(/[^0-9+]/g,'') + '">' +
+        esc(r.phone) + '</a>' : '\u2014') +
+    row('Email', r.email ? '<a href="mailto:' + esc(r.email) + '">' + esc(r.email) + '</a>'
+        : '<span style="color:var(--stone)">Not given</span>') +
+    row('Children at PBIS', kids.length
+        ? kids.map(function(k){ return esc(k.trim()); }).join('<br>')
+        : '<span style="color:var(--stone)">None listed</span>') +
+    row('Status', esc(r.status || 'Confirmed')) +
+    row('Received', r.ts ? new Date(r.ts).toLocaleString([], { weekday:'short',
+        day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : '\u2014');
+
+  $('detEdit').style.display = rights.edit ? '' : 'none';
+  $('detail').classList.add('open');
+}
+function closeDetail(){ $('detail').classList.remove('open'); detailRef = null; }
+
+$('rows').addEventListener('click', function(e){
+  if (e.target.closest('button')) return;      // let the row buttons win
+  var row = e.target.closest('.row.can-open');
+  if (row && !doorMode) openDetail(row.getAttribute('data-ref'));
+});
+document.querySelectorAll('[data-detail-close]').forEach(function(el){
+  el.addEventListener('click', closeDetail);
+});
+$('detEdit').addEventListener('click', function(){
+  var ref = detailRef;
+  closeDetail();
+  openSheet(ref);
+});
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape' && $('detail').classList.contains('open')) closeDetail();
 });
 
 /* ---------------- exports ---------------- */
