@@ -1207,6 +1207,36 @@ html.modal-open,html.modal-open body{overflow:hidden}
 @media (prefers-reduced-motion:reduce){.btn.is-sending::after{animation:none}}
 
 /* ============================================================
+   SENDING
+   A full overlay rather than a small spinner on a button. On a
+   slow connection the guest needs to see that something is
+   happening, or they press send again.
+   ============================================================ */
+.sending{position:fixed;inset:0;z-index:120;display:none;align-items:center;
+  justify-content:center;padding:1.4rem}
+.sending.on{display:flex}
+.sending-scrim{position:absolute;inset:0;background:rgba(4,20,12,.9);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.sending-card{position:relative;text-align:center;max-width:34ch}
+.sending-ring{width:76px;height:76px;margin:0 auto 1.6rem;position:relative}
+.sending-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.sending-ring circle{fill:none;stroke-width:2}
+.sending-ring .track{stroke:rgba(208,169,58,.2)}
+.sending-ring .live{stroke:var(--gold);stroke-linecap:round;
+  stroke-dasharray:60 170;animation:spinRing 1.15s linear infinite}
+@keyframes spinRing{to{transform:rotate(360deg);transform-origin:50% 50%}}
+.sending-card b{display:block;font-family:var(--f-display);font-weight:500;
+  font-size:clamp(1.3rem,3.4vw,1.8rem);color:var(--white);margin-bottom:.6rem}
+.sending-card span{display:block;font-family:var(--f-ui);font-size:.95rem;
+  color:var(--fg-2);line-height:1.6}
+.sending-slow{display:block;margin-top:1rem;font-family:var(--f-label);
+  font-size:.56rem;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);
+  opacity:0;transition:opacity var(--t-ui) var(--e-out)}
+.sending-slow.on{opacity:1}
+@media (prefers-reduced-motion:reduce){.sending-ring .live{animation:none;
+  stroke-dasharray:none;stroke:var(--gold-dim)}}
+
+/* ============================================================
    §19 — REDUCED MOTION. Atmosphere off, function intact.
    ============================================================ */
 @media (prefers-reduced-motion:reduce){
@@ -1660,6 +1690,21 @@ html.modal-open,html.modal-open body{overflow:hidden}
 
 
 <!-- ========== CONFIRMATION ========== -->
+<div class="sending" id="sending" role="status" aria-live="polite" aria-hidden="true">
+  <div class="sending-scrim"></div>
+  <div class="sending-card">
+    <span class="sending-ring" aria-hidden="true">
+      <svg viewBox="0 0 76 76">
+        <circle class="track" cx="38" cy="38" r="35"/>
+        <circle class="live" cx="38" cy="38" r="35"/>
+      </svg>
+    </span>
+    <b data-t="send.title">Sending your RSVP</b>
+    <span data-t="send.body">One moment while we save your place.</span>
+    <span class="sending-slow" id="sendingSlow" data-t="send.slow">Still working &mdash; please do not close this page</span>
+  </div>
+</div>
+
 <div class="modal" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
   <div class="modal-scrim" data-close></div>
   <div class="modal-card" id="confirmCard">
@@ -2211,6 +2256,7 @@ function rsvp(){
     btn.disabled = true;
     btn.classList.add('is-sending');
     document.getElementById('submitLabel').textContent = 'Sending your RSVP';
+    showSending();
 
     var payload = {
       action:   'create',
@@ -2228,6 +2274,7 @@ function rsvp(){
     };
 
     function reset(){
+      hideSending();
       sending = false;
       btn.disabled = false;
       btn.classList.remove('is-sending');
@@ -2320,6 +2367,27 @@ function rsvp(){
       });
   });
 
+  /* ---- the sending overlay ---- */
+  var slowTimer = null;
+  function showSending(){
+    var el = document.getElementById('sending');
+    el.classList.add('on');
+    el.setAttribute('aria-hidden','false');
+    document.documentElement.classList.add('modal-open');
+    // After four seconds, say so rather than leaving them wondering.
+    slowTimer = setTimeout(function(){
+      document.getElementById('sendingSlow').classList.add('on');
+    }, 4000);
+  }
+  function hideSending(){
+    clearTimeout(slowTimer);
+    var el = document.getElementById('sending');
+    el.classList.remove('on');
+    el.setAttribute('aria-hidden','true');
+    document.getElementById('sendingSlow').classList.remove('on');
+    document.documentElement.classList.remove('modal-open');
+  }
+
   /* ---- confirmation ---- */
   // Nothing a guest types is ever put into markup as-is.
   function esc(v){
@@ -2329,6 +2397,7 @@ function rsvp(){
   }
 
   function confirmed(data){
+    hideSending();
     var modal = document.getElementById('confirmModal');
     var card  = document.getElementById('confirmCard');
     var box   = document.getElementById('confirm');
@@ -2695,7 +2764,10 @@ var T = {
   'foot.privacy':{lo:'ຂໍ້ມູນທີ່ທ່ານໃຫ້ ຖືກໃຊ້ພຽງເພື່ອຈັດງານຄ່ຳຄືນນີ້ ເກັບຮັກສາໂດຍຫ້ອງການໂຮງຮຽນ ບໍ່ມີການແບ່ງປັນອອກນອກ ແລະ ຈະຖືກລຶບຫຼັງງານສິ້ນສຸດ',th:'ข้อมูลที่ท่านให้ ใช้เพื่อจัดงานค่ำคืนนี้เท่านั้น เก็บรักษาโดยสำนักงานโรงเรียน ไม่เผยแพร่ภายนอก และจะถูกลบหลังจบงาน',zh:'您提供的信息仅用于筹办本次活动，由学校办公室保管，不会外传，并将在活动结束后删除。',vi:'Thông tin bạn cung cấp chỉ dùng để tổ chức buổi tối này, do văn phòng nhà trường lưu giữ, không chia sẻ ra ngoài và sẽ được xoá sau sự kiện.',ko:'제공하신 정보는 이 저녁 행사를 준비하는 데에만 사용되며, 학교 사무실이 보관하고 외부에 공유하지 않으며 행사 종료 후 삭제됩니다.',ja:'ご記入いただいた情報は本催しの準備にのみ使用し、学校事務室が保管します。外部には共有せず、終了後に削除いたします。',fr:'Les informations fournies servent uniquement à organiser cette soirée. Elles sont conservées par le secrétariat, ne sont pas partagées et sont supprimées après l’événement.'},
   'foot.private':{lo:'ຄຳເຊີນສ່ວນຕົວສຳລັບຄອບຄົວ PBIS ກະລຸນາຢ່າເຜີຍແຜ່ຕໍ່ສາທາລະນະ',th:'คำเชิญส่วนตัวสำหรับครอบครัว PBIS กรุณาอย่าเผยแพร่สู่สาธารณะ',zh:'这是发给 PBIS 家庭的私人邀请，请勿公开分享。',vi:'Thiệp mời riêng dành cho các gia đình PBIS. Vui lòng không chia sẻ công khai.',ko:'PBIS 가족을 위한 비공개 초대장입니다. 외부에 공유하지 말아 주세요.',ja:'PBISのご家族向けの非公開のご招待です。公開の場での共有はお控えください。',fr:'Invitation privée réservée aux familles PBIS. Merci de ne pas la partager publiquement.'},
   'foot.copyright':{lo:'© 2026 ໂຮງຮຽນ ປັນຍາທິບ ບຣິດຕິດ ອິນເຕີແນຊັນນອລ',th:'© 2026 โรงเรียนนานาชาติปันยาทิพ',zh:'© 2026 班雅提英国国际学校',vi:'© 2026 Trường Quốc tế Panyathip',ko:'© 2026 파냐팁 브리티시 국제학교',ja:'© 2026 パンヤティップ英国国際学校',fr:'© 2026 Panyathip British International School'},
-  'foot.rights':{lo:'ວຽງຈັນ, ສປປ ລາວ',th:'เวียงจันทน์ สปป.ลาว',zh:'老挝万象',vi:'Viêng Chăn, Lào',ko:'라오스 비엔티안',ja:'ラオス・ビエンチャン',fr:'Vientiane, Lao PDR'}
+  'foot.rights':{lo:'ວຽງຈັນ, ສປປ ລາວ',th:'เวียงจันทน์ สปป.ลาว',zh:'老挝万象',vi:'Viêng Chăn, Lào',ko:'라오스 비엔티안',ja:'ラオス・ビエンチャン',fr:'Vientiane, Lao PDR'},
+  'send.title':{lo:'ກຳລັງສົ່ງຄຳຕອບຮັບ',th:'กำลังส่งคำตอบรับ',zh:'正在提交回覆',vi:'Đang gửi phản hồi',ko:'회신을 보내는 중',ja:'送信しています',fr:'Envoi de votre réponse'},
+  'send.body':{lo:'ກະລຸນາລໍຖ້າ ພວກເຮົາກຳລັງບັນທຶກບ່ອນຂອງທ່ານ',th:'กรุณารอสักครู่ เรากำลังบันทึกที่นั่งของท่าน',zh:'请稍候，正在为您保留席位。',vi:'Vui lòng đợi trong giây lát, chúng tôi đang giữ chỗ cho bạn.',ko:'잠시만 기다려 주세요. 자리를 저장하고 있습니다.',ja:'少々お待ちください。お席を確保しています。',fr:'Un instant, nous réservons votre place.'},
+  'send.slow':{lo:'ຍັງດຳເນີນການຢູ່ — ກະລຸນາຢ່າປິດໜ້ານີ້',th:'ยังดำเนินการอยู่ — กรุณาอย่าปิดหน้านี้',zh:'仍在处理 — 请勿关闭此页面',vi:'Vẫn đang xử lý — vui lòng không đóng trang',ko:'아직 처리 중입니다 — 페이지를 닫지 마세요',ja:'処理中です — このページを閉じないでください',fr:'Toujours en cours — ne fermez pas cette page'}
 };
 
 function language(){
