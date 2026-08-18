@@ -406,6 +406,35 @@ select option{background:var(--forest);color:var(--cream)}
 }
 @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;
   transition-duration:.001ms!important}}
+
+/* ============================================================
+   THE SCROLLBAR
+   The browser default is a pale grey strip that sits against the
+   green like a scuff. This is the one piece of browser chrome a
+   page can dress, so it may as well match.
+
+   Two syntaxes: the standard one, which Firefox honours, and the
+   WebKit one for Safari and Chrome. Both are needed.
+   ============================================================ */
+html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:rgba(7,37,23,.55);
+  border-left:1px solid rgba(208,169,58,.16)}
+::-webkit-scrollbar-thumb{
+  background:linear-gradient(180deg,var(--gold-lit),var(--gold) 45%,#A8801C);
+  border:2px solid rgba(7,37,23,.85);border-radius:99px;
+  background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{
+  background:linear-gradient(180deg,#FFF0C4,var(--gold-lit) 45%,var(--gold));
+  background-clip:padding-box}
+::-webkit-scrollbar-thumb:active{background:var(--gold);background-clip:padding-box}
+::-webkit-scrollbar-corner{background:rgba(7,37,23,.55)}
+/* Panels that scroll inside the page get a narrower version. */
+.modal-card::-webkit-scrollbar,.sheet-card::-webkit-scrollbar,
+.detail-card::-webkit-scrollbar,.lang-menu::-webkit-scrollbar,
+.wrap::-webkit-scrollbar{width:8px}
+
+
 </style>
 </head>
 <body>
