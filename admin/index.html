@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#072517">
-<title>RSVP list &mdash; Wine &amp; Cheese Evening | PBIS</title>
+<title>RSVP list &mdash; Parent Appreciation Night | PBIS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
@@ -282,6 +282,17 @@ select option{background:var(--forest);color:var(--cream)}
 .icon-btn.edit:hover{border-color:var(--gold);color:var(--gold-lit);background:rgba(208,169,58,.08)}
 .act{display:flex;gap:.4rem}
 
+.made{max-width:1320px;margin:0 auto;padding:1.6rem var(--gutter) 3rem;
+  border-top:1px solid var(--line);display:flex;flex-wrap:wrap;
+  gap:.5rem 1.4rem;align-items:baseline}
+.made .who{font-family:var(--f-label);font-size:.54rem;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--gold)}
+.made p{margin:0;font-size:.88rem;color:var(--stone)}
+.made b{font-family:var(--f-ui);font-weight:500;color:var(--cream)}
+.made a{color:var(--gold-lit);text-decoration:none;border-bottom:1px solid var(--gold-dim)}
+.made .cr{width:100%;font-family:var(--f-label);font-size:.52rem;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--stone);opacity:.7;margin-top:.4rem}
+@media print{.made{display:none!important}}
 .stamp{font-family:var(--f-label);font-size:.52rem;letter-spacing:.2em;
   text-transform:uppercase;color:var(--stone);white-space:nowrap}
 
@@ -404,7 +415,7 @@ select option{background:var(--forest);color:var(--cream)}
 <div class="gate" id="gate">
   <div class="gate-card">
     <div class="crest" role="img" aria-label="Panyathip British International School"></div>
-    <p class="label">Parent Appreciation Wine &amp; Cheese Evening</p>
+    <p class="label">Parent Appreciation Night</p>
     <h1>The RSVP list</h1>
     <p class="sub">Friday 11 September 2026</p>
     <label class="label" for="usr">Username</label>
@@ -421,7 +432,7 @@ select option{background:var(--forest);color:var(--cream)}
   <header class="bar">
     <div class="crest" role="img" aria-label="PBIS"></div>
     <div class="bar-id">
-      <b>Wine &amp; Cheese Evening</b>
+      <b>Parent Appreciation Night</b>
       <span>Friday 11 September 2026 &middot; Secondary Campus</span>
     </div>
     <div class="bar-actions">
@@ -453,7 +464,7 @@ select option{background:var(--forest);color:var(--cream)}
 
   <main>
     <div class="print-head">
-      <h1>Wine &amp; Cheese Night &mdash; door list</h1>
+      <h1>Parent Appreciation Night &mdash; door list</h1>
       <p>Friday 11 September 2026 &middot; PBIS Secondary Campus, football field area</p>
     </div>
 
@@ -579,6 +590,14 @@ select option{background:var(--forest);color:var(--cream)}
     </div>
   </div>
 </div>
+
+<footer class="made">
+  <span class="who">Designed and built by</span>
+  <p><b>Sompasert Ritthisak (Top)</b> &middot;
+    <a href="mailto:sompasert.ritthisak@pbis.edu.la">sompasert.ritthisak@pbis.edu.la</a> &middot;
+    <a href="https://wa.me/85677489869">WhatsApp 77489869</a></p>
+  <p class="cr">&copy; 2026 Panyathip British International School</p>
+</footer>
 
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
   <div class="sheet-scrim" data-sheet-close></div>
@@ -1256,7 +1275,7 @@ $('csv').addEventListener('click', function(){
                       { type:'text/csv;charset=utf-8' });
   var a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'PBIS-wine-and-cheese-RSVPs.csv';
+  a.download = 'PBIS-parent-appreciation-RSVPs.csv';
   a.click();
   toast('CSV downloaded');
 });
