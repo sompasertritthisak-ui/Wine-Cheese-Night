@@ -1026,15 +1026,19 @@ html.gate-shut,html.gate-shut body{overflow:hidden}
   transition:border-color var(--t-micro) var(--e-out),background var(--t-micro) var(--e-out)}
 .check:hover{border-color:var(--gold);background:rgba(208,169,58,.09)}
 .check input{appearance:none;-webkit-appearance:none;flex:none;
-  width:22px;height:22px;min-height:22px;min-width:22px;padding:0;margin:0;
-  border:1.5px solid var(--gold);background:transparent;cursor:pointer;
-  position:relative;border-radius:2px;align-self:flex-start;margin-top:.15rem;
-  transition:background var(--t-micro) var(--e-out),box-shadow var(--t-micro)}
-.check input:hover{box-shadow:0 0 0 4px rgba(208,169,58,.12)}
-.check input:checked{background:var(--gold)}
-.check input:checked::after{content:"";position:absolute;left:6.5px;top:2px;
-  width:6px;height:11px;border:solid var(--forest-deep);border-width:0 2px 2px 0;
-  transform:rotate(42deg)}
+  width:28px;height:28px;min-height:28px;min-width:28px;padding:0;margin:0;
+  border:2px solid var(--gold);background:rgba(208,169,58,.07);cursor:pointer;
+  position:relative;border-radius:4px;align-self:flex-start;margin-top:.05rem;
+  transition:background var(--t-micro) var(--e-out),box-shadow var(--t-micro),
+             border-color var(--t-micro)}
+.check input:hover{box-shadow:0 0 0 5px rgba(208,169,58,.14)}
+.check input:focus-visible{outline:2px solid var(--gold-lit);outline-offset:3px}
+.check input:checked{background:var(--gold);border-color:var(--gold)}
+/* The tick, drawn thick enough to read at a glance. */
+.check input:checked::after{content:"";position:absolute;left:9px;top:3.5px;
+  width:7px;height:14px;border:solid var(--forest-deep);border-width:0 3px 3px 0;
+  transform:rotate(42deg) scale(.6);opacity:0;
+  transition:transform 260ms var(--e-out),opacity 160ms var(--e-out)}
 .check span{font-family:var(--f-ui);font-size:.95rem;font-weight:400;line-height:1.5;
   letter-spacing:normal;text-transform:none;color:var(--fg);margin:0}
 .check.invalid{border-color:var(--danger);background:rgba(242,178,92,.08)}
@@ -1332,6 +1336,74 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
 .wrap::-webkit-scrollbar{width:8px}
 
 /* ============================================================
+   THE PROGRESS BAR
+   A spinner says only that something is happening. A bar that
+   fills says how far along it is, which is what stops a parent
+   on a slow connection pressing send a second time.
+   ============================================================ */
+.sending-card{max-width:38ch}
+.sending-card .crest{width:min(120px,26vw);margin:0 auto 1.4rem}
+.prog{position:relative;height:6px;margin:1.8rem 0 .8rem;
+  background:rgba(244,241,232,.1);border:1px solid rgba(208,169,58,.28);
+  overflow:hidden}
+.prog i{position:absolute;inset:0;transform-origin:0 50%;transform:scaleX(0);
+  background:linear-gradient(90deg,var(--gold),var(--gold-lit) 60%,#FFF0C4);
+  transition:transform 520ms cubic-bezier(.16,1,.3,1)}
+/* A sheen travelling along the filled part, so it never looks stalled. */
+.prog i::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);
+  transform:translateX(-100%);animation:sheen 1.5s ease-in-out infinite}
+@keyframes sheen{to{transform:translateX(100%)}}
+.prog-pct{display:block;font-family:var(--f-label);font-size:.6rem;
+  letter-spacing:.24em;color:var(--accent);font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion:reduce){
+  .prog i::after{animation:none}
+  .prog i{transition:none}
+}
+
+/* Two fields side by side, stacking on a phone. */
+.fld-pair{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2rem}
+@media (max-width:560px){.fld-pair{grid-template-columns:1fr;gap:0}}
+
+/* ============================================================
+   THE ACKNOWLEDGEMENT
+   Larger, with a drawn tick rather than a CSS corner, and a gold
+   fill when checked. It has to be obvious: nothing can be sent
+   until it is ticked.
+   ============================================================ */
+.check{gap:1.1rem;padding:1.15rem 1.3rem;align-items:flex-start;
+  border-width:1.5px}
+.check input{width:30px;height:30px;min-width:30px;min-height:30px;
+  border:2px solid var(--gold);border-radius:4px;margin-top:.05rem;
+  background:rgba(208,169,58,.06)}
+.check input::after{content:"";position:absolute;left:9px;top:4px;
+  width:9px;height:16px;border:solid var(--forest-deep);
+  border-width:0 3px 3px 0;transform:rotate(42deg) scale(0);
+  transform-origin:center;opacity:0;
+  transition:transform 220ms cubic-bezier(.34,1.56,.64,1),opacity 140ms}
+.check input:checked{background:var(--gold);border-color:var(--gold);
+  box-shadow:0 0 0 4px rgba(208,169,58,.18)}
+.check input:checked::after{transform:rotate(42deg) scale(1);opacity:1}
+.check input:hover{border-color:var(--gold-lit);
+  box-shadow:0 0 0 5px rgba(208,169,58,.14)}
+.check span{font-size:1rem;line-height:1.55}
+.check.invalid{border-color:var(--danger)}
+.check.invalid input{border-color:var(--danger)}
+@media (prefers-reduced-motion:reduce){
+  .check input::after{transition:none}
+}
+
+/* A button that cannot yet be pressed should look it. */
+.btn.is-locked{background:rgba(244,241,232,.07);border-color:var(--hair);
+  color:var(--fg-2);cursor:not-allowed;box-shadow:none}
+.btn.is-locked:hover{background:rgba(244,241,232,.07);border-color:var(--hair);
+  color:var(--fg-2);transform:none}
+.btn.is-locked .arrow{opacity:.4}
+.lock-hint{margin:.7rem 0 0;font-family:var(--f-ui);font-size:.85rem;
+  color:var(--fg-2);text-align:right}
+.lock-hint.hidden{display:none}
+
+/* ============================================================
    §19 — REDUCED MOTION. Atmosphere off, function intact.
    ============================================================ */
 @media (prefers-reduced-motion:reduce){
@@ -1575,10 +1647,17 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
         <h3 data-t="s1.title">Who is coming?</h3>
         <p class="hint" data-t="s1.hint">Your name goes on the guest list at the gate. Nothing further, and nothing shared outside the school office.</p>
 
-        <div class="field" id="f-name">
-          <label for="name"><span data-t="f.name">Full name</span> <span class="req" aria-hidden="true">*</span></label>
-          <input id="name" name="name" type="text" autocomplete="name" required aria-describedby="e-name">
-          <div class="err" id="e-name" role="alert"></div>
+        <div class="fld-pair">
+          <div class="field" id="f-first">
+            <label for="first"><span data-t="f.first">First name</span> <span class="req" aria-hidden="true">*</span></label>
+            <input id="first" name="first" type="text" autocomplete="given-name" required aria-describedby="e-first">
+            <div class="err" id="e-first" role="alert"></div>
+          </div>
+          <div class="field" id="f-last">
+            <label for="last"><span data-t="f.last">Last name</span> <span class="req" aria-hidden="true">*</span></label>
+            <input id="last" name="last" type="text" autocomplete="family-name" required aria-describedby="e-last">
+            <div class="err" id="e-last" role="alert"></div>
+          </div>
         </div>
 
         <div class="field" id="f-phone">
@@ -1595,6 +1674,14 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
                  aria-describedby="e-email h-email">
           <div class="help" id="h-email" data-t="f.emailHelp">Leave this and we will send your confirmation by email.</div>
           <div class="err" id="e-email" role="alert"></div>
+        </div>
+
+        <div class="field" id="f-children">
+          <label id="lbl-children" data-t="f.children">Your child at PBIS</label>
+          <div class="child-rows" id="childRows" role="group" aria-labelledby="lbl-children"></div>
+          <button type="button" class="btn btn-ghost add-child" id="addChild" hidden>
+            <span aria-hidden="true">+</span> <span data-t="f.addChild">Add another child</span>
+          </button>
         </div>
 
         <div class="step-nav">
@@ -1616,22 +1703,6 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
         <div class="field" id="f-guests" hidden>
           <label for="guest2" data-t="f.guest">Who will be joining you?</label>
           <div class="guest-rows" id="guestRows"></div>
-        </div>
-
-        <div class="field" id="f-children">
-          <label id="lbl-children" data-t="f.children">Your child at PBIS</label>
-          <div class="child-rows" id="childRows" role="group" aria-labelledby="lbl-children"></div>
-          <button type="button" class="btn btn-ghost add-child" id="addChild" hidden>
-            <span aria-hidden="true">+</span> <span data-t="f.addChild">Add another child</span>
-          </button>
-          <div class="help" data-t="f.childrenHelp">This helps us seat families with children in the same year together.</div>
-        </div>
-
-        <!-- Not for people. Left empty by anyone who cannot see it, filled
-             in by anything that completes every field it finds. -->
-        <div class="hp" aria-hidden="true">
-          <label for="website">Website</label>
-          <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
         </div>
 
         <div class="check-err" id="submitErr" role="alert" style="margin-bottom:1.2rem"></div>
@@ -1775,14 +1846,16 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
 <div class="sending" id="sending" role="status" aria-live="polite" aria-hidden="true">
   <div class="sending-scrim"></div>
   <div class="sending-card">
-    <span class="sending-ring" aria-hidden="true">
-      <svg viewBox="0 0 76 76">
-        <circle class="track" cx="38" cy="38" r="35"/>
-        <circle class="live" cx="38" cy="38" r="35"/>
-      </svg>
-    </span>
+    <div class="crest" role="img" aria-label="Panyathip British International School"></div>
     <b data-t="send.title">Sending your RSVP</b>
     <span data-t="send.body">One moment while we save your place.</span>
+
+    <div class="prog" role="progressbar" aria-valuemin="0" aria-valuemax="100"
+         aria-valuenow="0" aria-label="Saving your RSVP">
+      <i id="progFill"></i>
+    </div>
+    <span class="prog-pct" id="progPct">0%</span>
+
     <span class="sending-slow" id="sendingSlow" data-t="send.slow">Still working &mdash; please do not close this page</span>
   </div>
 </div>
@@ -2235,9 +2308,23 @@ function rsvp(){
     box.setAttribute('aria-invalid', ok ? 'false' : 'true');
     return ok;
   }
+  /* The send button is locked until the acknowledgement is ticked. It is
+     still a real disabled state on the server side too — this only makes
+     the requirement visible instead of surprising. */
+  function syncLock(){
+    var box = document.getElementById('adults');
+    var btn = document.getElementById('submitBtn');
+    var hint = document.getElementById('lockHint');
+    var ok = box.checked;
+    btn.classList.toggle('is-locked', !ok);
+    btn.setAttribute('aria-disabled', ok ? 'false' : 'true');
+    hint.classList.toggle('hidden', ok);
+  }
   document.getElementById('adults').addEventListener('change', function(){
     if (this.checked) checkAdults();
+    syncLock();
   });
+  syncLock();
 
   /* ---- steps ---- */
   var nodes = Array.prototype.slice.call(form.querySelectorAll('.node'));
@@ -2281,9 +2368,12 @@ function rsvp(){
      Name and phone are required. Email is optional, but if it is filled
      in it has to be usable, or the confirmation goes nowhere. */
   var RULES = {
-    name:  { req:true,
-             test:function(v){ return v.trim().length >= 2; },
-             msg:'Enter the name we should put on the guest list.' },
+    first: { req:true,
+             test:function(v){ return v.trim().length >= 1; },
+             msg:'Please enter your first name.' },
+    last:  { req:true,
+             test:function(v){ return v.trim().length >= 1; },
+             msg:'Please enter your last name.' },
     phone: { req:true,
              test:function(v){ return v.replace(/[^0-9]/g,'').length >= 8; },
              msg:'Enter a number the office can reach you on.' },
@@ -2311,8 +2401,11 @@ function rsvp(){
     return ok;
   }
   function stepOneOk(){
-    var a = check('name'), b = check('phone'), c = check('email');
-    if (a && b && c) return true;
+    // Every field is checked before returning, so all the faults show at
+    // once rather than one per attempt.
+    var a = check('first'), b = check('last'),
+        c = check('phone'), d = check('email');
+    if (a && b && c && d) return true;
     var first = form.querySelector('.field.invalid input');
     if (first) first.focus();
     return false;
@@ -2353,7 +2446,10 @@ function rsvp(){
       ref:      myRef,
       website:  document.getElementById('website').value,   // must stay empty
       elapsed:  Date.now() - opened,
-      name:     document.getElementById('name').value.trim(),
+      first:    document.getElementById('first').value.trim(),
+      last:     document.getElementById('last').value.trim(),
+      name:     document.getElementById('first').value.trim() + ' ' +
+                document.getElementById('last').value.trim(),
       phone:    document.getElementById('phone').value.trim(),
       email:    document.getElementById('email').value.trim(),
       party:    party,
@@ -2364,6 +2460,7 @@ function rsvp(){
 
     function reset(){
       hideSending();
+      setProgress(0);
       sending = false;
       btn.disabled = false;
       btn.classList.remove('is-sending');
@@ -2386,7 +2483,11 @@ function rsvp(){
       failed:      'Something went wrong at our end saving your RSVP. Please let the ' +
                    'school office know and they will add you.',
       unreachable: 'We cannot reach the RSVP service. Please let the school office ' +
-                   'know so they can add you, and we will look into it.'
+                   'know so they can add you, and we will look into it.',
+      unsaved:     'We could not confirm that your RSVP was saved. Please try once ' +
+                   'more \u2014 and if it happens again, let the school office know rather ' +
+                   'than assuming your place is held.',
+      busy:        'A lot of RSVPs are arriving at once. Please wait a moment and try again.'
     };
 
     function failed(res){
@@ -2429,37 +2530,137 @@ function rsvp(){
       });
     }
 
-    send('cors')
-      .then(function(r){
-        return r.text().then(function(t){
-          try { return JSON.parse(t); }
-          catch (e) {
-            console.warn('Reply was not JSON; treating as unreadable.', r.status);
-            return null;
-          }
-        });
-      })
-      .then(function(res){
-        if (res && res.ok) { done(res); return; }
-        if (res && res.ok === false) { failed(res); return; }   // a real refusal
-        throw new Error('unreadable');
-      })
-      .catch(function(err){
-        console.warn('Could not read the reply, confirming on the second attempt:', err);
-        // Same rid, so this cannot create a second row.
-        send('no-cors')
-          .then(function(){ done({ ref: myRef, blind: true }); })
-          .catch(function(err2){
-            console.error('RSVP could not be sent at all:', err2);
-            failed({ error:'unreachable' });
+    /* Every attempt carries the same submission id, so retrying can never
+       create a second row: the server recognises the repeat and returns the
+       original reference. That makes it safe to keep trying, which matters
+       when a few hundred families reply within the same hour. */
+    var MAX_TRIES = 4;
+
+    function attempt(n){
+      setProgress(n === 1 ? 25 : Math.min(25 + n * 18, 82));
+
+      send('cors')
+        .then(function(r){
+          return r.text().then(function(t){
+            try { return JSON.parse(t); }
+            catch (e) {
+              console.warn('Reply was not JSON.', r.status);
+              return null;
+            }
           });
+        })
+        .then(function(res){
+          if (res && res.ok) { finish(res); return; }
+
+          // The server said no, but said it is worth trying again.
+          if (res && res.retry && n < MAX_TRIES) {
+            var wait = 800 * Math.pow(2, n - 1) + Math.random() * 400;
+            console.warn('Server busy, retrying in', Math.round(wait), 'ms');
+            showRetrying();
+            setTimeout(function(){ attempt(n + 1); }, wait);
+            return;
+          }
+
+          if (res && res.ok === false) { failed(res); return; }
+          throw new Error('unreadable');
+        })
+        .catch(function(err){
+          // Could not read the reply. The browser may be blocking the
+          // redirect Apps Script answers with; the write may well have
+          // succeeded. Try once more, then fall back.
+          if (n < MAX_TRIES) {
+            console.warn('Reply unreadable, attempt', n, err);
+            setTimeout(function(){ attempt(n + 1); }, 700 * n);
+            return;
+          }
+          /* Last resort: send once more in a mode the browser will not let
+             us read, then ASK THE SERVER whether it actually saved. We
+             never confirm on faith — a parent believing they have a place
+             that does not exist is the one failure worth avoiding above
+             all others. */
+          console.warn('Reply unreadable. Sending blind, then verifying.');
+          send('no-cors')
+            .then(function(){ verify(1); })
+            .catch(function(err2){
+              console.error('RSVP could not be sent at all:', err2);
+              failed({ error:'unreachable' });
+            });
+        });
+    }
+
+    /* Asks the server whether the RSVP is in the sheet. Tries a few times,
+       because the write may still be queued behind others during a rush. */
+    function verify(attemptNo){
+      var MAX_CHECKS = 6;
+      setProgress(88);
+      fetch(ENDPOINT, {
+        method:'POST',
+        headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action:'verify', ref: myRef, rid: rid })
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(res){
+        if (res && res.saved) { finish({ ref: res.ref || myRef, verified: true }); return; }
+        if (attemptNo < MAX_CHECKS){
+          setTimeout(function(){ verify(attemptNo + 1); }, 1200 * attemptNo);
+          return;
+        }
+        // It genuinely is not there. Say so, rather than pretending.
+        failed({ error:'unsaved' });
+      })
+      .catch(function(){
+        if (attemptNo < MAX_CHECKS){
+          setTimeout(function(){ verify(attemptNo + 1); }, 1200 * attemptNo);
+          return;
+        }
+        failed({ error:'unsaved' });
       });
+    }
+
+    function finish(res){
+      setProgress(100);
+      setTimeout(function(){ done(res); }, 380);
+    }
+
+    attempt(1);
   });
 
   /* ---- the sending overlay ---- */
-  var slowTimer = null;
+  var slowTimer = null, creepTimer = null;
+
+  /* The bar reports real milestones, but creeps forward slowly between
+     them so it never looks frozen while waiting on the network. */
+  function setProgress(pct){
+    var f = document.getElementById('progFill');
+    var t = document.getElementById('progPct');
+    var bar = f && f.parentNode;
+    if (!f) return;
+    pct = Math.max(0, Math.min(100, Math.round(pct)));
+    f.style.transform = 'scaleX(' + (pct / 100) + ')';
+    t.textContent = pct + '%';
+    if (bar) bar.setAttribute('aria-valuenow', pct);
+    f.__pct = pct;
+  }
+
+  function creep(){
+    clearInterval(creepTimer);
+    creepTimer = setInterval(function(){
+      var f = document.getElementById('progFill');
+      if (!f) return;
+      var now = f.__pct || 0;
+      if (now < 88) setProgress(now + (now < 60 ? 1.5 : 0.6));
+    }, 500);
+  }
+
+  function showRetrying(){
+    var el = document.getElementById('sendingSlow');
+    el.textContent = 'A lot of replies are arriving at once \u2014 still working';
+    el.classList.add('on');
+  }
   function showSending(){
     var el = document.getElementById('sending');
+    setProgress(8);
+    creep();
     el.classList.add('on');
     el.setAttribute('aria-hidden','false');
     document.documentElement.classList.add('modal-open');
@@ -2470,6 +2671,7 @@ function rsvp(){
   }
   function hideSending(){
     clearTimeout(slowTimer);
+    clearInterval(creepTimer);
     var el = document.getElementById('sending');
     el.classList.remove('on');
     el.setAttribute('aria-hidden','true');
@@ -2499,8 +2701,7 @@ function rsvp(){
     document.getElementById('confirmSaid').textContent =
       'A place is held for ' + (data.party === 1 ? 'you' : data.party + ' of you') +
       ' on Friday 11 September.' +
-      (data.email && !data.blind ? ' We have sent the details to ' + data.email + '.' :
-       data.email ? ' A confirmation is on its way to ' + data.email + '.' : '');
+      (data.email ? ' A confirmation is on its way to ' + data.email + '.' : '');
 
     openModal(modal, card);
 
@@ -2827,7 +3028,6 @@ var T = {
   'f.addChild':{lo:'ເພີ່ມລູກອີກຄົນ',th:'เพิ่มบุตรอีกคน',zh:'再添加一位孩子',vi:'Thêm một bé nữa',ko:'자녀 추가',ja:'お子さまを追加',fr:'Ajouter un enfant'},
   'f.adults':{lo:'ຂ້າພະເຈົ້າເຂົ້າໃຈວ່າງານນີ້ສຳລັບຜູ້ໃຫຍ່ ແລະ ຂໍຄວາມກະລຸນາບໍ່ນຳເດັກນ້ອຍມາຮ່ວມງານ',th:'ข้าพเจ้าเข้าใจว่างานนี้สำหรับผู้ใหญ่ และขอความกรุณาไม่พาบุตรหลานมาร่วมงาน',zh:'我了解本次活动仅限成人参加，敬请勿携带孩子出席。',vi:'Tôi hiểu đây là buổi tối dành cho người lớn và không đưa trẻ đi cùng.',ko:'이 저녁은 성인을 위한 자리이며 아이를 동반하지 않음을 이해합니다.',ja:'この夕べは大人向けであり、お子さまはご同伴いただかないことを承知しています。',fr:'Je comprends que cette soirée est réservée aux adultes et que les enfants ne sont pas attendus.'},
   'f.children':{lo:'ລູກຂອງທ່ານທີ່ຮຽນຢູ່ PBIS',th:'บุตรของท่านที่เรียนอยู่ PBIS',zh:'您在 PBIS 就读的孩子',vi:'Con bạn đang học tại PBIS',ko:'PBIS에 재학 중인 자녀',ja:'PBISに在籍のお子さま',fr:'Votre enfant à PBIS'},
-  'f.childrenHelp':{lo:'ຊ່ວຍໃຫ້ພວກເຮົາຈັດບ່ອນນັ່ງໃຫ້ຄອບຄົວທີ່ມີລູກຮຽນຊັ້ນດຽວກັນຢູ່ໃກ້ກັນ',th:'ช่วยให้เราจัดที่นั่งครอบครัวที่มีบุตรอยู่ชั้นเดียวกันไว้ด้วยกัน',zh:'便于我们把同年级家庭安排在一起。',vi:'Giúp chúng tôi xếp chỗ các gia đình cùng khối lớp ngồi gần nhau.',ko:'같은 학년 가족끼리 자리를 배정하는 데 도움이 됩니다.',ja:'同じ学年のご家族を近くにお座りいただくために伺います。',fr:'Cela nous aide à placer ensemble les familles d’un même niveau.'},
   'f.emailHelp':{lo:'ຖ້າໃສ່ອີເມວ ພວກເຮົາຈະສົ່ງໜັງສືຢືນຢັນໄປໃຫ້',th:'หากกรอกอีเมล เราจะส่งใบยืนยันให้ทางอีเมล',zh:'填写后我们会用邮件发送确认函。',vi:'Nếu điền, chúng tôi sẽ gửi xác nhận qua email.',ko:'입력하시면 확인 메일을 보내드립니다.',ja:'ご記入いただくと確認メールをお送りします。',fr:'Renseignez-le et nous vous enverrons la confirmation.'},
   'f.guest':{lo:'ໃຜຈະມາຮ່ວມກັບທ່ານ?',th:'ใครจะมาร่วมกับท่าน',zh:'谁与您同行？',vi:'Ai sẽ đi cùng bạn?',ko:'누구와 함께 오시나요?',ja:'どなたとご一緒ですか',fr:'Qui vous accompagne ?'},
   'f.optional':{lo:'(ບໍ່ບັງຄັບ)',th:'(ไม่บังคับ)',zh:'（选填）',vi:'(không bắt buộc)',ko:'(선택)',ja:'（任意）',fr:'(facultatif)'},
@@ -2859,7 +3059,10 @@ var T = {
   'send.slow':{lo:'ຍັງດຳເນີນການຢູ່ — ກະລຸນາຢ່າປິດໜ້ານີ້',th:'ยังดำเนินการอยู่ — กรุณาอย่าปิดหน้านี้',zh:'仍在处理 — 请勿关闭此页面',vi:'Vẫn đang xử lý — vui lòng không đóng trang',ko:'아직 처리 중입니다 — 페이지를 닫지 마세요',ja:'処理中です — このページを閉じないでください',fr:'Toujours en cours — ne fermez pas cette page'},
   'hero.tag1':{lo:'25 ປີ ແຫ່ງຄວາມມຸ່ງໝັ້ນສູ່ຄວາມເປັນເລີດ',th:'25 ปี แห่งความมุ่งมั่นสู่ความเป็นเลิศ',zh:'二十五年 追求卓越',vi:'25 năm cam kết với sự xuất sắc',ko:'탁월함을 향한 25년의 헌신',ja:'卓越を追求した25年',fr:'25 ans d’engagement vers l’excellence'},
   'hero.tag2':{lo:'ບົ່ມເພາະຄົນລຸ້ນໃໝ່',th:'บ่มเพาะคนรุ่นใหม่',zh:'培育世代',vi:'Ươm mầm thế hệ',ko:'세대를 키워가며',ja:'世代を育てて',fr:'Des générations qui grandissent'},
-  'made.who':{lo:'ອອກແບບ ແລະ ພັດທະນາໂດຍ',th:'ออกแบบและพัฒนาโดย',zh:'设计与开发',vi:'Thiết kế và phát triển bởi',ko:'기획 및 제작',ja:'企画・制作',fr:'Conçu et développé par'}
+  'made.who':{lo:'ອອກແບບ ແລະ ພັດທະນາໂດຍ',th:'ออกแบบและพัฒนาโดย',zh:'设计与开发',vi:'Thiết kế và phát triển bởi',ko:'기획 및 제작',ja:'企画・制作',fr:'Conçu et développé par'},
+  'f.first':{lo:'ຊື່',th:'ชื่อ',zh:'名字',vi:'Tên',ko:'이름',ja:'お名前',fr:'Prénom'},
+  'f.last':{lo:'ນາມສະກຸນ',th:'นามสกุล',zh:'姓氏',vi:'Họ',ko:'성',ja:'姓',fr:'Nom'},
+  'f.lockHint':{lo:'ກະລຸນາຕິກໃສ່ຫ້ອງຂ້າງເທິງເພື່ອດຳເນີນຕໍ່',th:'กรุณาติ๊กช่องด้านบนเพื่อดำเนินการต่อ',zh:'请勾选上方选项以继续',vi:'Vui lòng đánh dấu ô ở trên để tiếp tục',ko:'계속하려면 위 항목에 체크해 주세요',ja:'続けるには上のチェックを入れてください',fr:'Veuillez cocher la case ci-dessus pour continuer'}
 };
 
 function language(){
