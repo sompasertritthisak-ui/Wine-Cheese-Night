@@ -1409,6 +1409,16 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
   background:var(--accent-solid);flex:none}
 .lock-hint.hidden{display:none}
 
+/* A message field: the one place a parent writes a sentence rather than
+   filling a box, so it is given room and left-aligned. */
+.field textarea{width:100%;min-height:96px;resize:vertical;line-height:1.6;
+  background:rgba(244,241,232,.04);border:1px solid var(--hair);
+  border-bottom-color:rgba(208,169,58,.4);color:var(--fg);
+  font-family:var(--f-ui);font-size:1.05rem;padding:.75rem .9rem;border-radius:0;
+  transition:border-color var(--t-micro) var(--e-out),background var(--t-micro) var(--e-out)}
+.field textarea:focus{border-color:var(--gold);background:rgba(244,241,232,.07);outline:none}
+.field textarea::placeholder{color:var(--fg-2)}
+
 /* ============================================================
    §19 — REDUCED MOTION. Atmosphere off, function intact.
    ============================================================ */
@@ -1709,6 +1719,14 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
         <div class="field" id="f-guests" hidden>
           <label for="guest2" data-t="f.guest">Who will be joining you?</label>
           <div class="guest-rows" id="guestRows"></div>
+        </div>
+
+        <div class="field" id="f-message">
+          <label for="message"><span data-t="f.message">Anything we should know?</span>
+            <span class="opt-tag" data-t="f.optional">(optional)</span></label>
+          <textarea id="message" name="message" rows="3" maxlength="800"
+                    aria-describedby="h-message"></textarea>
+          <div class="help" id="h-message" data-t="f.messageHelp">Dietary requirements, access needs, or anything else you would like the office to know.</div>
         </div>
 
         <!-- Not for people. Left empty by anyone who cannot see it, filled
@@ -2471,6 +2489,7 @@ function rsvp(){
       party:    party,
       guests:   collectGuests(),
       children: collectChildren(),
+      message:  document.getElementById('message').value.trim(),
       adults:   true
     };
 
@@ -3079,7 +3098,9 @@ var T = {
   'f.first':{lo:'ຊື່',th:'ชื่อ',zh:'名字',vi:'Tên',ko:'이름',ja:'お名前',fr:'Prénom'},
   'f.last':{lo:'ນາມສະກຸນ',th:'นามสกุล',zh:'姓氏',vi:'Họ',ko:'성',ja:'姓',fr:'Nom'},
   'f.lockHint':{lo:'ກະລຸນາຕິກໃສ່ຫ້ອງຂ້າງເທິງເພື່ອດຳເນີນຕໍ່',th:'กรุณาติ๊กช่องด้านบนเพื่อดำเนินการต่อ',zh:'请勾选上方选项以继续',vi:'Vui lòng đánh dấu ô ở trên để tiếp tục',ko:'계속하려면 위 항목에 체크해 주세요',ja:'続けるには上のチェックを入れてください',fr:'Veuillez cocher la case ci-dessus pour continuer'},
-  'f.lockHint':{lo:'ກະລຸນາໝາຍຕິກຂ້າງເທິງເພື່ອສົ່ງຄຳຕອບຮັບ',th:'กรุณาติ๊กช่องด้านบนเพื่อส่งคำตอบรับ',zh:'请勾选上方选项后再提交',vi:'Vui lòng tích vào ô trên để gửi phản hồi',ko:'위 항목에 체크해야 회신을 보낼 수 있습니다',ja:'上のチェックを入れてご返信ください',fr:'Cochez la case ci-dessus pour envoyer votre réponse'}
+  'f.lockHint':{lo:'ກະລຸນາໝາຍຕິກຂ້າງເທິງເພື່ອສົ່ງຄຳຕອບຮັບ',th:'กรุณาติ๊กช่องด้านบนเพื่อส่งคำตอบรับ',zh:'请勾选上方选项后再提交',vi:'Vui lòng tích vào ô trên để gửi phản hồi',ko:'위 항목에 체크해야 회신을 보낼 수 있습니다',ja:'上のチェックを入れてご返信ください',fr:'Cochez la case ci-dessus pour envoyer votre réponse'},
+  'f.message':{lo:'ມີຫຍັງທີ່ຢາກໃຫ້ພວກເຮົາຮູ້ບໍ?',th:'มีอะไรที่อยากให้เราทราบไหม',zh:'有什么想让我们知道的吗？',vi:'Bạn có điều gì muốn cho chúng tôi biết?',ko:'저희가 알아야 할 사항이 있나요?',ja:'何かお知らせいただくことはありますか',fr:'Souhaitez-vous nous signaler quelque chose ?'},
+  'f.messageHelp':{lo:'ຂໍ້ຈຳກັດດ້ານອາຫານ ຄວາມຕ້ອງການພິເສດ ຫຼືສິ່ງອື່ນທີ່ຢາກໃຫ້ຫ້ອງການຮູ້',th:'ข้อจำกัดด้านอาหาร ความต้องการพิเศษ หรือสิ่งอื่นที่อยากให้สำนักงานทราบ',zh:'饮食需求、无障碍需求，或其他希望校方知道的事。',vi:'Yêu cầu về ăn uống, hỗ trợ tiếp cận, hoặc bất cứ điều gì khác.',ko:'식이 요구, 편의 지원 등 사무실에 알리고 싶은 사항.',ja:'食事のご要望、バリアフリーのご希望など、事務室へお伝えしたいこと。',fr:'Régime alimentaire, besoins d’accès, ou toute autre précision utile.'}
 };
 
 function language(){
