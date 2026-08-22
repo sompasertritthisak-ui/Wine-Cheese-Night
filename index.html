@@ -1403,6 +1403,12 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
   color:var(--fg-2);text-align:right}
 .lock-hint.hidden{display:none}
 
+.lock-hint{margin:.7rem 0 0;font-family:var(--f-ui);font-size:.85rem;
+  color:var(--accent);display:flex;align-items:center;gap:.5rem}
+.lock-hint::before{content:"";width:5px;height:5px;border-radius:50%;
+  background:var(--accent-solid);flex:none}
+.lock-hint.hidden{display:none}
+
 /* ============================================================
    §19 — REDUCED MOTION. Atmosphere off, function intact.
    ============================================================ */
@@ -1705,6 +1711,13 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
           <div class="guest-rows" id="guestRows"></div>
         </div>
 
+        <!-- Not for people. Left empty by anyone who cannot see it, filled
+             in by anything that completes every field it finds. -->
+        <div class="hp" aria-hidden="true">
+          <label for="website">Website</label>
+          <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+        </div>
+
         <div class="check-err" id="submitErr" role="alert" style="margin-bottom:1.2rem"></div>
 
         <div class="field" id="f-adults">
@@ -1714,6 +1727,7 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
               not to bring our children along on the night.</span>
           </label>
           <div class="check-err" id="e-adults" role="alert"></div>
+          <p class="lock-hint hidden" id="lockHint" data-t="f.lockHint">Please tick the box above to send your RSVP.</p>
         </div>
 
         <div class="step-nav">
@@ -2315,10 +2329,12 @@ function rsvp(){
     var box = document.getElementById('adults');
     var btn = document.getElementById('submitBtn');
     var hint = document.getElementById('lockHint');
+    if (!box || !btn) return;
     var ok = box.checked;
     btn.classList.toggle('is-locked', !ok);
     btn.setAttribute('aria-disabled', ok ? 'false' : 'true');
-    hint.classList.toggle('hidden', ok);
+    // Optional: a missing hint must never stop the rest of the form wiring.
+    if (hint) hint.classList.toggle('hidden', ok);
   }
   document.getElementById('adults').addEventListener('change', function(){
     if (this.checked) checkAdults();
@@ -2444,7 +2460,7 @@ function rsvp(){
       action:   'create',
       rid:      rid,
       ref:      myRef,
-      website:  document.getElementById('website').value,   // must stay empty
+      website:  (document.getElementById('website') || {}).value || '',   // the trap
       elapsed:  Date.now() - opened,
       first:    document.getElementById('first').value.trim(),
       last:     document.getElementById('last').value.trim(),
@@ -3062,7 +3078,8 @@ var T = {
   'made.who':{lo:'ອອກແບບ ແລະ ພັດທະນາໂດຍ',th:'ออกแบบและพัฒนาโดย',zh:'设计与开发',vi:'Thiết kế và phát triển bởi',ko:'기획 및 제작',ja:'企画・制作',fr:'Conçu et développé par'},
   'f.first':{lo:'ຊື່',th:'ชื่อ',zh:'名字',vi:'Tên',ko:'이름',ja:'お名前',fr:'Prénom'},
   'f.last':{lo:'ນາມສະກຸນ',th:'นามสกุล',zh:'姓氏',vi:'Họ',ko:'성',ja:'姓',fr:'Nom'},
-  'f.lockHint':{lo:'ກະລຸນາຕິກໃສ່ຫ້ອງຂ້າງເທິງເພື່ອດຳເນີນຕໍ່',th:'กรุณาติ๊กช่องด้านบนเพื่อดำเนินการต่อ',zh:'请勾选上方选项以继续',vi:'Vui lòng đánh dấu ô ở trên để tiếp tục',ko:'계속하려면 위 항목에 체크해 주세요',ja:'続けるには上のチェックを入れてください',fr:'Veuillez cocher la case ci-dessus pour continuer'}
+  'f.lockHint':{lo:'ກະລຸນາຕິກໃສ່ຫ້ອງຂ້າງເທິງເພື່ອດຳເນີນຕໍ່',th:'กรุณาติ๊กช่องด้านบนเพื่อดำเนินการต่อ',zh:'请勾选上方选项以继续',vi:'Vui lòng đánh dấu ô ở trên để tiếp tục',ko:'계속하려면 위 항목에 체크해 주세요',ja:'続けるには上のチェックを入れてください',fr:'Veuillez cocher la case ci-dessus pour continuer'},
+  'f.lockHint':{lo:'ກະລຸນາໝາຍຕິກຂ້າງເທິງເພື່ອສົ່ງຄຳຕອບຮັບ',th:'กรุณาติ๊กช่องด้านบนเพื่อส่งคำตอบรับ',zh:'请勾选上方选项后再提交',vi:'Vui lòng tích vào ô trên để gửi phản hồi',ko:'위 항목에 체크해야 회신을 보낼 수 있습니다',ja:'上のチェックを入れてご返信ください',fr:'Cochez la case ci-dessus pour envoyer votre réponse'}
 };
 
 function language(){
