@@ -691,6 +691,11 @@ html{scrollbar-color:var(--gold) var(--paper-3)}
 /* ============================================================
    OFFICE NOTES — private to staff, never shown to a guest
    ============================================================ */
+.msg-line{display:flex;align-items:flex-start;gap:.45rem;margin-top:.4rem;
+  font-size:.9rem;color:var(--forest)}
+.msg-line svg{width:13px;height:13px;flex:none;margin-top:.22rem;
+  stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round}
+.door-on .msg-line{color:var(--gold-lit)}
 .note-line{display:flex;align-items:flex-start;gap:.45rem;margin-top:.4rem;
   font-size:.88rem;color:var(--gold-deep);font-style:italic}
 .note-line svg{width:13px;height:13px;flex:none;margin-top:.22rem;
@@ -840,6 +845,7 @@ html{scrollbar-color:var(--gold) var(--paper-3)}
         <button class="chip" data-f="all" aria-pressed="true">All</button>
         <button class="chip" data-f="notes" aria-pressed="false">With children</button>
         <button class="chip" data-f="pairs" aria-pressed="false">Pairs</button>
+        <button class="chip" data-f="msg" aria-pressed="false">With a message</button>
         <button class="chip" data-f="noshow" aria-pressed="false">No shows</button>
         <button class="chip" data-f="cancelled" aria-pressed="false">Cancelled</button>
       </span>
@@ -938,6 +944,8 @@ html{scrollbar-color:var(--gold) var(--paper-3)}
       <input type="text" id="fGuest"></div>
     <div class="fld"><label class="label" for="fChildren">Children</label>
       <input type="text" id="fChildren" placeholder="Mario (Secondary (Y7 – Y13)); Luigi (…)"></div>
+    <div class="fld"><label class="label" for="fMessage">Message from them <span class="opt">(what they wrote)</span></label>
+      <input type="text" id="fMessage"></div>
     <div class="fld"><label class="label" for="fNote">Office notes <span class="opt">(private)</span></label>
       <input type="text" id="fNote" placeholder="Paying at the door · arriving late · wheelchair access"></div>
     <p class="err" id="sheetErr" role="alert"></p>
@@ -1227,13 +1235,14 @@ function visible(){
     }
     if (filter === 'notes' && !(r.children || '').trim()) return false;
     if (filter === 'flagged' && !(r.note || '').trim()) return false;
+    if (filter === 'msg' && !(r.message || '').trim()) return false;
     if (filter === 'pairs' && r.party !== 2) return false;
     if (filter === 'noshow' && r.status !== 'No show') return false;
     if (filter === 'cancelled' && r.status !== 'Cancelled') return false;
     if (filter !== 'cancelled' && filter !== 'all' && r.status === 'Cancelled') return false;
     if (!q) return true;
     return (r.name + ' ' + r.email + ' ' + r.phone + ' ' + r.ref + ' ' +
-            r.guest + ' ' + r.children + ' ' + (r.note || ''))
+            r.guest + ' ' + r.children + ' ' + (r.note || '') + ' ' + (r.message || ''))
       .toLowerCase().indexOf(q) > -1;
   });
 }
@@ -1331,6 +1340,9 @@ function render(){
       '<span class="seat" aria-hidden="true">' + (r.party || 1) + '</span>' +
       '<div class="who"><b>' + esc(r.name) +
         (r.dupe ? '<span class="dupe-tag">Duplicate</span>' : '') + '</b>' +
+        (r.message ? '<span class="msg-line"><svg viewBox="0 0 24 24">' +
+          '<path d="M21 12a8 8 0 1 1-3.2-6.4"/><path d="M8 10h8M8 14h5"/></svg>' +
+          esc(r.message) + '</span>' : '') +
         (r.note ? '<span class="note-line"><svg viewBox="0 0 24 24">' +
           '<path d="M4 5h16M4 12h16M4 19h9"/></svg>' + esc(r.note) + '</span>' : '') +
         '<span' + (admin ? '' : ' class="masked"') + '>' + esc(r.email) + '</span>' +
@@ -1494,6 +1506,7 @@ function openSheet(ref){
   $('fGuest').value    = r ? r.guest : '';
   $('fChildren').value = r ? r.children : '';
   $('fNote').value     = r ? (r.note || '') : '';
+  $('fMessage').value  = r ? (r.message || '') : '';
   $('sheetErr').textContent = '';
   $('sheet').classList.add('open');
   setTimeout(function(){ $('fName').focus(); }, 60);
@@ -1524,7 +1537,8 @@ $('sheetSave').addEventListener('click', function(){
     status: $('fStatus').value,
     guest: $('fGuest').value.trim(),
     children: $('fChildren').value.trim(),
-    note: $('fNote').value.trim()
+    note: $('fNote').value.trim(),
+    message: $('fMessage').value.trim()
   };
   body.action = editing ? 'update' : 'add';
   if (editing) body.ref = editing;
@@ -1697,6 +1711,7 @@ function openDetail(ref){
         ? kids.map(function(k){ return esc(k.trim()); }).join('<br>')
         : '<span style="color:var(--stone)">None listed</span>') +
     row('Status', esc(r.status || 'Confirmed')) +
+    (r.message ? row('Message from them', esc(r.message)) : '') +
     (r.note ? row('Office notes', '<em style="font-style:italic">' + esc(r.note) + '</em>') : '') +
     row('Received', r.ts ? new Date(r.ts).toLocaleString([], { weekday:'short',
         day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : '\u2014');
@@ -1743,9 +1758,9 @@ $('csv').addEventListener('click', function(){
      the sort of thing that quietly wastes an afternoon. */
   var rows = sortRows(visible());
   if (!rows.length){ toast('Nothing to export in this view.'); return; }
-  var head = ['Reference','Name','Phone','Email','Party','Guest','Children','Status','Office notes'];
+  var head = ['Reference','Name','Phone','Email','Party','Guest','Children','Status','Office notes','Message'];
   var body = rows.map(function(r){
-    return [r.ref,r.name,r.phone,r.email,r.party,r.guest,r.children,r.status,r.note || '']
+    return [r.ref,r.name,r.phone,r.email,r.party,r.guest,r.children,r.status,r.note || '',r.message || '']
       .map(function(v){ return '"' + String(v == null ? '' : v).replace(/"/g,'""') + '"'; })
       .join(',');
   });
