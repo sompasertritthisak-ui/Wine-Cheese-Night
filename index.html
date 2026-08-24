@@ -1562,9 +1562,9 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
          To switch back to OPTION A, find and replace these strings
          everywhere in this file (they appear in the hero, the
          details grid, the guest pass and the confirmation):
-             21 August 2026   ->  28 August 2026
+             21 August 2026   ->  4 September 2026
              Secondary Campus ->  Primary Campus
-         The reply deadline (Friday 28 August) appears in the hero,
+         The reply deadline (Friday 4 September) appears in the hero,
          the card header, step 3, the details grid and the countdown
          in the script. The email's dates live in EVENT in Code.gs.
          The running order in section 03 also needs its times shifted.
@@ -1603,7 +1603,7 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
       <a class="btn btn-primary" href="#rsvp" data-magnetic data-cursor="Reserve">
         <span data-t="hero.cta">RSVP now</span> <span class="arrow" aria-hidden="true">&rarr;</span>
       </a>
-      <p class="deadline" data-t="hero.deadline">Kindly RSVP by Friday 28 August 2026</p>
+      <p class="deadline" data-t="hero.deadline">Kindly RSVP by Friday 4 September 2026</p>
     </div>
   </div>
 
@@ -1642,7 +1642,7 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
     <div class="rsvp-card reveal">
       <div class="rsvp-card-head">
         <b data-t="card.head">RSVP to the invitation</b>
-        <span data-t="card.closes">Closes Friday 28 August</span>
+        <span data-t="card.closes">Closes Friday 4 September</span>
       </div>
       <div class="rsvp-card-body">
 
@@ -1813,7 +1813,7 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
     <div class="tk-foot reveal">
       <div>
         <span class="k" data-t="tk.replyBy">Please RSVP by</span>
-        <span class="v" data-t="tk.replyVal">Friday 28 August 2026</span>
+        <span class="v" data-t="tk.replyVal">Friday 4 September 2026</span>
       </div>
       <a href="#rsvp">
         <span data-t="nav.rsvp">RSVP now</span>
@@ -1953,7 +1953,7 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
 
   <div class="foot-rule" aria-hidden="true"></div>
 
-  <p class="foot-deadline" data-t="foot.deadline">RSVP closes Friday 28 August 2026. If you have not
+  <p class="foot-deadline" data-t="foot.deadline">RSVP closes Friday 4 September 2026. If you have not
     replied yet, there is still time &mdash; <a href="#rsvp">it takes about a minute</a>.</p>
 
   <div class="foot-notes">
@@ -2801,12 +2801,12 @@ function rsvp(){
    ============================================================ */
 
 /* ============================================================
-   9. COUNTDOWN — replies close Friday 28 August 2026, 23:59 ICT
+   9. COUNTDOWN — replies close Friday 4 September 2026, 23:59 ICT
    ============================================================ */
 function countdown(){
   var el = document.getElementById('countdown');
   if (!el) return;
-  var end = new Date('2026-08-28T23:59:59+07:00').getTime();
+  var end = new Date('2026-09-04T23:59:59+07:00').getTime();
   var parts = [['days','Days'],['hours','Hours'],['mins','Minutes']];
 
   function tick(){
@@ -3084,7 +3084,7 @@ var T = {
   'tk.field':{lo:'ເດີ່ນບອນເຕະ',th:'สนามฟุตบอล',zh:'足球场区域',vi:'Khu sân bóng',ko:'축구장 구역',ja:'サッカー場エリア',fr:'Terrain de football'},
   'tk.hours':{lo:'ເປີດ 17:30 · ປິດ 20:30',th:'เปิด 17:30 · ปิด 20:30',zh:'17:30 开放 · 20:30 结束',vi:'Mở 17:30 · đóng 20:30',ko:'17:30 개방 · 20:30 종료',ja:'17:30開場 · 20:30終了',fr:'Ouverture 17h30 · fermeture 20h30'},
   'foot.years':{lo:'ສະເຫຼີມສະຫຼອງ 25 ປີ · 2001–2026',th:'ฉลองครบรอบ 25 ปี · 2001–2026',zh:'庆祝二十五周年 · 2001–2026',vi:'Kỷ niệm hai mươi lăm năm · 2001–2026',ko:'25주년을 기념하며 · 2001–2026',ja:'創立25周年 · 2001–2026',fr:'Vingt-cinq ans · 2001–2026'},
-  'foot.deadline':{lo:'ປິດຮັບການຕອບຮັບ ວັນສຸກ ທີ 28 ສິງຫາ 2026. ຖ້າທ່ານຍັງບໍ່ທັນຕອບ ຍັງມີເວລາ — ໃຊ້ເວລາປະມານ 1 ນາທີ.',th:'ปิดรับการตอบรับวันศุกร์ที่ 28 สิงหาคม 2026 หากท่านยังไม่ได้ตอบ ยังมีเวลา — ใช้เวลาราวหนึ่งนาที',zh:'回覆截止 2026 年 8 月 28 日星期五。若您尚未回覆，仍来得及 — 约需一分钟。',vi:'Hạn phản hồi: thứ Sáu, 28 tháng 8 năm 2026. Nếu bạn chưa trả lời, vẫn còn kịp — chỉ mất khoảng một phút.',ko:'회신 마감은 2026년 8월 28일 금요일입니다. 아직이시라면 시간이 있습니다 — 1분이면 됩니다.',ja:'ご返信の締切は2026年8月28日（金）です。まだの方もお時間があります — 1分ほどで完了します。',fr:'Clôture des réponses le vendredi 28 août 2026. Il est encore temps — cela prend une minute.'},
+  'foot.deadline':{lo:'ປິດຮັບການຕອບຮັບ ວັນສຸກ ທີ 4 ກັນຍາ 2026. ຖ້າທ່ານຍັງບໍ່ທັນຕອບ ຍັງມີເວລາ — ໃຊ້ເວລາປະມານ 1 ນາທີ.',th:'ปิดรับการตอบรับวันศุกร์ที่ 4 กันยายน 2026 หากท่านยังไม่ได้ตอบ ยังมีเวลา — ใช้เวลาราวหนึ่งนาที',zh:'回覆截止 2026 年 9 月 4 日星期五。若您尚未回覆，仍来得及 — 约需一分钟。',vi:'Hạn phản hồi: thứ Sáu, 4 tháng 9 năm 2026. Nếu bạn chưa trả lời, vẫn còn kịp — chỉ mất khoảng một phút.',ko:'회신 마감은 2026년 9월 4일 금요일입니다. 아직이시라면 시간이 있습니다 — 1분이면 됩니다.',ja:'ご返信の締切は2026年9月4日（金）です。まだの方もお時間があります — 1分ほどで完了します。',fr:'Clôture des réponses le vendredi 4 septembre 2026. Il est encore temps — cela prend une minute.'},
   'foot.privacy':{lo:'ຂໍ້ມູນທີ່ທ່ານໃຫ້ ຖືກໃຊ້ພຽງເພື່ອຈັດງານຄ່ຳຄືນນີ້ ເກັບຮັກສາໂດຍຫ້ອງການໂຮງຮຽນ ບໍ່ມີການແບ່ງປັນອອກນອກ ແລະ ຈະຖືກລຶບຫຼັງງານສິ້ນສຸດ',th:'ข้อมูลที่ท่านให้ ใช้เพื่อจัดงานค่ำคืนนี้เท่านั้น เก็บรักษาโดยสำนักงานโรงเรียน ไม่เผยแพร่ภายนอก และจะถูกลบหลังจบงาน',zh:'您提供的信息仅用于筹办本次活动，由学校办公室保管，不会外传，并将在活动结束后删除。',vi:'Thông tin bạn cung cấp chỉ dùng để tổ chức buổi tối này, do văn phòng nhà trường lưu giữ, không chia sẻ ra ngoài và sẽ được xoá sau sự kiện.',ko:'제공하신 정보는 이 저녁 행사를 준비하는 데에만 사용되며, 학교 사무실이 보관하고 외부에 공유하지 않으며 행사 종료 후 삭제됩니다.',ja:'ご記入いただいた情報は本催しの準備にのみ使用し、学校事務室が保管します。外部には共有せず、終了後に削除いたします。',fr:'Les informations fournies servent uniquement à organiser cette soirée. Elles sont conservées par le secrétariat, ne sont pas partagées et sont supprimées après l’événement.'},
   'foot.private':{lo:'ຄຳເຊີນສ່ວນຕົວສຳລັບຄອບຄົວ PBIS ກະລຸນາຢ່າເຜີຍແຜ່ຕໍ່ສາທາລະນະ',th:'คำเชิญส่วนตัวสำหรับครอบครัว PBIS กรุณาอย่าเผยแพร่สู่สาธารณะ',zh:'这是发给 PBIS 家庭的私人邀请，请勿公开分享。',vi:'Thiệp mời riêng dành cho các gia đình PBIS. Vui lòng không chia sẻ công khai.',ko:'PBIS 가족을 위한 비공개 초대장입니다. 외부에 공유하지 말아 주세요.',ja:'PBISのご家族向けの非公開のご招待です。公開の場での共有はお控えください。',fr:'Invitation privée réservée aux familles PBIS. Merci de ne pas la partager publiquement.'},
   'foot.copyright':{lo:'© 2026 ໂຮງຮຽນ ປັນຍາທິບ ບຣິດຕິດ ອິນເຕີແນຊັນນອລ',th:'© 2026 โรงเรียนนานาชาติปันยาทิพ',zh:'© 2026 班雅提英国国际学校',vi:'© 2026 Trường Quốc tế Panyathip',ko:'© 2026 파냐팁 브리티시 국제학교',ja:'© 2026 パンヤティップ英国国際学校',fr:'© 2026 Panyathip British International School'},
