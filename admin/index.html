@@ -834,7 +834,7 @@ html{scrollbar-color:var(--gold) var(--paper-3)}
 
     <p class="deadline">
       <b id="cdLabel">RSVP closes</b>
-      <span id="cdText">Friday 28 August 2026</span>
+      <span id="cdText">Friday 4 September 2026</span>
     </p>
 
     <div class="tools">
@@ -1775,18 +1775,18 @@ $('csv').addEventListener('click', function(){
 
 /* ---------------- deadline ---------------- */
 function countdown(){
-  var end = new Date('2026-08-28T23:59:59+07:00').getTime();
+  var end = new Date('2026-09-04T23:59:59+07:00').getTime();
   function tick(){
     var left = end - Date.now();
     if (left <= 0){
       $('cdLabel').textContent = 'RSVP closed';
-      $('cdText').textContent = 'Friday 28 August 2026';
+      $('cdText').textContent = 'Friday 4 September 2026';
       return;
     }
     var d = Math.floor(left/86400000), h = Math.floor(left/3600000) % 24;
     $('cdLabel').textContent = 'RSVP closes in';
     $('cdText').textContent = d + (d === 1 ? ' day ' : ' days ') + h +
-      (h === 1 ? ' hour' : ' hours') + ' \u00b7 Friday 28 August 2026';
+      (h === 1 ? ' hour' : ' hours') + ' \u00b7 Friday 4 September 2026';
     setTimeout(tick, 60000);
   }
   tick();
