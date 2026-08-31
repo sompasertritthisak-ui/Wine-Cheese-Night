@@ -1420,6 +1420,25 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
 .field textarea::placeholder{color:var(--fg-2)}
 
 /* ============================================================
+   THE DEADLINE
+   It was set as a caption, in the same grey as body copy, which
+   is the wrong weight for the one date that carries a consequence.
+   It now reads as a statement with a gold rule either side.
+   ============================================================ */
+.deadline{margin:1.5rem auto 0;max-width:none;text-align:center;
+  display:flex;align-items:center;justify-content:center;gap:.9rem;
+  font-family:var(--f-label);font-weight:700;
+  font-size:clamp(.88rem,2.1vw,1.18rem);letter-spacing:.22em;text-transform:uppercase;
+  color:var(--gold-lit);text-shadow:0 1px 0 rgba(0,0,0,.45)}
+.deadline::before,.deadline::after{content:"";height:1px;width:clamp(18px,4vw,44px);
+  background:linear-gradient(90deg,transparent,var(--gold));flex:none}
+.deadline::after{background:linear-gradient(90deg,var(--gold),transparent)}
+@media (max-width:640px){
+  .deadline{letter-spacing:.12em;gap:.6rem;margin-top:1.2rem;font-size:.92rem}
+  .deadline::before,.deadline::after{width:14px}
+}
+
+/* ============================================================
    §19 — REDUCED MOTION. Atmosphere off, function intact.
    ============================================================ */
 @media (prefers-reduced-motion:reduce){
@@ -1616,8 +1635,8 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
 
 <div class="ribbon" aria-hidden="true">
   <div class="ribbon-track">
-    <span>25 Years</span><span>Parent Appreciation</span><span>Friday 11 September 2026</span><span>5:30 &ndash; 8:30 PM</span><span>Secondary Campus</span><span>Formal &middot; Business Casual</span>
-    <span>25 Years</span><span>Parent Appreciation</span><span>Friday 11 September 2026</span><span>5:30 &ndash; 8:30 PM</span><span>Secondary Campus</span><span>Formal &middot; Business Casual</span>
+    <span>25 Years</span><span>Parent Appreciation</span><span>Friday 11 September 2026</span><span>5:30 &ndash; 8:30 PM</span><span>Secondary Campus</span><span>Smart Casual</span>
+    <span>25 Years</span><span>Parent Appreciation</span><span>Friday 11 September 2026</span><span>5:30 &ndash; 8:30 PM</span><span>Secondary Campus</span><span>Smart Casual</span>
   </div>
 </div>
 
@@ -1803,7 +1822,7 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
           <span class="tk-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 8 8 4 4 6v14h16V6l-4-2-4 4z"/><path d="M9.4 10.6 12 13l2.6-2.4"/></svg></span>
           <div>
             <dt><span data-t="tk.dress">Dress</span> <span class="lao" lang="lo">&#3713;&#3762;&#3609;&#3776;&#3714;&#3767;&#3785;&#3762;&#3719;&#3762;&#3609;</span></dt>
-            <dd data-t="tk.dressVal">Formal attire or business casual
+            <dd data-t="tk.dressVal">Smart casual
               <small data-t="tk.dressNote">A jacket is welcome. Flat shoes for the grass.</small></dd>
           </div>
         </div>
@@ -3040,7 +3059,7 @@ var T = {
   'tk.where':{lo:'ສະຖານທີ່',th:'สถานที่',zh:'地点',vi:'Địa điểm',ko:'장소',ja:'会場',fr:'Lieu'},
   'tk.whereNote':{lo:'ເດີ່ນບອນເຕະ, ບ້ານສະພານທອງເໜືອ, ນຄໜວງວີງຈັນ',th:'สนามฟุตบอล สะพานทองเหนือ เวียงจันทน์',zh:'足球场区域，万象市',vi:'Khu sân bóng, Viêng Chăn',ko:'축구장 구역, 비엔티안',ja:'サッカー場エリア、ビエンチャン',fr:'Terrain de football, Vientiane'},
   'tk.dress':{lo:'ການແຕ່ງກາຍ',th:'การแต่งกาย',zh:'着装',vi:'Trang phục',ko:'복장',ja:'服装',fr:'Tenue'},
-  'tk.dressVal':{lo:'ຊຸດທາງການ ຫຼື ຊຸດພື້ນເມືອງ',th:'ทางการหรือชุดประจำชาติ',zh:'正装或传统服饰',vi:'Trang trọng hoặc truyền thống',ko:'정장 또는 전통 의상',ja:'フォーマルまたは民族衣装',fr:'Tenue de soirée ou traditionnelle'},
+  'tk.dressVal':{lo:'ຊຸດສຸພາບແບບລຳລອງ',th:'สมาร์ทแคชชวล',zh:'轻正装',vi:'Trang phục lịch sự thoải mái',ko:'스마트 캐주얼',ja:'スマートカジュアル',fr:'Tenue smart casual'},
   'tk.dressNote':{lo:'ຊຸດພື້ນເມືອງລາວໄດ້ຣັບການຕ້ອນຣັບ. ກະລຸນາໃສ່ເກີບພື້ນຣາບ.',th:'ยินดีต้อนรับชุดประจำชาติลาว กรุณาสวมรองเท้าส้นเตี้ย',zh:'欢迎老挝传统服饰。地面为草坪，建议穿平底鞋。',vi:'Trang phục truyền thống Lào rất được hoan nghênh. Nên đi giày bệt vì sân cỏ.',ko:'라오스 전통 의상을 환영합니다. 잔디밭이므로 평소 신발을 권해드립니다.',ja:'ラオスの民族衣装も歓迎です。芝生のため平らな靴をどうぞ。',fr:'La tenue traditionnelle lao est bienvenue. Chaussures plates, la pelouse l’exige.'},
   'tk.replyBy':{lo:'ກະລຸນາຕອບຮັບພາຍໃນ',th:'กรุณาตอบรับภายใน',zh:'请于此前回覆',vi:'Vui lòng phản hồi trước',ko:'회신 기한',ja:'返信期限',fr:'Merci de répondre avant le'},
   'tk.replyVal':{lo:'ວັນອັງຄານ ທີ 18 ສິງຫາ 2026',th:'วันอังคารที่ 18 สิงหาคม 2026',zh:'2026年8月18日星期二',vi:'Thứ Ba, 18 tháng 8 năm 2026',ko:'2026년 8월 18일 화요일',ja:'2026年8月18日（火）',fr:'Mardi 18 août 2026'},
