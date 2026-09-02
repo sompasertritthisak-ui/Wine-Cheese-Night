@@ -1025,20 +1025,7 @@ html.gate-shut,html.gate-shut body{overflow:hidden}
   text-transform:none;color:var(--fg);margin:0;
   transition:border-color var(--t-micro) var(--e-out),background var(--t-micro) var(--e-out)}
 .check:hover{border-color:var(--gold);background:rgba(208,169,58,.09)}
-.check input{appearance:none;-webkit-appearance:none;flex:none;
-  width:28px;height:28px;min-height:28px;min-width:28px;padding:0;margin:0;
-  border:2px solid var(--gold);background:rgba(208,169,58,.07);cursor:pointer;
-  position:relative;border-radius:4px;align-self:flex-start;margin-top:.05rem;
-  transition:background var(--t-micro) var(--e-out),box-shadow var(--t-micro),
-             border-color var(--t-micro)}
-.check input:hover{box-shadow:0 0 0 5px rgba(208,169,58,.14)}
-.check input:focus-visible{outline:2px solid var(--gold-lit);outline-offset:3px}
-.check input:checked{background:var(--gold);border-color:var(--gold)}
 /* The tick, drawn thick enough to read at a glance. */
-.check input:checked::after{content:"";position:absolute;left:9px;top:3.5px;
-  width:7px;height:14px;border:solid var(--forest-deep);border-width:0 3px 3px 0;
-  transform:rotate(42deg) scale(.6);opacity:0;
-  transition:transform 260ms var(--e-out),opacity 160ms var(--e-out)}
 .check span{font-family:var(--f-ui);font-size:.95rem;font-weight:400;line-height:1.5;
   letter-spacing:normal;text-transform:none;color:var(--fg);margin:0}
 .check.invalid{border-color:var(--danger);background:rgba(242,178,92,.08)}
@@ -1373,19 +1360,6 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
    ============================================================ */
 .check{gap:1.1rem;padding:1.15rem 1.3rem;align-items:flex-start;
   border-width:1.5px}
-.check input{width:30px;height:30px;min-width:30px;min-height:30px;
-  border:2px solid var(--gold);border-radius:4px;margin-top:.05rem;
-  background:rgba(208,169,58,.06)}
-.check input::after{content:"";position:absolute;left:9px;top:4px;
-  width:9px;height:16px;border:solid var(--forest-deep);
-  border-width:0 3px 3px 0;transform:rotate(42deg) scale(0);
-  transform-origin:center;opacity:0;
-  transition:transform 220ms cubic-bezier(.34,1.56,.64,1),opacity 140ms}
-.check input:checked{background:var(--gold);border-color:var(--gold);
-  box-shadow:0 0 0 4px rgba(208,169,58,.18)}
-.check input:checked::after{transform:rotate(42deg) scale(1);opacity:1}
-.check input:hover{border-color:var(--gold-lit);
-  box-shadow:0 0 0 5px rgba(208,169,58,.14)}
 .check span{font-size:1rem;line-height:1.55}
 .check.invalid{border-color:var(--danger)}
 .check.invalid input{border-color:var(--danger)}
@@ -1436,6 +1410,220 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
 @media (max-width:640px){
   .deadline{letter-spacing:.12em;gap:.6rem;margin-top:1.2rem;font-size:.92rem}
   .deadline::before,.deadline::after{width:14px}
+}
+
+/* ============================================================
+   THE RSVP FORM, ENLARGED
+   This is the one part of the page a parent has to work in rather
+   than read. Everything here is a step up in size and weight, and
+   the greys are lifted — a label at 0.62rem in stone is fine on a
+   poster and wrong on a form somebody is filling in on a phone.
+   ============================================================ */
+.rsvp-card-body{padding:clamp(1.8rem,4.5vw,3rem)}
+
+.rsvp-card .field label,
+.rsvp-card .field .label{font-family:var(--f-label);font-weight:700;
+  font-size:clamp(.78rem,1.7vw,.92rem);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--gold-lit);margin-bottom:.7rem;display:block}
+.rsvp-card .field .req{color:var(--gold);margin-left:.15rem}
+.rsvp-card .opt-tag{font-family:var(--f-ui);font-weight:400;text-transform:none;
+  letter-spacing:normal;font-size:.92rem;color:var(--fg-2)}
+
+.rsvp-card .field input,
+.rsvp-card .field select,
+.rsvp-card .field textarea,
+.rsvp-card .child-fields input,
+.rsvp-card .child-fields select,
+.rsvp-card .guest-rows input{
+  font-size:clamp(1.08rem,2.2vw,1.22rem);min-height:58px;padding:.85rem 1rem;
+  color:var(--white)}
+.rsvp-card .field .help{font-size:1rem;color:var(--fg-2);margin-top:.6rem;line-height:1.55}
+.rsvp-card .field .err{font-size:.95rem}
+
+.rsvp-card h3{font-size:clamp(1.5rem,3vw,2.1rem);color:var(--white);margin-bottom:.5rem}
+.rsvp-card .hint{font-size:1.05rem;color:var(--cream);opacity:.85;line-height:1.6;
+  margin-bottom:2.2rem}
+
+.rsvp-card .count-row .opt{min-height:62px;font-size:1.15rem;font-weight:500}
+.rsvp-card .child-no{font-size:.95rem;color:var(--gold-lit)}
+.rsvp-card .add-child{min-height:52px;font-size:.72rem;font-weight:700}
+.rsvp-card .step-nav .btn{min-height:58px;font-size:.74rem;font-weight:700;
+  padding:1.1rem 2rem}
+.rsvp-card .node .cap{font-size:.62rem;font-weight:700}
+.rsvp-card .node .dot{width:44px;height:44px;font-size:.92rem}
+.stepper-note{font-size:.68rem;font-weight:700;color:var(--accent)}
+.reassure li{font-size:1rem}
+
+/* ============================================================
+   THE TWO CONFIRMATIONS
+   One asks something of the parent; the other offers a choice.
+   The first is bordered in gold and set larger, because it is the
+   one that changes what they do on the night.
+   ============================================================ */
+.check{gap:1.1rem;padding:1.35rem 1.4rem;align-items:flex-start}
+.check input:checked::after{left:11px;top:4px;width:9px;height:17px;border-width:0 3.5px 3.5px 0}
+.check span{font-size:clamp(1.02rem,2.1vw,1.14rem);line-height:1.55;font-weight:500}
+
+#f-adults .check{border-color:var(--gold);background:rgba(208,169,58,.09);
+  border-width:1.5px}
+#f-adults .check span{color:var(--white);font-weight:600}
+#f-photos .check{border-color:var(--hair);background:rgba(244,241,232,.03)}
+#f-photos .check span{color:var(--cream);font-weight:600;
+  font-size:clamp(1rem,2vw,1.1rem);line-height:1.55}
+#f-photos{margin-bottom:1.4rem}
+
+/* --- the language switcher, on the form as well as the bar --- */
+.rsvp-card-head{gap:1rem}
+.card-lang{margin-left:auto}
+.card-lang .lang{height:42px;background:rgba(7,37,23,.14);
+  border-color:rgba(7,37,23,.3);color:var(--forest-deep)}
+.card-lang .lang:hover{border-color:var(--forest-deep)}
+.card-lang .lang .chev{color:rgba(7,37,23,.6)}
+.card-lang #langNow2{color:var(--forest-deep);font-weight:700}
+@media (max-width:560px){
+  .card-lang{margin-left:0;width:100%}
+  .card-lang .lang{width:100%;justify-content:center}
+}
+
+/* ============================================================
+   EVENT DETAILS, LOUDER
+   Date, time and place are the three things a parent must leave
+   with. They were set at label size; they are now the loudest
+   line in the hero after the title itself.
+   ============================================================ */
+.hero-meta{gap:.8rem clamp(1rem,3vw,2.4rem);
+  font-size:clamp(.86rem,2vw,1.12rem);font-weight:700;
+  letter-spacing:.14em;color:var(--white)}
+.hero-meta svg{width:19px;height:19px;stroke-width:1.8}
+.hero-meta .dot{width:4px;height:4px}
+@media (max-width:640px){
+  .hero-meta{font-size:.94rem;letter-spacing:.08em;gap:.6rem}
+}
+
+/* the ticket's rows, in step with it */
+.tk-row dt{font-size:.72rem;font-weight:700;letter-spacing:.24em}
+.tk-row dd{font-size:clamp(1.4rem,2.6vw,1.85rem);font-weight:600}
+.tk-row dd small{font-size:1rem;margin-top:.5rem}
+.tk-date .dow{font-size:.76rem;font-weight:700;letter-spacing:.3em}
+.tk-date .mon{font-size:clamp(1.6rem,3.2vw,2.4rem)}
+.tk-date .yy{font-size:.84rem;font-weight:700}
+.tk-date .doors{font-size:1rem}
+.tk-foot .k{font-size:.68rem;font-weight:700}
+.tk-foot .v{font-size:clamp(1.4rem,3vw,2.1rem)}
+
+/* A quiet line, but one that has to survive being scrolled past. Kept in
+   the flow rather than floated, so it never covers a field. */
+.lang-note{display:flex;align-items:flex-start;gap:.65rem;margin:0 0 1.6rem;
+  padding:.85rem 1rem;border:1px solid var(--hair);
+  border-left:3px solid var(--accent-solid);background:rgba(244,241,232,.035);
+  font-family:var(--f-ui);font-size:.98rem;line-height:1.55;color:var(--cream);
+  max-width:none}
+.lang-note svg{width:17px;height:17px;flex:none;margin-top:.18rem;
+  stroke:var(--gold-lit);fill:none;stroke-width:1.5}
+@media (max-width:560px){
+  .lang-note{font-size:.92rem;padding:.75rem .85rem}
+}
+
+/* ============================================================
+   THE FORM ON A PHONE
+   Most parents will fill this in on a 360–390px screen. The type
+   stays large, because that was the point of enlarging it, but
+   the padding, gaps and fixed widths come down so nothing has to
+   scroll sideways or squeeze.
+   ============================================================ */
+@media (max-width:560px){
+  .rsvp-card-body{padding:1.15rem 1rem 1.4rem}
+  .rsvp-card-head{padding:.8rem 1rem;flex-direction:column;align-items:flex-start;gap:.7rem}
+  .rsvp-card-head b{font-size:.62rem;letter-spacing:.22em}
+  .rsvp-card-head span[data-t]{font-size:.9rem}
+
+  /* the language menu must not reach past the edge it hangs from */
+  .card-lang .lang-menu{left:0;right:0;min-width:0;width:100%}
+  .lang-menu{min-width:0;max-width:calc(100vw - 32px)}
+
+  .lang-note{gap:.55rem;padding:.7rem .8rem;font-size:.9rem;margin-bottom:1.3rem}
+  .lang-note svg{width:15px;height:15px}
+
+  .rsvp-card .field{margin-bottom:1.3rem}
+  .rsvp-card .field label,.rsvp-card .field .label{font-size:.74rem;letter-spacing:.12em;
+    margin-bottom:.5rem}
+  .rsvp-card .field input,.rsvp-card .field select,
+  .rsvp-card .child-fields input,.rsvp-card .child-fields select,
+  .rsvp-card .guest-rows input{font-size:1.05rem;min-height:54px;padding:.75rem .85rem}
+  .rsvp-card .field .help{font-size:.92rem}
+  .rsvp-card h3{font-size:1.4rem}
+  .rsvp-card .hint{font-size:.98rem;margin-bottom:1.6rem}
+
+  /* two choices side by side is fine; 140px each is not */
+  .count-row{gap:.6rem}
+  .count-row .opt{flex:1 1 0;min-width:0;font-size:1rem;padding:.5rem .4rem}
+  .rsvp-card .count-row .opt{min-height:56px;font-size:1rem}
+
+  /* the tick boxes: keep the box big, let the words wrap under it */
+  .check{gap:.85rem;padding:1.05rem 1rem}
+  .check input{width:30px;height:30px;min-width:30px;min-height:30px}
+  .check input:checked::after{left:9.5px;top:3.5px;width:8px;height:15px}
+  .check span{font-size:1rem;line-height:1.5}
+  #f-photos .check span{font-size:.98rem}
+
+  .rsvp-card .step-nav{gap:.6rem;margin-top:1.8rem}
+  .rsvp-card .step-nav .btn{min-height:54px;font-size:.66rem;padding:.9rem .8rem;
+    letter-spacing:.14em}
+  .rsvp-card .node .dot{width:38px;height:38px;font-size:.82rem}
+  .rsvp-card .add-child{width:100%;justify-content:center}
+  .reassure li{font-size:.95rem}
+}
+
+/* Very narrow, and older small phones. */
+@media (max-width:380px){
+  .rsvp-card-body{padding:1rem .85rem 1.2rem}
+  .rsvp-card .step-nav{flex-direction:column-reverse}
+  .rsvp-card .step-nav .btn{width:100%;justify-content:center}
+  .check input{width:28px;height:28px;min-width:28px;min-height:28px}
+  .check input:checked::after{left:9px;top:3px;width:7px;height:14px}
+  .count-row .opt{font-size:.94rem}
+}
+
+/* ============================================================
+   THE TICK BOXES
+   One rule, deliberately. Five partial overrides had accumulated
+   here and the last of them dropped flex:none, which let the flex
+   row stretch the box into a tall rectangle.
+
+   The tick is bright green rather than dark: on a gold fill a dark
+   mark reads as a shadow, where green reads as a decision.
+   ============================================================ */
+.check input{
+  appearance:none;-webkit-appearance:none;
+  flex:none!important;align-self:flex-start;
+  width:32px;height:32px;min-width:32px;min-height:32px;
+  max-width:32px;max-height:32px;          /* nothing may stretch it */
+  box-sizing:border-box;padding:0;margin:.1rem 0 0;
+  border:2.5px solid var(--gold);border-radius:6px;
+  background:rgba(208,169,58,.08);position:relative;cursor:pointer;
+  transition:background 200ms var(--e-out),border-color 200ms var(--e-out),
+             box-shadow 200ms var(--e-out)}
+.check input:hover{border-color:var(--gold-lit);
+  box-shadow:0 0 0 5px rgba(208,169,58,.16)}
+.check input:focus-visible{outline:2px solid var(--gold-lit);outline-offset:3px}
+.check input:checked{background:#0E3B24;border-color:#3DDC7F;
+  box-shadow:0 0 0 4px rgba(61,220,127,.18)}
+.check input::after{
+  content:"";position:absolute;left:9.5px;top:3.5px;
+  width:9px;height:17px;
+  border:solid #3DDC7F;border-width:0 3.5px 3.5px 0;border-radius:1px;
+  transform:rotate(42deg) scale(0);transform-origin:center;opacity:0;
+  filter:drop-shadow(0 0 5px rgba(61,220,127,.65));
+  transition:transform 240ms cubic-bezier(.34,1.56,.64,1),opacity 140ms}
+.check input:checked::after{transform:rotate(42deg) scale(1);opacity:1}
+@media (prefers-reduced-motion:reduce){
+  .check input::after{transition:none}
+}
+@media (max-width:560px){
+  .check input{width:30px;height:30px;min-width:30px;min-height:30px;
+    max-width:30px;max-height:30px}
+  .check input::after{left:8.8px;top:3.2px;width:8px;height:15.5px;
+    border-width:0 3px 3px 0}
 }
 
 /* ============================================================
@@ -1583,7 +1771,7 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
          details grid, the guest pass and the confirmation):
              21 August 2026   ->  4 September 2026
              Secondary Campus ->  Primary Campus
-         The reply deadline (Friday 4 September) appears in the hero,
+         The reply deadline (Wednesday 9 September) appears in the hero,
          the card header, step 3, the details grid and the countdown
          in the script. The email's dates live in EVENT in Code.gs.
          The running order in section 03 also needs its times shifted.
@@ -1622,7 +1810,7 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
       <a class="btn btn-primary" href="#rsvp" data-magnetic data-cursor="Reserve">
         <span data-t="hero.cta">RSVP now</span> <span class="arrow" aria-hidden="true">&rarr;</span>
       </a>
-      <p class="deadline" data-t="hero.deadline">Kindly RSVP by Friday 4 September 2026</p>
+      <p class="deadline" data-t="hero.deadline">Kindly RSVP by Wednesday 9 September 2026</p>
     </div>
   </div>
 
@@ -1661,11 +1849,26 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
     <div class="rsvp-card reveal">
       <div class="rsvp-card-head">
         <b data-t="card.head">RSVP to the invitation</b>
-        <span data-t="card.closes">Closes Friday 4 September</span>
+        <span class="lang-wrap card-lang">
+          <button class="lang" id="langBtn2" aria-haspopup="listbox" aria-expanded="false"
+                  aria-label="Choose a language">
+            <svg class="flag" id="langFlag2" aria-hidden="true"><use href="#fl-en"></use></svg>
+            <span id="langNow2">English</span>
+            <span class="chev" aria-hidden="true">&#9660;</span>
+          </button>
+          <div class="lang-menu" id="langMenu2" role="listbox" aria-label="Language"></div>
+        </span>
+        <span data-t="card.closes">Closes Wednesday 9 September</span>
       </div>
       <div class="rsvp-card-body">
 
     <form id="rsvpForm" novalidate>
+      <p class="lang-note">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8"/><path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18z"/></svg>
+        <span data-t="f.langNote">Not your preferred language? Use the language button above
+          to read this form in Lao, Thai, Chinese, Vietnamese, Korean, Japanese or French.</span>
+      </p>
+
       <nav class="stepper" id="stepsIndicator" aria-label="RSVP progress">
         <span class="stepper-rail" aria-hidden="true"><i id="stepFill"></i></span>
         <button type="button" class="node is-current" data-goto="1" aria-current="step">
@@ -1740,14 +1943,6 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
           <div class="guest-rows" id="guestRows"></div>
         </div>
 
-        <div class="field" id="f-message">
-          <label for="message"><span data-t="f.message">Anything we should know?</span>
-            <span class="opt-tag" data-t="f.optional">(optional)</span></label>
-          <textarea id="message" name="message" rows="3" maxlength="800"
-                    aria-describedby="h-message"></textarea>
-          <div class="help" id="h-message" data-t="f.messageHelp">Dietary requirements, access needs, or anything else you would like the office to know.</div>
-        </div>
-
         <!-- Not for people. Left empty by anyone who cannot see it, filled
              in by anything that completes every field it finds. -->
         <div class="hp" aria-hidden="true">
@@ -1756,6 +1951,15 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
         </div>
 
         <div class="check-err" id="submitErr" role="alert" style="margin-bottom:1.2rem"></div>
+
+        <div class="field" id="f-photos">
+          <label class="check" for="photos">
+            <input type="checkbox" id="photos" name="photos" checked>
+            <span data-t="f.photos">I am happy for photographs and film taken during the evening
+              to be used by the school. If you would prefer not to appear, simply untick this box
+              &mdash; your privacy is entirely your own, and we will respect it.</span>
+          </label>
+        </div>
 
         <div class="field" id="f-adults">
           <label class="check" for="adults">
@@ -1832,7 +2036,7 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
     <div class="tk-foot reveal">
       <div>
         <span class="k" data-t="tk.replyBy">Please RSVP by</span>
-        <span class="v" data-t="tk.replyVal">Friday 4 September 2026</span>
+        <span class="v" data-t="tk.replyVal">Wednesday 9 September 2026</span>
       </div>
       <a href="#rsvp">
         <span data-t="nav.rsvp">RSVP now</span>
@@ -1881,8 +2085,6 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
       </div>
       <div class="reveal">
         <p data-t="inv.p1">An evening held in your honour &mdash; a chance to welcome new families, reconnect with familiar faces, and strengthen the connections that hold the PBIS community together.</p>
-        <p data-t="inv.p2">There are no speeches beyond a short welcome, nothing to sign, and no fundraising table. Just the field-side courtyard, a long table, and the people whose names your child says at dinner.</p>
-        <p data-t="inv.p3">Come with a partner or come on your own. You will know someone within ten minutes.</p>
         <p class="signoff" data-t="foot.thanks">Thank you for being part of our journey.</p>
       </div>
     </div>
@@ -1972,7 +2174,7 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
 
   <div class="foot-rule" aria-hidden="true"></div>
 
-  <p class="foot-deadline" data-t="foot.deadline">RSVP closes Friday 4 September 2026. If you have not
+  <p class="foot-deadline" data-t="foot.deadline">RSVP closes Wednesday 9 September 2026. If you have not
     replied yet, there is still time &mdash; <a href="#rsvp">it takes about a minute</a>.</p>
 
   <div class="foot-notes">
@@ -2508,7 +2710,7 @@ function rsvp(){
       party:    party,
       guests:   collectGuests(),
       children: collectChildren(),
-      message:  document.getElementById('message').value.trim(),
+      photos:   document.getElementById('photos').checked ? 'Yes' : 'No',
       adults:   true
     };
 
@@ -2588,7 +2790,7 @@ function rsvp(){
        create a second row: the server recognises the repeat and returns the
        original reference. That makes it safe to keep trying, which matters
        when a few hundred families reply within the same hour. */
-    var MAX_TRIES = 4;
+    var MAX_TRIES = 7;
 
     function attempt(n){
       setProgress(n === 1 ? 25 : Math.min(25 + n * 18, 82));
@@ -2608,7 +2810,10 @@ function rsvp(){
 
           // The server said no, but said it is worth trying again.
           if (res && res.retry && n < MAX_TRIES) {
-            var wait = 800 * Math.pow(2, n - 1) + Math.random() * 400;
+            /* Exponential, with jitter so a crowd that all pressed send at
+               the same moment does not return in lockstep. Capped, so the
+               last attempts are still spaced but never absurd. */
+            var wait = Math.min(800 * Math.pow(2, n - 1), 9000) + Math.random() * 900;
             console.warn('Server busy, retrying in', Math.round(wait), 'ms');
             showRetrying();
             setTimeout(function(){ attempt(n + 1); }, wait);
@@ -2820,12 +3025,12 @@ function rsvp(){
    ============================================================ */
 
 /* ============================================================
-   9. COUNTDOWN — replies close Friday 4 September 2026, 23:59 ICT
+   9. COUNTDOWN — replies close Wednesday 9 September 2026, 23:59 ICT
    ============================================================ */
 function countdown(){
   var el = document.getElementById('countdown');
   if (!el) return;
-  var end = new Date('2026-09-04T23:59:59+07:00').getTime();
+  var end = new Date('2026-09-09T23:59:59+07:00').getTime();
   var parts = [['days','Days'],['hours','Hours'],['mins','Minutes']];
 
   function tick(){
@@ -3070,8 +3275,6 @@ var T = {
   'map.cta':{lo:'ດູເສ໊ນທາງ',th:'ดูเส้นทาง',zh:'查看路线',vi:'Xem chỉ đường',ko:'길찾기',ja:'ルートを見る',fr:'Itinéraire'},
   'map.cta2':{lo:'ເສ໊ນທາງ',th:'䃢ส้นทาง',zh:'路线',vi:'Chỉ đường',ko:'길찾기',ja:'ルート',fr:'Itinéraire'},
   'map.note':{lo:'ຈອດລົດໄດ້ທາງຂ້າງວິທຍາເຂດ. ເຂົ້າປະຕູໃໝ່ ແລ້ວເດີນຕາມໂຄມໄຟໄປທີ່ເດີ່ນບອນເຕະ — ປະມານ 2 ນາທີຊ້ົນ',th:'จอดรถได้ที่ถนนข้างโรงเรียน เข้าทางประตูหลัก แล้วเดินตามโคมไฟไปสนามฟุตบอล — เดินราว 2 นาที',zh:'可在校园侧路停车，从正门进入后沿灯笼步行约两分钟即到足球场。',vi:'Có chỗ đậu xe ở đường bên cạnh trường. Vào cổng chính và đi theo đèn lồng khoảng hai phút.',ko:'학교 옆 도로에 주차하시고, 정문으로 들어와 등을 따라 두 분가량 걸으세요.',ja:'駐車は校地横の道路へ。正門から入り、灯籠に沿って徒歩2分です。',fr:'Stationnement sur la voie latérale du campus. Entrez par le portail principal et suivez les lanternes, deux minutes à pied.'},
-  'f.message':{lo:'ຂໍ້ຄວາມ',th:'ข้อความ',zh:'留言',vi:'Lời nhắn',ko:'메시지',ja:'メッセージ',fr:'Message'},
-  'f.messageHelp':{lo:'ອາການແພ້, ການເບິ່ງແຍງເດັກ, ຫຼືສິ່ງອື່ນທີ່ຄວນຮູ້. ມີອາຫານເຈ ແລະ ຮາລານ ຕະຫຼອດ.',th:'การแพ้อาหาร การดูแลเด็ก หรือสิ่งอื่นที่ควรทราบ มีอาหารมังสวิรัติและฮาลาลตลอดงาน',zh:'过敏、儿童看护，或其他需要告知的事。现场备有素食与清真选项。',vi:'Dị ứng, trông trẻ, hoặc bất cứ điều gì khác. Luôn có lựa chọn chay và halal.',ko:'알레르기, 아이 돌봄, 그 밖에 알려주실 점. 채식과 할랄 음식이 기본으로 준비됩니다.',ja:'アレルギー、お子さまの見守りなどご自由に。ベジタリアンとハラールもご用意します。',fr:'Allergies, garde d’enfants, ou toute autre précision. Options végétariennes et halal servies d’office.'},
   'pass.guest':{lo:'ຜູ້ຮ່ວມງານ',th:'ผู้ร่วมงาน',zh:'宾客',vi:'Khách mời',ko:'참석자',ja:'ご芳名',fr:'Invité'},
   'pass.party':{lo:'ຈຳນວນຜູ້ມາຮ່ວມ',th:'จำนวนผู้ร่วมงาน',zh:'人数',vi:'Số người',ko:'인원',ja:'ご人数',fr:'Votre groupe'},
   'pass.when':{lo:'ວັນສຸກ ທີ 21 ສິງຫາ 2026',th:'วันศุกร์ที่ 21 สิงหาคม 2026',zh:'2026年8月21日星期五',vi:'Thứ Sáu, 21 tháng 8 năm 2026',ko:'2026년 8월 21일 금요일',ja:'2026年8月21日（金）',fr:'Vendredi 21 août 2026'},
@@ -3091,8 +3294,6 @@ var T = {
   'hero.date':{lo:'ວັນສຸກ ທີ 11 ກັນຍາ 2026',th:'วันศุกร์ที่ 11 กันยายน 2026',zh:'2026年9月11日星期五',vi:'Thứ Sáu, 11 tháng 9 năm 2026',ko:'2026년 9월 11일 금요일',ja:'2026年9月11日（金）',fr:'Vendredi 11 septembre 2026'},
   'inv.lede':{lo:'ຊາວຫ້າປີ ແລະ ຄອບຄົວທີ່ເຮັດໃຫ້ທຸກປີເປັນໄປໄດ້',th:'ยี่สิบห้าปี และครอบครัวที่ทำให้ทุกปีเป็นไปได้',zh:'二十五年，以及成就这一切的每个家庭',vi:'Hai mươi lăm năm, và những gia đình đã làm nên điều đó',ko:'스물다섯 해, 그리고 그것을 가능하게 한 가족들',ja:'二十五年、そしてそれを支えたご家族',fr:'Vingt-cinq ans, et les familles qui les ont rendus possibles'},
   'inv.p1':{lo:'ຄ່ຳຄືນແຫ່ງແວັງ ເນີຍແຂງ ແລະ ການສົນທະນາ ເພື່ອຕ້ອນຮັບຄອບຄົວໃໝ່ ພົບປະໜ້າເກົ່າ ແລະ ເສີມສ້າງສາຍສຳພັນຂອງຊຸມຊົນ PBIS',th:'ค่ำคืนแห่งไวน์ ชีส และบทสนทนา เพื่อต้อนรับครอบครัวใหม่ พบปะหน้าเดิม และกระชับความสัมพันธ์ของชุมชน PBIS',zh:'一个品酒、芝士与畅谈的夜晚：欢迎新家庭，重逢老朋友，让 PBIS 社群更紧密。',vi:'Một buổi tối của rượu vang, phô mai và chuyện trò — chào đón gia đình mới, gặp lại người quen, gắn kết cộng đồng PBIS.',ko:'와인과 치즈, 그리고 대화의 저녁입니다. 새 가족을 환영하고, 반가운 얼굴을 다시 만나고, PBIS 공동체를 더 단단히 잇는 자리입니다.',ja:'ワインとチーズ、そして語らいの夕べ。新しいご家族を迎え、旧知と再会し、PBISの絆を深めます。',fr:'Une soirée de vin, de fromage et de conversation : accueillir les nouvelles familles, retrouver les visages connus, resserrer la communauté PBIS.'},
-  'inv.p2':{lo:'ບໍ່ມີການກ່າວຄຳປາໄສຍາວ ບໍ່ມີເອກະສານໃຫ້ເຊັນ ແລະ ບໍ່ມີການລະດົມທຶນ ມີພຽງເດີ່ນຂ້າງສະໜາມ ໂຕະຍາວ ແລະ ຜູ້ຄົນ',th:'ไม่มีสุนทรพจน์ยาว ไม่มีเอกสารให้เซ็น และไม่มีการระดมทุน มีเพียงลานข้างสนาม โต๊ะยาว และผู้คน',zh:'没有冗长致辞，没有文件要签，也没有募捐台。只有球场边的庭院、一张长桌，和大家。',vi:'Không diễn văn dài, không giấy tờ phải ký, không bàn quyên góp. Chỉ có sân bên cạnh, một chiếc bàn dài, và mọi người.',ko:'긴 연설도, 서명할 서류도, 모금 테이블도 없습니다. 운동장 옆 마당과 긴 테이블, 그리고 사람들뿐입니다.',ja:'長い挨拶も、署名する書類も、募金の机もありません。グラウンド脇の中庭と長いテーブル、そして人だけです。',fr:'Pas de longs discours, rien à signer, aucune table de collecte. Juste la cour du terrain, une longue table, et les gens.'},
-  'inv.p3':{lo:'ມາກັບຄູ່ ຫຼື ມາຄົນດຽວກໍໄດ້ ພາຍໃນສິບນາທີທ່ານຈະຮູ້ຈັກຄົນແນ່ນອນ',th:'มากับคู่หรือมาคนเดียวก็ได้ ภายในสิบนาทีท่านจะรู้จักใครสักคน',zh:'携伴或独自前来皆宜，十分钟内您就会认识人。',vi:'Đi cùng bạn đời hay đến một mình đều được — trong mười phút bạn sẽ quen ai đó.',ko:'동반하셔도, 혼자 오셔도 좋습니다. 십 분이면 아는 얼굴이 생깁니다.',ja:'おひとりでもご一緒でも。十分もあれば知り合いができます。',fr:'Venez à deux ou seul(e) : dix minutes suffisent pour connaître quelqu’un.'},
   'nav.rsvp2':{lo:'ຕອບຮັບ',th:'ตอบรับ',zh:'回覆',vi:'Phản hồi',ko:'회신',ja:'返信',fr:'Répondre'},
   's1.hint':{lo:'ຊື່ຂອງທ່ານຈະຢູ່ໃນລາຍຊື່ຜູ້ຮ່ວມງານທີ່ປະຕູ ບໍ່ມີການແບ່ງປັນອອກນອກຫ້ອງການ',th:'ชื่อของท่านจะอยู่ในรายชื่อผู้ร่วมงานที่ประตู ไม่มีการเผยแพร่นอกสำนักงาน',zh:'您的姓名仅用于门口名单，不会外传。',vi:'Tên bạn chỉ dùng cho danh sách ở cổng, không chia sẻ ra ngoài văn phòng.',ko:'성함은 입구 명단에만 사용되며 사무실 밖으로 공유되지 않습니다.',ja:'お名前は受付名簿のみに使用し、事務室外には共有しません。',fr:'Votre nom sert uniquement à la liste d’accueil, rien n’est partagé.'},
   's1.title':{lo:'ໃຜຈະມາຮ່ວມງານ?',th:'ใครจะมาร่วมงาน',zh:'谁会出席？',vi:'Ai sẽ tham dự?',ko:'누가 오시나요?',ja:'ご出席はどなたですか',fr:'Qui vient ?'},
@@ -3103,7 +3304,7 @@ var T = {
   'tk.field':{lo:'ເດີ່ນບອນເຕະ',th:'สนามฟุตบอล',zh:'足球场区域',vi:'Khu sân bóng',ko:'축구장 구역',ja:'サッカー場エリア',fr:'Terrain de football'},
   'tk.hours':{lo:'ເປີດ 17:30 · ປິດ 20:30',th:'เปิด 17:30 · ปิด 20:30',zh:'17:30 开放 · 20:30 结束',vi:'Mở 17:30 · đóng 20:30',ko:'17:30 개방 · 20:30 종료',ja:'17:30開場 · 20:30終了',fr:'Ouverture 17h30 · fermeture 20h30'},
   'foot.years':{lo:'ສະເຫຼີມສະຫຼອງ 25 ປີ · 2001–2026',th:'ฉลองครบรอบ 25 ปี · 2001–2026',zh:'庆祝二十五周年 · 2001–2026',vi:'Kỷ niệm hai mươi lăm năm · 2001–2026',ko:'25주년을 기념하며 · 2001–2026',ja:'創立25周年 · 2001–2026',fr:'Vingt-cinq ans · 2001–2026'},
-  'foot.deadline':{lo:'ປິດຮັບການຕອບຮັບ ວັນສຸກ ທີ 4 ກັນຍາ 2026. ຖ້າທ່ານຍັງບໍ່ທັນຕອບ ຍັງມີເວລາ — ໃຊ້ເວລາປະມານ 1 ນາທີ.',th:'ปิดรับการตอบรับวันศุกร์ที่ 4 กันยายน 2026 หากท่านยังไม่ได้ตอบ ยังมีเวลา — ใช้เวลาราวหนึ่งนาที',zh:'回覆截止 2026 年 9 月 4 日星期五。若您尚未回覆，仍来得及 — 约需一分钟。',vi:'Hạn phản hồi: thứ Sáu, 4 tháng 9 năm 2026. Nếu bạn chưa trả lời, vẫn còn kịp — chỉ mất khoảng một phút.',ko:'회신 마감은 2026년 9월 4일 금요일입니다. 아직이시라면 시간이 있습니다 — 1분이면 됩니다.',ja:'ご返信の締切は2026年9月4日（金）です。まだの方もお時間があります — 1分ほどで完了します。',fr:'Clôture des réponses le vendredi 4 septembre 2026. Il est encore temps — cela prend une minute.'},
+  'foot.deadline':{lo:'ປິດຮັບການຕອບຮັບ ວັນພຸດ ທີ 9 ກັນຍາ 2026. ຖ້າທ່ານຍັງບໍ່ທັນຕອບ ຍັງມີເວລາ — ໃຊ້ເວລາປະມານ 1 ນາທີ.',th:'ปิดรับการตอบรับวันพุธที่ 9 กันยายน 2026 หากท่านยังไม่ได้ตอบ ยังมีเวลา — ใช้เวลาราวหนึ่งนาที',zh:'回覆截止 2026 年 9 月 9 日星期三。若您尚未回覆，仍来得及 — 约需一分钟。',vi:'Hạn phản hồi: thứ Tư, 9 tháng 9 năm 2026. Nếu bạn chưa trả lời, vẫn còn kịp — chỉ mất khoảng một phút.',ko:'회신 마감은 2026년 9월 9일 수요일입니다. 아직이시라면 시간이 있습니다 — 1분이면 됩니다.',ja:'ご返信の締切は2026年9月9日（水）です。まだの方もお時間があります — 1分ほどで完了します。',fr:'Clôture des réponses le mercredi 9 septembre 2026. Il est encore temps — cela prend une minute.'},
   'foot.privacy':{lo:'ຂໍ້ມູນທີ່ທ່ານໃຫ້ ຖືກໃຊ້ພຽງເພື່ອຈັດງານຄ່ຳຄືນນີ້ ເກັບຮັກສາໂດຍຫ້ອງການໂຮງຮຽນ ບໍ່ມີການແບ່ງປັນອອກນອກ ແລະ ຈະຖືກລຶບຫຼັງງານສິ້ນສຸດ',th:'ข้อมูลที่ท่านให้ ใช้เพื่อจัดงานค่ำคืนนี้เท่านั้น เก็บรักษาโดยสำนักงานโรงเรียน ไม่เผยแพร่ภายนอก และจะถูกลบหลังจบงาน',zh:'您提供的信息仅用于筹办本次活动，由学校办公室保管，不会外传，并将在活动结束后删除。',vi:'Thông tin bạn cung cấp chỉ dùng để tổ chức buổi tối này, do văn phòng nhà trường lưu giữ, không chia sẻ ra ngoài và sẽ được xoá sau sự kiện.',ko:'제공하신 정보는 이 저녁 행사를 준비하는 데에만 사용되며, 학교 사무실이 보관하고 외부에 공유하지 않으며 행사 종료 후 삭제됩니다.',ja:'ご記入いただいた情報は本催しの準備にのみ使用し、学校事務室が保管します。外部には共有せず、終了後に削除いたします。',fr:'Les informations fournies servent uniquement à organiser cette soirée. Elles sont conservées par le secrétariat, ne sont pas partagées et sont supprimées après l’événement.'},
   'foot.private':{lo:'ຄຳເຊີນສ່ວນຕົວສຳລັບຄອບຄົວ PBIS ກະລຸນາຢ່າເຜີຍແຜ່ຕໍ່ສາທາລະນະ',th:'คำเชิญส่วนตัวสำหรับครอบครัว PBIS กรุณาอย่าเผยแพร่สู่สาธารณะ',zh:'这是发给 PBIS 家庭的私人邀请，请勿公开分享。',vi:'Thiệp mời riêng dành cho các gia đình PBIS. Vui lòng không chia sẻ công khai.',ko:'PBIS 가족을 위한 비공개 초대장입니다. 외부에 공유하지 말아 주세요.',ja:'PBISのご家族向けの非公開のご招待です。公開の場での共有はお控えください。',fr:'Invitation privée réservée aux familles PBIS. Merci de ne pas la partager publiquement.'},
   'foot.copyright':{lo:'© 2026 ໂຮງຮຽນ ປັນຍາທິບ ບຣິດຕິດ ອິນເຕີແນຊັນນອລ',th:'© 2026 โรงเรียนนานาชาติปันยาทิพ',zh:'© 2026 班雅提英国国际学校',vi:'© 2026 Trường Quốc tế Panyathip',ko:'© 2026 파냐팁 브리티시 국제학교',ja:'© 2026 パンヤティップ英国国際学校',fr:'© 2026 Panyathip British International School'},
@@ -3119,26 +3320,38 @@ var T = {
   'f.lockHint':{lo:'ກະລຸນາຕິກໃສ່ຫ້ອງຂ້າງເທິງເພື່ອດຳເນີນຕໍ່',th:'กรุณาติ๊กช่องด้านบนเพื่อดำเนินการต่อ',zh:'请勾选上方选项以继续',vi:'Vui lòng đánh dấu ô ở trên để tiếp tục',ko:'계속하려면 위 항목에 체크해 주세요',ja:'続けるには上のチェックを入れてください',fr:'Veuillez cocher la case ci-dessus pour continuer'},
   'f.lockHint':{lo:'ກະລຸນາໝາຍຕິກຂ້າງເທິງເພື່ອສົ່ງຄຳຕອບຮັບ',th:'กรุณาติ๊กช่องด้านบนเพื่อส่งคำตอบรับ',zh:'请勾选上方选项后再提交',vi:'Vui lòng tích vào ô trên để gửi phản hồi',ko:'위 항목에 체크해야 회신을 보낼 수 있습니다',ja:'上のチェックを入れてご返信ください',fr:'Cochez la case ci-dessus pour envoyer votre réponse'},
   'f.message':{lo:'ມີຫຍັງທີ່ຢາກໃຫ້ພວກເຮົາຮູ້ບໍ?',th:'มีอะไรที่อยากให้เราทราบไหม',zh:'有什么想让我们知道的吗？',vi:'Bạn có điều gì muốn cho chúng tôi biết?',ko:'저희가 알아야 할 사항이 있나요?',ja:'何かお知らせいただくことはありますか',fr:'Souhaitez-vous nous signaler quelque chose ?'},
-  'f.messageHelp':{lo:'ຂໍ້ຈຳກັດດ້ານອາຫານ ຄວາມຕ້ອງການພິເສດ ຫຼືສິ່ງອື່ນທີ່ຢາກໃຫ້ຫ້ອງການຮູ້',th:'ข้อจำกัดด้านอาหาร ความต้องการพิเศษ หรือสิ่งอื่นที่อยากให้สำนักงานทราบ',zh:'饮食需求、无障碍需求，或其他希望校方知道的事。',vi:'Yêu cầu về ăn uống, hỗ trợ tiếp cận, hoặc bất cứ điều gì khác.',ko:'식이 요구, 편의 지원 등 사무실에 알리고 싶은 사항.',ja:'食事のご要望、バリアフリーのご希望など、事務室へお伝えしたいこと。',fr:'Régime alimentaire, besoins d’accès, ou toute autre précision utile.'}
+  'f.messageHelp':{lo:'ຂໍ້ຈຳກັດດ້ານອາຫານ ຄວາມຕ້ອງການພິເສດ ຫຼືສິ່ງອື່ນທີ່ຢາກໃຫ້ຫ້ອງການຮູ້',th:'ข้อจำกัดด้านอาหาร ความต้องการพิเศษ หรือสิ่งอื่นที่อยากให้สำนักงานทราบ',zh:'饮食需求、无障碍需求，或其他希望校方知道的事。',vi:'Yêu cầu về ăn uống, hỗ trợ tiếp cận, hoặc bất cứ điều gì khác.',ko:'식이 요구, 편의 지원 등 사무실에 알리고 싶은 사항.',ja:'食事のご要望、バリアフリーのご希望など、事務室へお伝えしたいこと。',fr:'Régime alimentaire, besoins d’accès, ou toute autre précision utile.'},
+  'f.photos':{lo:'ຂ້າພະເຈົ້າຍິນດີໃຫ້ໂຮງຮຽນນຳໃຊ້ຮູບພາບ ແລະ ວິດີໂອທີ່ຖ່າຍໃນຄ່ຳຄືນນີ້. ຫາກທ່ານບໍ່ຕ້ອງການປາກົດໃນພາບ ພຽງແຕ່ເອົາເຄື່ອງໝາຍນີ້ອອກ — ພວກເຮົາເຄົາລົບຄວາມເປັນສ່ວນຕົວຂອງທ່ານຢ່າງເຕັມທີ່',th:'ข้าพเจ้ายินดีให้โรงเรียนนำภาพถ่ายและวิดีโอที่บันทึกในค่ำคืนนี้ไปใช้ หากท่านไม่ประสงค์จะปรากฏในภาพ เพียงเอาเครื่องหมายนี้ออก — เราเคารพความเป็นส่วนตัวของท่านอย่างเต็มที่',zh:'我同意学校使用当晚拍摄的照片与影像。若您不希望出现在画面中，取消勾选即可——我们完全尊重您的意愿。',vi:'Tôi đồng ý để nhà trường sử dụng ảnh và video ghi lại trong buổi tối. Nếu bạn không muốn xuất hiện, chỉ cần bỏ tích ô này — chúng tôi hoàn toàn tôn trọng sự riêng tư của bạn.',ko:'행사 중 촬영된 사진과 영상을 학교가 사용하는 데 동의합니다. 화면에 나오길 원하지 않으시면 체크를 해제해 주세요 — 여러분의 사생활을 온전히 존중합니다.',ja:'当日の写真・映像を学校が使用することに同意します。写りたくない場合はチェックを外してください。皆さまのプライバシーを尊重いたします。',fr:'J’accepte que l’école utilise les photographies et vidéos prises durant la soirée. Si vous préférez ne pas y figurer, décochez simplement cette case — votre vie privée vous appartient et nous la respectons.'},
+  'f.langNote':{lo:'ບໍ່ແມ່ນພາສາທີ່ທ່ານຖະນັດບໍ? ໃຊ້ປຸ່ມພາສາຂ້າງເທິງ ເພື່ອອ່ານແບບຟອມນີ້ເປັນພາສາລາວ ໄທ ຈີນ ຫວຽດນາມ ເກົາຫຼີ ຍີ່ປຸ່ນ ຫຼື ຝຣັ່ງ',th:'ไม่ใช่ภาษาที่ท่านถนัดใช่ไหม ใช้ปุ่มภาษาด้านบนเพื่ออ่านแบบฟอร์มนี้เป็นภาษาลาว ไทย จีน เวียดนาม เกาหลี ญี่ปุ่น หรือฝรั่งเศส',zh:'不是您习惯的语言？可用上方的语言按钮切换为老挝语、泰语、中文、越南语、韩语、日语或法语。',vi:'Không phải ngôn ngữ bạn quen dùng? Hãy dùng nút ngôn ngữ phía trên để xem biểu mẫu bằng tiếng Lào, Thái, Trung, Việt, Hàn, Nhật hoặc Pháp.',ko:'익숙한 언어가 아니신가요? 위의 언어 버튼으로 라오어, 태국어, 중국어, 베트남어, 한국어, 일본어, 프랑스어로 보실 수 있습니다.',ja:'ご希望の言語ではありませんか。上の言語ボタンから、ラオス語・タイ語・中国語・ベトナム語・韓国語・日本語・フランス語に切り替えられます。',fr:'Ce n’est pas votre langue ? Utilisez le bouton de langue ci-dessus pour lire ce formulaire en lao, thaï, chinois, vietnamien, coréen, japonais ou français.'}
 };
 
 function language(){
-  var btn = document.getElementById('langBtn');
-  var menu = document.getElementById('langMenu');
-  var now = document.getElementById('langNow');
-  if (!btn || !menu) return;
+  /* Two switchers: one in the bar, one on the RSVP card, so a parent who
+     has scrolled to the form does not have to travel back up to change
+     language. Both are driven from the same list and stay in step. */
+  var picks = [
+    { btn:'langBtn',  menu:'langMenu',  now:'langNow',  flag:'langFlag'  },
+    { btn:'langBtn2', menu:'langMenu2', now:'langNow2', flag:'langFlag2' }
+  ].map(function(p){
+    return { btn: document.getElementById(p.btn), menu: document.getElementById(p.menu),
+             now: document.getElementById(p.now), flag: document.getElementById(p.flag) };
+  }).filter(function(p){ return p.btn && p.menu; });
+  if (!picks.length) return;
+
+  var btn = picks[0].btn, menu = picks[0].menu, now = picks[0].now;
 
   var nodes = Array.prototype.slice.call(document.querySelectorAll('[data-t]'));
   nodes.forEach(function(n){ n.setAttribute('data-en', n.textContent.trim()); });
   var current = 'en';
 
-  menu.innerHTML = LANGS.map(function(l){
+  var menuHtml = LANGS.map(function(l){
     return '<button type="button" role="option" data-lang="' + l.code + '"' +
            (l.code === 'en' ? ' aria-current="true"' : '') + '>' +
            '<svg class="flag" aria-hidden="true"><use href="#fl-' + l.code + '"></use></svg>' +
            '<span class="nm"><b lang="' + l.code + '">' + l.name + '</b>' +
            '<span>' + l.note + '</span></span></button>';
   }).join('');
+  picks.forEach(function(p){ p.menu.innerHTML = menuHtml; });
 
   function set(code){
     current = code;
@@ -3151,33 +3364,48 @@ function language(){
     });
     document.documentElement.setAttribute('lang', code === 'en' ? 'en-GB' : code);
     LANGS.forEach(function(l){
-      var b = menu.querySelector('[data-lang="' + l.code + '"]');
-      if (b) b.setAttribute('aria-current', l.code === code ? 'true' : 'false');
+      picks.forEach(function(p){
+        var b = p.menu.querySelector('[data-lang="' + l.code + '"]');
+        if (b) b.setAttribute('aria-current', l.code === code ? 'true' : 'false');
+      });
       if (l.code === code){
-        now.textContent = l.name; now.setAttribute('lang', l.code);
-        var f = document.getElementById('langFlag');
-        if (f) f.firstElementChild.setAttribute('href', '#fl-' + l.code);
+        picks.forEach(function(p){
+          p.now.textContent = l.name;
+          p.now.setAttribute('lang', l.code);
+          if (p.flag) p.flag.firstElementChild.setAttribute('href', '#fl-' + l.code);
+        });
       }
     });
     close_();
   }
 
-  function open_(){ menu.classList.add('open'); btn.setAttribute('aria-expanded','true'); }
-  function close_(){ menu.classList.remove('open'); btn.setAttribute('aria-expanded','false'); }
+  function close_(){
+    picks.forEach(function(p){
+      p.menu.classList.remove('open');
+      p.btn.setAttribute('aria-expanded','false');
+    });
+  }
 
-  btn.addEventListener('click', function(e){
-    e.stopPropagation();
-    if (menu.classList.contains('open')) close_(); else open_();
-  });
-  menu.addEventListener('click', function(e){
-    var b = e.target.closest('[data-lang]');
-    if (b) set(b.getAttribute('data-lang'));
+  picks.forEach(function(p){
+    p.btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var wasOpen = p.menu.classList.contains('open');
+      close_();
+      if (!wasOpen){
+        p.menu.classList.add('open');
+        p.btn.setAttribute('aria-expanded','true');
+      }
+    });
+    p.menu.addEventListener('click', function(e){
+      var b = e.target.closest('[data-lang]');
+      if (b) set(b.getAttribute('data-lang'));
+    });
   });
   document.addEventListener('click', function(e){
     if (!e.target.closest('.lang-wrap')) close_();
   });
   document.addEventListener('keydown', function(e){
-    if (e.key === 'Escape' && menu.classList.contains('open')){ close_(); btn.focus(); }
+    if (e.key === 'Escape'){ close_(); }
   });
 
   // Anything the form builds later registers itself here.
