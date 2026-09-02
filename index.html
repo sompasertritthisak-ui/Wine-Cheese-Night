@@ -1627,6 +1627,73 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
 }
 
 /* ============================================================
+   THE TICK BOXES, PROPERLY
+   Two faults fixed here. The box was rendering as a tall
+   rectangle, because `.rsvp-card .field input` outranks
+   `.check input` and was forcing 58px of height onto it; these
+   rules carry the same weight so the square holds. And the tick
+   itself was a dark hairline on gold, which is exactly the thing
+   that is hard to see at a glance.
+   ============================================================ */
+.rsvp-card .field .check{display:flex;align-items:flex-start;gap:1.1rem;
+  padding:1.35rem 1.4rem;cursor:pointer;margin:0}
+.rsvp-card .field .check input,
+.check input{
+  appearance:none;-webkit-appearance:none;flex:none;
+  width:34px!important;height:34px!important;
+  min-width:34px!important;min-height:34px!important;
+  max-width:34px;max-height:34px;
+  padding:0!important;margin:.1rem 0 0!important;
+  border:2.5px solid var(--gold);border-radius:6px;
+  background:rgba(208,169,58,.08);cursor:pointer;position:relative;
+  align-self:flex-start;box-sizing:border-box;
+  transition:background var(--t-micro) var(--e-out),
+             border-color var(--t-micro) var(--e-out),
+             box-shadow var(--t-micro) var(--e-out)}
+.rsvp-card .field .check input:hover,
+.check input:hover{box-shadow:0 0 0 5px rgba(208,169,58,.16)}
+.rsvp-card .field .check input:focus-visible,
+.check input:focus-visible{outline:2px solid var(--gold-lit);outline-offset:3px}
+
+/* Checked: a dark well, so a bright tick can sit on it. */
+.rsvp-card .field .check input:checked,
+.check input:checked{background:#0A2E1C;border-color:#3DF08A;
+  box-shadow:0 0 0 3px rgba(61,240,138,.18)}
+
+/* The tick, in a green that reads instantly at arm's length. */
+.rsvp-card .field .check input:checked::after,
+.check input:checked::after{
+  content:"";position:absolute;left:10px;top:3.5px;
+  width:9px;height:17px;
+  border:solid #3DF08A;border-width:0 4px 4px 0;border-radius:1px;
+  transform:rotate(42deg);opacity:1;
+  filter:drop-shadow(0 0 5px rgba(61,240,138,.75))}
+
+.rsvp-card .field .check span,
+.check span{font-family:var(--f-ui);font-weight:600;
+  font-size:clamp(1.02rem,2.1vw,1.14rem);line-height:1.55;
+  letter-spacing:normal;text-transform:none;color:var(--cream);margin:0}
+
+/* The photo box: bold and legible, but visibly the lighter of the two. */
+#f-photos .check{border:1px solid var(--hair);background:rgba(244,241,232,.035)}
+#f-photos .check span{color:var(--cream);font-weight:600;
+  font-size:clamp(1rem,2vw,1.08rem)}
+#f-adults .check{border:1.5px solid var(--gold);background:rgba(208,169,58,.09)}
+#f-adults .check span{color:var(--white);font-weight:700}
+
+@media (max-width:560px){
+  .rsvp-card .field .check{padding:1.05rem 1rem;gap:.9rem}
+  .rsvp-card .field .check input,.check input{
+    width:31px!important;height:31px!important;
+    min-width:31px!important;min-height:31px!important;
+    max-width:31px;max-height:31px}
+  .rsvp-card .field .check input:checked::after,
+  .check input:checked::after{left:9px;top:3px;width:8px;height:15px;
+    border-width:0 3.5px 3.5px 0}
+  .rsvp-card .field .check span,.check span{font-size:1rem}
+}
+
+/* ============================================================
    §19 — REDUCED MOTION. Atmosphere off, function intact.
    ============================================================ */
 @media (prefers-reduced-motion:reduce){
@@ -3321,7 +3388,7 @@ var T = {
   'f.lockHint':{lo:'ກະລຸນາໝາຍຕິກຂ້າງເທິງເພື່ອສົ່ງຄຳຕອບຮັບ',th:'กรุณาติ๊กช่องด้านบนเพื่อส่งคำตอบรับ',zh:'请勾选上方选项后再提交',vi:'Vui lòng tích vào ô trên để gửi phản hồi',ko:'위 항목에 체크해야 회신을 보낼 수 있습니다',ja:'上のチェックを入れてご返信ください',fr:'Cochez la case ci-dessus pour envoyer votre réponse'},
   'f.message':{lo:'ມີຫຍັງທີ່ຢາກໃຫ້ພວກເຮົາຮູ້ບໍ?',th:'มีอะไรที่อยากให้เราทราบไหม',zh:'有什么想让我们知道的吗？',vi:'Bạn có điều gì muốn cho chúng tôi biết?',ko:'저희가 알아야 할 사항이 있나요?',ja:'何かお知らせいただくことはありますか',fr:'Souhaitez-vous nous signaler quelque chose ?'},
   'f.messageHelp':{lo:'ຂໍ້ຈຳກັດດ້ານອາຫານ ຄວາມຕ້ອງການພິເສດ ຫຼືສິ່ງອື່ນທີ່ຢາກໃຫ້ຫ້ອງການຮູ້',th:'ข้อจำกัดด้านอาหาร ความต้องการพิเศษ หรือสิ่งอื่นที่อยากให้สำนักงานทราบ',zh:'饮食需求、无障碍需求，或其他希望校方知道的事。',vi:'Yêu cầu về ăn uống, hỗ trợ tiếp cận, hoặc bất cứ điều gì khác.',ko:'식이 요구, 편의 지원 등 사무실에 알리고 싶은 사항.',ja:'食事のご要望、バリアフリーのご希望など、事務室へお伝えしたいこと。',fr:'Régime alimentaire, besoins d’accès, ou toute autre précision utile.'},
-  'f.photos':{lo:'ຂ້າພະເຈົ້າຍິນດີໃຫ້ໂຮງຮຽນນຳໃຊ້ຮູບພາບ ແລະ ວິດີໂອທີ່ຖ່າຍໃນຄ່ຳຄືນນີ້. ຫາກທ່ານບໍ່ຕ້ອງການປາກົດໃນພາບ ພຽງແຕ່ເອົາເຄື່ອງໝາຍນີ້ອອກ — ພວກເຮົາເຄົາລົບຄວາມເປັນສ່ວນຕົວຂອງທ່ານຢ່າງເຕັມທີ່',th:'ข้าพเจ้ายินดีให้โรงเรียนนำภาพถ่ายและวิดีโอที่บันทึกในค่ำคืนนี้ไปใช้ หากท่านไม่ประสงค์จะปรากฏในภาพ เพียงเอาเครื่องหมายนี้ออก — เราเคารพความเป็นส่วนตัวของท่านอย่างเต็มที่',zh:'我同意学校使用当晚拍摄的照片与影像。若您不希望出现在画面中，取消勾选即可——我们完全尊重您的意愿。',vi:'Tôi đồng ý để nhà trường sử dụng ảnh và video ghi lại trong buổi tối. Nếu bạn không muốn xuất hiện, chỉ cần bỏ tích ô này — chúng tôi hoàn toàn tôn trọng sự riêng tư của bạn.',ko:'행사 중 촬영된 사진과 영상을 학교가 사용하는 데 동의합니다. 화면에 나오길 원하지 않으시면 체크를 해제해 주세요 — 여러분의 사생활을 온전히 존중합니다.',ja:'当日の写真・映像を学校が使用することに同意します。写りたくない場合はチェックを外してください。皆さまのプライバシーを尊重いたします。',fr:'J’accepte que l’école utilise les photographies et vidéos prises durant la soirée. Si vous préférez ne pas y figurer, décochez simplement cette case — votre vie privée vous appartient et nous la respectons.'},
+  'f.photos':{lo:'ຂ້າພະເຈົ້າຍິນດີໃຫ້ໂຮງຮຽນນຳໃຊ້ຮູບພາບ ແລະ ວິດີໂອທີ່ຖ່າຍໃນຄ່ຳຄືນນີ້. ຫາກທ່ານບໍ່ຕ້ອງການປາກົດໃນພາບ ພຽງແຕ່ເອົາເຄື່ອງໝາຍນີ້ອອກ ພວກເຮົາເຄົາລົບການຕັດສິນໃຈຂອງທ່ານ',th:'ข้าพเจ้ายินดีให้โรงเรียนนำภาพถ่ายและวิดีโอจากค่ำคืนนี้ไปใช้ หากท่านไม่ประสงค์จะปรากฏในภาพ เพียงเอาเครื่องหมายออก เราเคารพการตัดสินใจของท่าน',zh:'我同意学校使用当晚拍摄的照片与影片。若您不希望出镜，取消勾选即可，我们尊重您的选择。',vi:'Tôi đồng ý để nhà trường sử dụng ảnh và video chụp trong buổi tối. Nếu bạn không muốn xuất hiện, chỉ cần bỏ tích — chúng tôi tôn trọng lựa chọn của bạn.',ko:'행사 중 촬영된 사진과 영상을 학교가 사용하는 데 동의합니다. 원하지 않으시면 체크만 해제해 주세요. 저희는 그 선택을 존중합니다.',ja:'当日の写真・動画を学校が使用することに同意します。写りたくない場合はチェックを外すだけで結構です。ご意向を尊重いたします。',fr:'J’accepte que l’école utilise les photos et vidéos prises ce soir-là. Si vous préférez ne pas y figurer, décochez simplement — nous respecterons votre choix.'},
   'f.langNote':{lo:'ບໍ່ແມ່ນພາສາທີ່ທ່ານຖະນັດບໍ? ໃຊ້ປຸ່ມພາສາຂ້າງເທິງ ເພື່ອອ່ານແບບຟອມນີ້ເປັນພາສາລາວ ໄທ ຈີນ ຫວຽດນາມ ເກົາຫຼີ ຍີ່ປຸ່ນ ຫຼື ຝຣັ່ງ',th:'ไม่ใช่ภาษาที่ท่านถนัดใช่ไหม ใช้ปุ่มภาษาด้านบนเพื่ออ่านแบบฟอร์มนี้เป็นภาษาลาว ไทย จีน เวียดนาม เกาหลี ญี่ปุ่น หรือฝรั่งเศส',zh:'不是您习惯的语言？可用上方的语言按钮切换为老挝语、泰语、中文、越南语、韩语、日语或法语。',vi:'Không phải ngôn ngữ bạn quen dùng? Hãy dùng nút ngôn ngữ phía trên để xem biểu mẫu bằng tiếng Lào, Thái, Trung, Việt, Hàn, Nhật hoặc Pháp.',ko:'익숙한 언어가 아니신가요? 위의 언어 버튼으로 라오어, 태국어, 중국어, 베트남어, 한국어, 일본어, 프랑스어로 보실 수 있습니다.',ja:'ご希望の言語ではありませんか。上の言語ボタンから、ラオス語・タイ語・中国語・ベトナム語・韓国語・日本語・フランス語に切り替えられます。',fr:'Ce n’est pas votre langue ? Utilisez le bouton de langue ci-dessus pour lire ce formulaire en lao, thaï, chinois, vietnamien, coréen, japonais ou français.'}
 };
 
