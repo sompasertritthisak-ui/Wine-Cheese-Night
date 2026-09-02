@@ -1693,6 +1693,18 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
   .rsvp-card .field .check span,.check span{font-size:1rem}
 }
 
+/* Two names side by side, stacking when there is not room for both. */
+.name-pair{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.name-pair > span{display:block;min-width:0}
+.sub-label{display:block;font-family:var(--f-label);font-weight:600;
+  font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--fg-2);margin-bottom:.45rem}
+.rsvp-card .name-pair .sub-label{font-size:.68rem;color:var(--fg-2);
+  margin-bottom:.45rem}
+@media (max-width:560px){
+  .name-pair{grid-template-columns:1fr;gap:.9rem}
+}
+
 /* ============================================================
    §19 — REDUCED MOTION. Atmosphere off, function intact.
    ============================================================ */
@@ -1838,7 +1850,7 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
          details grid, the guest pass and the confirmation):
              21 August 2026   ->  4 September 2026
              Secondary Campus ->  Primary Campus
-         The reply deadline (Wednesday 9 September) appears in the hero,
+         The reply deadline (Tuesday 8 September) appears in the hero,
          the card header, step 3, the details grid and the countdown
          in the script. The email's dates live in EVENT in Code.gs.
          The running order in section 03 also needs its times shifted.
@@ -1877,7 +1889,7 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
       <a class="btn btn-primary" href="#rsvp" data-magnetic data-cursor="Reserve">
         <span data-t="hero.cta">RSVP now</span> <span class="arrow" aria-hidden="true">&rarr;</span>
       </a>
-      <p class="deadline" data-t="hero.deadline">Kindly RSVP by Wednesday 9 September 2026</p>
+      <p class="deadline" data-t="hero.deadline">Kindly RSVP by Tuesday 8 September 2026</p>
     </div>
   </div>
 
@@ -1925,7 +1937,7 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
           </button>
           <div class="lang-menu" id="langMenu2" role="listbox" aria-label="Language"></div>
         </span>
-        <span data-t="card.closes">Closes Wednesday 9 September</span>
+        <span data-t="card.closes">Closes Tuesday 8 September</span>
       </div>
       <div class="rsvp-card-body">
 
@@ -2006,8 +2018,21 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
         </div>
 
         <div class="field" id="f-guests" hidden>
-          <label for="guest2" data-t="f.guest">Who will be joining you?</label>
-          <div class="guest-rows" id="guestRows"></div>
+          <label id="lbl-guest"><span data-t="f.guest">Who will be joining you?</span>
+            <span class="req" aria-hidden="true">*</span></label>
+          <div class="name-pair" role="group" aria-labelledby="lbl-guest">
+            <span>
+              <label class="sub-label" for="guestFirst" data-t="f.first">First name</label>
+              <input type="text" id="guestFirst" autocomplete="off"
+                     aria-describedby="e-guest">
+            </span>
+            <span>
+              <label class="sub-label" for="guestLast" data-t="f.last">Last name</label>
+              <input type="text" id="guestLast" autocomplete="off"
+                     aria-describedby="e-guest">
+            </span>
+          </div>
+          <div class="err" id="e-guest" role="alert"></div>
         </div>
 
         <!-- Not for people. Left empty by anyone who cannot see it, filled
@@ -2100,16 +2125,6 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
       </div>
     </dl>
 
-    <div class="tk-foot reveal">
-      <div>
-        <span class="k" data-t="tk.replyBy">Please RSVP by</span>
-        <span class="v" data-t="tk.replyVal">Wednesday 9 September 2026</span>
-      </div>
-      <a href="#rsvp">
-        <span data-t="nav.rsvp">RSVP now</span>
-        <span class="arrow" aria-hidden="true">&rarr;</span>
-      </a>
-    </div>
 
     <section class="map reveal" aria-labelledby="map-h">
       <div class="map-head">
@@ -2241,7 +2256,7 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
 
   <div class="foot-rule" aria-hidden="true"></div>
 
-  <p class="foot-deadline" data-t="foot.deadline">RSVP closes Wednesday 9 September 2026. If you have not
+  <p class="foot-deadline" data-t="foot.deadline">RSVP closes Tuesday 8 September 2026. If you have not
     replied yet, there is still time &mdash; <a href="#rsvp">it takes about a minute</a>.</p>
 
   <div class="foot-notes">
@@ -2488,11 +2503,12 @@ function rsvp(){
   /* The page proposes the reference and the server accepts it. That way a
      guest always has a reference to quote, even on a browser that will not
      let us read the reply. */
-  var myRef = (function(){
+  function newRef(){
     var a = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', out = '';
     for (var i = 0; i < 5; i++) out += a.charAt(Math.floor(Math.random() * a.length));
     return 'WCN-' + out;
-  })();
+  }
+  var myRef = newRef();
   var steps = Array.prototype.slice.call(form.querySelectorAll('.step'));
   var fill = document.getElementById('stepFill');
   var counter = document.getElementById('stepCount');
@@ -2520,23 +2536,55 @@ function rsvp(){
       row.querySelectorAll('.opt').forEach(function(o){ o.setAttribute('aria-pressed','false'); });
       b.setAttribute('aria-pressed','true');
       guestRows();
+      checkGuest();
     });
     row.appendChild(b);
     if (window.__registerT) window.__registerT(b);
   });
 
+  /* The guest's name is two fields now, so there is nothing to build —
+     only to show, hide and clear. */
   function guestRows(){
-    var wrap = document.getElementById('guestRows');
     var field = document.getElementById('f-guests');
-    if (!wrap || !field) return;
-    if (party < 2){ field.hidden = true; wrap.innerHTML = ''; return; }
-    if (wrap.querySelector('input')){ field.hidden = false; return; }
-    field.hidden = false;
-    wrap.innerHTML = '<div><input id="guest2" type="text" autocomplete="off" ' +
-                     'aria-label="Name of the person joining you" placeholder=""></div>';
-    if (MOTION) gsap.from(wrap.children, { opacity:0, y:10, duration:.35, ease:'power3.out' });
+    if (!field) return;
+    var showing = party > 1;
+    field.hidden = !showing;
+    if (!showing){
+      ['guestFirst','guestLast'].forEach(function(id){
+        var el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      field.classList.remove('invalid');
+      document.getElementById('e-guest').textContent = '';
+    } else if (MOTION){
+      gsap.from(field.querySelectorAll('.name-pair > span'),
+        { opacity:0, y:10, duration:.35, stagger:.06, ease:'power3.out' });
+    }
   }
   guestRows();
+
+  /* A second place is held for a named person, not an anonymous one, so
+     the name is required the moment "two of us" is chosen. */
+  function checkGuest(){
+    var field = document.getElementById('f-guests');
+    var err = document.getElementById('e-guest');
+    if (party < 2){ field.classList.remove('invalid'); err.textContent = ''; return true; }
+    var f = document.getElementById('guestFirst').value.trim();
+    var l = document.getElementById('guestLast').value.trim();
+    var ok = f.length >= 2 && l.length >= 2;
+    field.classList.toggle('invalid', !ok);
+    err.textContent = ok ? '' :
+      'Please give the first and last name of the person joining you.';
+    return ok;
+  }
+  ['guestFirst','guestLast'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('blur', checkGuest);
+    el.addEventListener('input', function(){
+      if (document.getElementById('f-guests').classList.contains('invalid')) checkGuest();
+    });
+  });
 
   /* ---- children ----
      The second row cannot be requested until the first is complete. An
@@ -2612,8 +2660,11 @@ function rsvp(){
   }
 
   function collectGuests(){
-    var g = document.getElementById('guest2');
-    return (g && g.value.trim()) ? [g.value.trim()] : [];
+    if (party < 2) return [];
+    var f = document.getElementById('guestFirst').value.trim();
+    var l = document.getElementById('guestLast').value.trim();
+    var full = (f + ' ' + l).trim();
+    return full ? [full] : [];
   }
 
   /* ---- the acknowledgement, now on step two ---- */
@@ -2747,6 +2798,12 @@ function rsvp(){
   form.addEventListener('submit', function(e){
     e.preventDefault();
     if (!stepOneOk()){ show(0, -1); return; }
+    if (!checkGuest()){
+      document.getElementById('guestFirst').focus();
+      var gf = document.getElementById('f-guests');
+      if (gf) gf.scrollIntoView({ behavior: REDUCE ? 'auto' : 'smooth', block:'center' });
+      return;
+    }
     if (!checkAdults()){
       document.getElementById('adults').focus();
       return;
@@ -2951,6 +3008,43 @@ function rsvp(){
     attempt(1);
   });
 
+  /* Puts the form back to how it was found. */
+  function resetForm(){
+    form.reset();
+
+    // The pieces the browser's own reset cannot know about.
+    party = 2;
+    row.querySelectorAll('.opt').forEach(function(o){
+      o.setAttribute('aria-pressed', o.getAttribute('data-t') === 'f.pair' ? 'true' : 'false');
+    });
+    guestRows();
+
+    childWrap.innerHTML = '';
+    childCount = 0;
+    addChildRow();
+
+    document.getElementById('photos').checked = true;
+    document.getElementById('adults').checked = false;
+    syncLock();
+
+    form.querySelectorAll('.field').forEach(function(f){
+      f.classList.remove('invalid', 'valid');
+    });
+    form.querySelectorAll('.err').forEach(function(e){ e.textContent = ''; });
+    ['e-adults','submitErr'].forEach(function(id){
+      var el = document.getElementById(id);
+      if (el){ el.textContent = ''; el.classList.remove('on'); }
+    });
+
+    // A new visit needs a new submission id, or the server would treat the
+    // next RSVP as a repeat of the last one and write nothing.
+    rid = 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+    myRef = newRef();
+    opened = Date.now();
+
+    show(0, -1);
+  }
+
   /* ---- the sending overlay ---- */
   var slowTimer = null, creepTimer = null;
 
@@ -3077,7 +3171,11 @@ function rsvp(){
       function fin(){
         modal.classList.remove('open');
         document.documentElement.classList.remove('modal-open');
-        if (lastFocus) lastFocus.focus({ preventScroll:true });
+        /* The RSVP is done. Clear the form and return to the top, so the
+           next person at the same device starts fresh rather than finding
+           somebody else's details already filled in. */
+        resetForm();
+        window.scrollTo({ top: 0, behavior: REDUCE ? 'auto' : 'smooth' });
       }
       if (MOTION) gsap.to(card, { opacity:0, y:16, scale:.98, duration:.28, ease:'power2.in', onComplete:fin });
       else fin();
@@ -3092,12 +3190,12 @@ function rsvp(){
    ============================================================ */
 
 /* ============================================================
-   9. COUNTDOWN — replies close Wednesday 9 September 2026, 23:59 ICT
+   9. COUNTDOWN — replies close Tuesday 8 September 2026, 23:59 ICT
    ============================================================ */
 function countdown(){
   var el = document.getElementById('countdown');
   if (!el) return;
-  var end = new Date('2026-09-09T23:59:59+07:00').getTime();
+  var end = new Date('2026-09-08T23:59:59+07:00').getTime();
   var parts = [['days','Days'],['hours','Hours'],['mins','Minutes']];
 
   function tick(){
@@ -3333,8 +3431,6 @@ var T = {
   'tk.dress':{lo:'ການແຕ່ງກາຍ',th:'การแต่งกาย',zh:'着装',vi:'Trang phục',ko:'복장',ja:'服装',fr:'Tenue'},
   'tk.dressVal':{lo:'ຊຸດສຸພາບແບບລຳລອງ',th:'สมาร์ทแคชชวล',zh:'轻正装',vi:'Trang phục lịch sự thoải mái',ko:'스마트 캐주얼',ja:'スマートカジュアル',fr:'Tenue smart casual'},
   'tk.dressNote':{lo:'ຊຸດພື້ນເມືອງລາວໄດ້ຣັບການຕ້ອນຣັບ. ກະລຸນາໃສ່ເກີບພື້ນຣາບ.',th:'ยินดีต้อนรับชุดประจำชาติลาว กรุณาสวมรองเท้าส้นเตี้ย',zh:'欢迎老挝传统服饰。地面为草坪，建议穿平底鞋。',vi:'Trang phục truyền thống Lào rất được hoan nghênh. Nên đi giày bệt vì sân cỏ.',ko:'라오스 전통 의상을 환영합니다. 잔디밭이므로 평소 신발을 권해드립니다.',ja:'ラオスの民族衣装も歓迎です。芝生のため平らな靴をどうぞ。',fr:'La tenue traditionnelle lao est bienvenue. Chaussures plates, la pelouse l’exige.'},
-  'tk.replyBy':{lo:'ກະລຸນາຕອບຮັບພາຍໃນ',th:'กรุณาตอบรับภายใน',zh:'请于此前回覆',vi:'Vui lòng phản hồi trước',ko:'회신 기한',ja:'返信期限',fr:'Merci de répondre avant le'},
-  'tk.replyVal':{lo:'ວັນອັງຄານ ທີ 18 ສິງຫາ 2026',th:'วันอังคารที่ 18 สิงหาคม 2026',zh:'2026年8月18日星期二',vi:'Thứ Ba, 18 tháng 8 năm 2026',ko:'2026년 8월 18일 화요일',ja:'2026年8月18日（火）',fr:'Mardi 18 août 2026'},
   'tk.children':{lo:'ງານນີ້ສຳລັບຜູ້ໃໝ່ເທົ່ານັ້ນ, ແຕ່ສາມາດຈັດກິດຈະກຳໃໝ້ເດັກທີ່ວິທຍາໄດ້ — ກະລຸນາແຈ້ງໃນຄຳຕອບຂອງທ່ານ.',th:'งานนี้สำหรับผู้ใหญ่เท่านั้น แต่สามารถจัดกิจกรรมดูแลเด็กที่วิทยาเขตได้ — โปรดระบุในคำตอบรับ',zh:'本次活动仅限成人参加，但中学校区可安排儿童看护 — 请在回覆中注明。',vi:'Sự kiện dành cho người lớn, nhưng nhà trường có thể sắp xếp trông trẻ — vui lòng ghi chú khi phản hồi.',ko:'이 밤은 성인을 위한 자리입니다. 다만 중등부 캠퍼스에서 아이 돌봄을 준비할 수 있으니 회신 시 알려 주세요.',ja:'この夕べは大人の方向けですが、中等部キャンパスでのお子さまの見守りをご用意できます。ご返信にお書き添えください。',fr:'La soirée est réservée aux adultes, mais une garde d’enfants peut être organisée sur le campus secondaire — indiquez-le dans votre réponse.'},
   'hero.venue':{lo:'ເດີ່ນບອນເຕະ · ບ້ານສະພານທອງເໜືອ, ນຄໜວງວີງຈັນ',th:'สนามฟุตบอล · สะพานทองเหนือ เวียงจันทน์',zh:'足球场区域 · 万象市萨塔那克区',vi:'Khu sân bóng · Saphanthong Neua, Viêng Chăn',ko:'축구장 구역 · 비엔티안',ja:'サッカー場エリア · ビエンチャン',fr:'Terrain de football · Saphanthong Neua, Vientiane'},
   'map.head':{lo:'ການເດີນທາງມາຫາພວກເຮົາ',th:'การเดินทางมาหาเรา',zh:'如何找到我们',vi:'Đường đến trường',ko:'오시는 길',ja:'会場への行き方',fr:'Nous trouver'},
@@ -3371,7 +3467,7 @@ var T = {
   'tk.field':{lo:'ເດີ່ນບອນເຕະ',th:'สนามฟุตบอล',zh:'足球场区域',vi:'Khu sân bóng',ko:'축구장 구역',ja:'サッカー場エリア',fr:'Terrain de football'},
   'tk.hours':{lo:'ເປີດ 17:30 · ປິດ 20:30',th:'เปิด 17:30 · ปิด 20:30',zh:'17:30 开放 · 20:30 结束',vi:'Mở 17:30 · đóng 20:30',ko:'17:30 개방 · 20:30 종료',ja:'17:30開場 · 20:30終了',fr:'Ouverture 17h30 · fermeture 20h30'},
   'foot.years':{lo:'ສະເຫຼີມສະຫຼອງ 25 ປີ · 2001–2026',th:'ฉลองครบรอบ 25 ปี · 2001–2026',zh:'庆祝二十五周年 · 2001–2026',vi:'Kỷ niệm hai mươi lăm năm · 2001–2026',ko:'25주년을 기념하며 · 2001–2026',ja:'創立25周年 · 2001–2026',fr:'Vingt-cinq ans · 2001–2026'},
-  'foot.deadline':{lo:'ປິດຮັບການຕອບຮັບ ວັນພຸດ ທີ 9 ກັນຍາ 2026. ຖ້າທ່ານຍັງບໍ່ທັນຕອບ ຍັງມີເວລາ — ໃຊ້ເວລາປະມານ 1 ນາທີ.',th:'ปิดรับการตอบรับวันพุธที่ 9 กันยายน 2026 หากท่านยังไม่ได้ตอบ ยังมีเวลา — ใช้เวลาราวหนึ่งนาที',zh:'回覆截止 2026 年 9 月 9 日星期三。若您尚未回覆，仍来得及 — 约需一分钟。',vi:'Hạn phản hồi: thứ Tư, 9 tháng 9 năm 2026. Nếu bạn chưa trả lời, vẫn còn kịp — chỉ mất khoảng một phút.',ko:'회신 마감은 2026년 9월 9일 수요일입니다. 아직이시라면 시간이 있습니다 — 1분이면 됩니다.',ja:'ご返信の締切は2026年9月9日（水）です。まだの方もお時間があります — 1分ほどで完了します。',fr:'Clôture des réponses le mercredi 9 septembre 2026. Il est encore temps — cela prend une minute.'},
+  'foot.deadline':{lo:'ປິດຮັບການຕອບຮັບ ວັນອັງຄານ ທີ 8 ກັນຍາ 2026. ຖ້າທ່ານຍັງບໍ່ທັນຕອບ ຍັງມີເວລາ — ໃຊ້ເວລາປະມານ 1 ນາທີ.',th:'ปิดรับการตอบรับวันอังคารที่ 8 กันยายน 2026 หากท่านยังไม่ได้ตอบ ยังมีเวลา — ใช้เวลาราวหนึ่งนาที',zh:'回覆截止 2026 年 9 月 8 日星期二。若您尚未回覆，仍来得及 — 约需一分钟。',vi:'Hạn phản hồi: thứ Ba, 8 tháng 9 năm 2026. Nếu bạn chưa trả lời, vẫn còn kịp — chỉ mất khoảng một phút.',ko:'회신 마감은 2026년 9월 8일 화요일입니다. 아직이시라면 시간이 있습니다 — 1분이면 됩니다.',ja:'ご返信の締切は2026年9月8日（火）です。まだの方もお時間があります — 1分ほどで完了します。',fr:'Clôture des réponses le mardi 8 septembre 2026. Il est encore temps — cela prend une minute.'},
   'foot.privacy':{lo:'ຂໍ້ມູນທີ່ທ່ານໃຫ້ ຖືກໃຊ້ພຽງເພື່ອຈັດງານຄ່ຳຄືນນີ້ ເກັບຮັກສາໂດຍຫ້ອງການໂຮງຮຽນ ບໍ່ມີການແບ່ງປັນອອກນອກ ແລະ ຈະຖືກລຶບຫຼັງງານສິ້ນສຸດ',th:'ข้อมูลที่ท่านให้ ใช้เพื่อจัดงานค่ำคืนนี้เท่านั้น เก็บรักษาโดยสำนักงานโรงเรียน ไม่เผยแพร่ภายนอก และจะถูกลบหลังจบงาน',zh:'您提供的信息仅用于筹办本次活动，由学校办公室保管，不会外传，并将在活动结束后删除。',vi:'Thông tin bạn cung cấp chỉ dùng để tổ chức buổi tối này, do văn phòng nhà trường lưu giữ, không chia sẻ ra ngoài và sẽ được xoá sau sự kiện.',ko:'제공하신 정보는 이 저녁 행사를 준비하는 데에만 사용되며, 학교 사무실이 보관하고 외부에 공유하지 않으며 행사 종료 후 삭제됩니다.',ja:'ご記入いただいた情報は本催しの準備にのみ使用し、学校事務室が保管します。外部には共有せず、終了後に削除いたします。',fr:'Les informations fournies servent uniquement à organiser cette soirée. Elles sont conservées par le secrétariat, ne sont pas partagées et sont supprimées après l’événement.'},
   'foot.private':{lo:'ຄຳເຊີນສ່ວນຕົວສຳລັບຄອບຄົວ PBIS ກະລຸນາຢ່າເຜີຍແຜ່ຕໍ່ສາທາລະນະ',th:'คำเชิญส่วนตัวสำหรับครอบครัว PBIS กรุณาอย่าเผยแพร่สู่สาธารณะ',zh:'这是发给 PBIS 家庭的私人邀请，请勿公开分享。',vi:'Thiệp mời riêng dành cho các gia đình PBIS. Vui lòng không chia sẻ công khai.',ko:'PBIS 가족을 위한 비공개 초대장입니다. 외부에 공유하지 말아 주세요.',ja:'PBISのご家族向けの非公開のご招待です。公開の場での共有はお控えください。',fr:'Invitation privée réservée aux familles PBIS. Merci de ne pas la partager publiquement.'},
   'foot.copyright':{lo:'© 2026 ໂຮງຮຽນ ປັນຍາທິບ ບຣິດຕິດ ອິນເຕີແນຊັນນອລ',th:'© 2026 โรงเรียนนานาชาติปันยาทิพ',zh:'© 2026 班雅提英国国际学校',vi:'© 2026 Trường Quốc tế Panyathip',ko:'© 2026 파냐팁 브리티시 국제학교',ja:'© 2026 パンヤティップ英国国際学校',fr:'© 2026 Panyathip British International School'},
