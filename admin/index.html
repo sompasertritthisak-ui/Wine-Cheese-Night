@@ -1153,6 +1153,27 @@ html[data-theme="dark"] .icon-btn[data-del]:hover{color:var(--forest-deep)}
   .bar .btn svg{stroke-width:1.9}
 }
 
+
+/* ============================================================
+   THE TABS
+   These are the main navigation of the whole tool and were set
+   at label size, quieter than the buttons above them. They now
+   read as the primary choice on the page.
+   ============================================================ */
+.tabs{gap:.2rem;margin-bottom:2rem;border-bottom:2px solid var(--rule)}
+.tab{padding:1.1rem 1.6rem;min-height:60px;font-size:.82rem;font-weight:700;
+  letter-spacing:.16em;border-bottom:3px solid transparent;margin-bottom:-2px;
+  color:var(--ink-2);gap:.7rem}
+.tab svg{width:19px;height:19px;stroke-width:1.9}
+.tab:hover{color:var(--ink);background:rgba(208,169,58,.07)}
+.tab[aria-selected="true"]{color:var(--forest);border-bottom-color:var(--gold);
+  background:rgba(208,169,58,.1)}
+html[data-theme="dark"] .tab[aria-selected="true"]{color:var(--gold-lit);
+  background:rgba(208,169,58,.14)}
+@media (max-width:640px){
+  .tab{padding:.9rem 1rem;font-size:.7rem;letter-spacing:.1em;min-height:54px}
+  .tab svg{width:17px;height:17px}
+}
 </style>
 </head>
 <body>
@@ -1334,7 +1355,6 @@ html[data-theme="dark"] .icon-btn[data-del]:hover{color:var(--forest-deep)}
         <button class="chip" data-f="msg" aria-pressed="false">With a message</button>
         <button class="chip" data-f="noshow" aria-pressed="false">No shows</button>
         <button class="chip" data-f="cancelled" aria-pressed="false">Cancelled</button>
-        <button class="chip" data-f="removed" aria-pressed="false">Removed</button>
       </span>
       <span class="count" id="count"></span>
       <span class="stamp" id="stamp"></span>
@@ -1450,14 +1470,29 @@ html[data-theme="dark"] .icon-btn[data-del]:hover{color:var(--forest-deep)}
   <p class="cr">&copy; 2026 Panyathip British International School</p>
 </footer>
 
+<div class="sheet" id="sendPass" role="dialog" aria-modal="true" aria-labelledby="spTitle">
+  <div class="sheet-scrim" data-sp-close></div>
+  <div class="sheet-card">
+    <h2 id="spTitle">Send this entry pass?</h2>
+    <p class="kill-who">To <b id="spName">&mdash;</b> <span id="spMeta"></span></p>
+    <p class="kill-note" id="spNote"></p>
+    <p class="err" id="spErr" role="alert"></p>
+    <div class="sheet-actions">
+      <button class="btn" data-sp-close>Cancel</button>
+      <button class="btn btn-solid" id="spGo">Send the pass</button>
+    </div>
+  </div>
+</div>
+
 <div class="sheet" id="killer" role="dialog" aria-modal="true" aria-labelledby="killTitle">
   <div class="sheet-scrim" data-kill-close></div>
   <div class="sheet-card">
     <h2 id="killTitle">Remove this RSVP</h2>
     <p class="kill-who">You are about to remove <b id="killName">&mdash;</b>
       <span id="killMeta"></span></p>
-    <p class="kill-note">This takes them off the guest list. It can be undone from the
-      toast that follows, or by setting their status back in the sheet.</p>
+    <p class="kill-note">This deletes their row from the spreadsheet. An <b>Undo</b>
+      appears for twenty seconds afterwards and puts it back exactly as it was. After
+      that, the sheet&rsquo;s own version history is the only way back.</p>
     <div class="fld">
       <label class="label" for="killType">Type the guest&rsquo;s name to confirm</label>
       <input type="text" id="killType" autocomplete="off" spellcheck="false"
@@ -1655,8 +1690,9 @@ html[data-theme="dark"] .icon-btn[data-del]:hover{color:var(--forest-deep)}
         hand, then use the tick button to record that it has been done.</p>
 
       <h3>Removing someone</h3>
-      <p>The bin asks you to type the guest&rsquo;s name. Nothing is truly deleted &mdash;
-        it is marked <i>Removed</i>, and an <b>Undo</b> appears for ten seconds.</p>
+      <p>The bin asks you to type the guest&rsquo;s name, then deletes the row from the
+        spreadsheet. An <b>Undo</b> appears for twenty seconds and puts it back exactly
+        as it was.</p>
     </div>
 
     <div class="help-body" data-body="night">
@@ -1692,8 +1728,8 @@ html[data-theme="dark"] .icon-btn[data-del]:hover{color:var(--forest-deep)}
       <p>The second scan says <i>already checked in</i> and changes nothing. No action needed.</p>
 
       <h3>Someone was removed by mistake</h3>
-      <p>Press <b>Undo</b> on the message that appears. If it has gone, set their Status back
-        to <i>Confirmed</i> in the spreadsheet.</p>
+      <p>Press <b>Undo</b> on the message that appears. If that has gone, open the
+        spreadsheet and use <b>File &rarr; Version history</b>.</p>
 
       <h3>A pass will not scan</h3>
       <p>Type the reference instead &mdash; it is printed under the QR code in their email and
@@ -1772,7 +1808,7 @@ function undoBulk(n, status, before){
 }
 
 /* A removal with ten seconds to change your mind. */
-function undoable(name, ref, was){
+function undoable(name, ref, rowData){
   var t = $('toast');
   t.innerHTML = '';
   t.appendChild(document.createTextNode('Removed ' + name + '  '));
@@ -1781,9 +1817,9 @@ function undoable(name, ref, was){
   a.style.cssText = 'min-height:34px;padding:.35rem .8rem;margin-left:.7rem';
   a.textContent = 'Undo';
   a.addEventListener('click', function(){
-    api({ action:'restore', token:session, ref:ref, was:was })
+    api({ action:'reinsert', token:session, row:rowData })
       .then(function(res){
-        if (res && res.ok){ toast(name + ' put back'); load(true); }
+        if (res && res.ok){ toast(name + ' put back on the list'); load(true); }
         else toast('Could not undo that.');
       })
       .catch(function(){ toast('No connection.'); });
@@ -1791,7 +1827,8 @@ function undoable(name, ref, was){
   t.appendChild(a);
   t.classList.add('up');
   clearTimeout(t.__t);
-  t.__t = setTimeout(function(){ t.classList.remove('up'); }, 10000);
+  // A deleted row now exists only in this message, so it stays longer.
+  t.__t = setTimeout(function(){ t.classList.remove('up'); }, 20000);
 }
 
 function toast(msg){
@@ -2041,7 +2078,6 @@ function visible(){
     if (filter === 'pairs' && r.party !== 2) return false;
     if (filter === 'noshow' && r.status !== 'No show') return false;
     if (filter === 'cancelled' && r.status !== 'Cancelled') return false;
-    if (filter === 'removed' && r.status !== 'Removed') return false;
     if (filter !== 'cancelled' && filter !== 'all' && r.status === 'Cancelled') return false;
     if (!q) return true;
     return (r.name + ' ' + r.email + ' ' + r.phone + ' ' + r.ref + ' ' +
@@ -2170,11 +2206,7 @@ function render(){
           (picked[r.ref] ? ' checked' : '') +
           ' aria-label="Select ' + esc(r.name) + '">'
         : '') + '</span>' +
-      '<span class="act">' + (r.status === 'Removed' && canEdit && !doorMode
-        ? '<button class="icon-btn edit" data-reinstate="' + esc(r.ref) + '" ' +
-          'aria-label="Put ' + esc(r.name) + ' back on the list">' +
-          '<svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 2.6-6.4"/><path d="M3 3v6h6"/>' +
-          '</svg></button>' : '') + (
+      '<span class="act">' + (
         doorMode
           ? '<span class="door-actions">' +
               '<button class="arrive" data-arrive="' + esc(r.ref) + '">' +
@@ -2210,21 +2242,6 @@ document.querySelectorAll('.chip').forEach(function(c){
 
 /* ---------------- delete ---------------- */
 $('rows').addEventListener('click', function(e){
-  var back = e.target.closest('[data-reinstate]');
-  if (back){
-    var bref = back.getAttribute('data-reinstate');
-    var brow = data.filter(function(x){ return x.ref === bref; })[0];
-    back.disabled = true;
-    api({ action:'restore', token:session, ref:bref, was:'Confirmed' })
-      .then(function(res){
-        back.disabled = false;
-        if (res && res.ok){ toast((brow ? brow.name : bref) + ' put back on the list');
-                            load(true); }
-        else toast('That could not be restored.');
-      })
-      .catch(function(){ back.disabled = false; toast('No connection.'); });
-    return;
-  }
   var b = e.target.closest('[data-del]');
   if (!b) return;
   openKiller(b.getAttribute('data-del'));
@@ -2297,7 +2314,7 @@ $('killGo').addEventListener('click', function(){
       if (res && res.error === 'expired'){ expire(); return; }
       if (res && res.ok){
         closeKiller();
-        undoable(row ? row.name : ref, ref, res.was || 'Confirmed');
+        undoable(row ? row.name : ref, ref, res.row || []);
         load(true);
       } else {
         $('killErr').textContent = res && res.error === 'forbidden'
@@ -2793,12 +2810,17 @@ function checkInRef(ref, sig){
 
       scanFeedback('good');
       if (res.already){
-        scanSay('warn', res.name, 'Already checked in');
+        scanSay('warn', res.name,
+          res.partySize > 1 ? 'Guest ' + res.seat + ' has already been checked in'
+                            : 'Already checked in');
       } else {
         scanTally++;
         $('scanCount').textContent = scanTally + ' checked in';
-        var sub = (res.party || 1) + (res.party === 1 ? ' place' : ' places') +
-                  (res.guest ? ' \u00b7 with ' + res.guest : '');
+        var sub = (res.partySize > 1
+          ? 'Guest ' + res.seat + ' of ' + res.partySize +
+            (res.whole ? ' \u00b7 both now in' : ' \u00b7 one still to come')
+          : (res.party || 1) + ' place') +
+          (res.guest ? ' \u00b7 with ' + res.guest : '');
         scanSay('good', res.name, sub);
         lastCheckIn = { ref: ref, was: res.was || 'Confirmed', name: res.name };
         if (res.note) toast('Note: ' + res.note);
@@ -2877,7 +2899,8 @@ function monitorShow(res){
     body.innerHTML = '<p class="mon-kicker">Welcome</p>' +
       '<h1 class="mon-title">' + esc(first) + '</h1>' +
       '<p class="mon-sub">' + esc(res.name) +
-      (res.guest ? ' &amp; ' + esc(res.guest) : '') + '</p>';
+      (res.guest ? ' &amp; ' + esc(res.guest) : '') +
+      (res.partySize > 1 && !res.whole ? ' \u00b7 one still to come' : '') + '</p>';
   }
   $('monTally').textContent = (meta.arrived || 0) + ' guests have arrived';
   monTimer = setTimeout(monitorRest, 6000);
@@ -3049,11 +3072,7 @@ function renderPasses(){
       '<span class="mailcell">' + (r.email ? esc(r.email)
         : '<span class="no-mail">no email given</span>') + '</span>' +
       '<span>' + tag + '</span>' +
-      '<span class="act">' + (r.status === 'Removed' && canEdit && !doorMode
-        ? '<button class="icon-btn edit" data-reinstate="' + esc(r.ref) + '" ' +
-          'aria-label="Put ' + esc(r.name) + ' back on the list">' +
-          '<svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 2.6-6.4"/><path d="M3 3v6h6"/>' +
-          '</svg></button>' : '') + (r.email
+      '<span class="act">' + (r.email
         ? '<button class="icon-btn edit" data-resend="' + esc(r.ref) +
           '" aria-label="Send the pass to ' + esc(r.name) + '">' +
           '<svg viewBox="0 0 24 24"><path d="M4 4h16v13H4z"/><path d="m4 6 8 6 8-6"/></svg></button>'
@@ -3145,18 +3164,7 @@ $('approveOnly').addEventListener('click', function(){ doApprove(false); });
 
 $('passRows').addEventListener('click', function(e){
   var send = e.target.closest('[data-resend]');
-  if (send){
-    var ref = send.getAttribute('data-resend');
-    send.disabled = true;
-    api({ action:'approve', token:session, refs:[ref], send:true })
-      .then(function(res){
-        send.disabled = false;
-        if (res && res.ok){ toast('Pass on its way'); load(true); }
-        else toast('That could not be sent.');
-      })
-      .catch(function(){ send.disabled = false; toast('No connection.'); });
-    return;
-  }
+  if (send){ openSendPass(send.getAttribute('data-resend')); return; }
   var hand = e.target.closest('[data-marksent]');
   if (hand){
     var r2 = hand.getAttribute('data-marksent');
@@ -3594,6 +3602,57 @@ function loose(hay, term){
   }
   return false;
 }
+
+/* ============================================================
+   SENDING A PASS
+   The icon sits beside a bin on a crowded row, and sending a pass
+   is not something to do by brushing past it. It asks first, and
+   says what is about to happen.
+   ============================================================ */
+var spRef = null;
+
+function openSendPass(ref){
+  var r = data.filter(function(x){ return x.ref === ref; })[0];
+  if (!r) return;
+  spRef = ref;
+  $('spName').textContent = r.name;
+  $('spMeta').textContent = '\u2014 ' + esc(r.email || 'no email address');
+  var n = r.party || 1;
+  $('spNote').textContent = (r.qrSent
+      ? 'They have already been sent a pass. Sending again replaces it \u2014 the old '
+      : 'This approves them and emails their pass. The ')
+    + (n > 1
+        ? 'codes stay valid. Two codes go in the one email, one for each of them.'
+        : 'code stays valid. One code goes in the email.');
+  $('spErr').textContent = '';
+  $('spGo').disabled = !r.email;
+  if (!r.email){
+    $('spNote').textContent = 'This guest has no email address, so a pass cannot be ' +
+      'sent. Give them their reference by hand and use the tick button instead.';
+  }
+  $('sendPass').classList.add('open');
+}
+
+document.querySelectorAll('[data-sp-close]').forEach(function(el){
+  el.addEventListener('click', function(){ $('sendPass').classList.remove('open'); });
+});
+
+$('spGo').addEventListener('click', function(){
+  if (!spRef) return;
+  var btn = this;
+  btn.disabled = true;
+  api({ action:'approve', token:session, refs:[spRef], send:true })
+    .then(function(res){
+      btn.disabled = false;
+      if (res && res.error === 'expired'){ expire(); return; }
+      if (res && res.ok){
+        $('sendPass').classList.remove('open');
+        toast('Pass on its way');
+        load(true);
+      } else $('spErr').textContent = 'That could not be sent.';
+    })
+    .catch(function(){ btn.disabled = false; $('spErr').textContent = 'No connection.'; });
+});
 
 /* ---------------- tabs ---------------- */
 document.querySelectorAll('.tab').forEach(function(t){
