@@ -2129,7 +2129,11 @@ function enter(v){
   countdown();
   load();
   if (pollTimer) clearInterval(pollTimer);
-  pollTimer = setInterval(function(){ load(true); }, 60000);
+  /* Twenty seconds rather than sixty. Most of these are answered from the
+     server's cache without touching the spreadsheet, so a fresher list
+     costs almost nothing — and on the night, sixty seconds is a long
+     time to be looking at an old number. */
+  pollTimer = setInterval(function(){ load(true); }, 20000);
   setInterval(function(){ $('stamp').textContent = ago(); }, 20000);
 }
 
@@ -2687,6 +2691,9 @@ $('dedupe').addEventListener('click', function(){
 /* ---------------- door mode ---------------- */
 function setDoor(on){
   doorMode = on;
+  /* At a gate, ten seconds. Everywhere else, twenty. */
+  if (pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(function(){ load(true); }, on ? 10000 : 20000);
   document.body.classList.toggle('door-on', on);
   if (on){ filter = 'all'; setTimeout(function(){ $('doorQ').focus(); }, 60); }
   else { $('doorQ').value = ''; }
@@ -4026,7 +4033,7 @@ function paintSync(){
   var secs = Math.round((Date.now() - lastLoad) / 1000);
   var when = new Date(lastLoad).toLocaleTimeString([],
                { hour: '2-digit', minute: '2-digit' });
-  t.textContent = secs < 90 ? 'Live \u00b7 ' + when
+  t.textContent = secs < 45 ? 'Live \u00b7 ' + when
                 : secs < 600 ? 'Live \u00b7 ' + Math.round(secs / 60) + ' min ago'
                 : 'Last seen ' + when;
 }
@@ -4060,7 +4067,7 @@ window.addEventListener('online', function(){
    not show an hour-old list. */
 document.addEventListener('visibilitychange', function(){
   if (document.visibilityState === 'visible' && session){
-    if (!lastLoad || Date.now() - lastLoad > 45000) load(true);
+    if (!lastLoad || Date.now() - lastLoad > 15000) load(true);
   }
 });
 
