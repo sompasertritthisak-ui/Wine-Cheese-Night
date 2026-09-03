@@ -2503,6 +2503,7 @@ function rsvp(){
   if (!form) return;
   var opened = Date.now();   // a person takes longer than three seconds
   var sending = false;
+  var giveUp = null;
 
   /* One id for this visit. Every attempt carries it, so if a parent on a
      slow connection presses send twice, the server recognises the second
@@ -2864,6 +2865,15 @@ function rsvp(){
     document.getElementById('submitLabel').textContent = 'Sending your RSVP';
     showSending();
 
+    /* Whatever goes wrong below, the guest is not left watching a bar for
+       ever. After fifty seconds we stop and tell them plainly. */
+    clearTimeout(giveUp);
+    giveUp = setTimeout(function(){
+      if (!sending) return;
+      console.error('RSVP timed out with no answer.');
+      failed({ error:'slow' });
+    }, 50000);
+
     var payload = {
       action:   'create',
       rid:      rid,
@@ -2884,6 +2894,8 @@ function rsvp(){
     };
 
     function reset(){
+      clearTimeout(giveUp);
+      clearInterval(creepTimer);
       hideSending();
       setProgress(0);
       sending = false;
@@ -2912,6 +2924,8 @@ function rsvp(){
       unsaved:     'We could not confirm that your RSVP was saved. Please try once ' +
                    'more \u2014 and if it happens again, let the school office know rather ' +
                    'than assuming your place is held.',
+      slow:        'That is taking longer than it should. Please check your connection ' +
+                   'and try once more \u2014 your answers are still here.',
       busy:        'A lot of RSVPs are arriving at once. Please wait a moment and try again.'
     };
 
@@ -2947,73 +2961,21 @@ function rsvp(){
        recognises the repeat and writes nothing new — then confirm on the
        reference the page proposed. */
     function send(mode){
-      return fetch(ENDPOINT, {
+      /* no-cors replies cannot be read, so that path is only ever used as
+         a last resort before verifying. */
+      var ctl = window.AbortController ? new AbortController() : null;
+      var timer = setTimeout(function(){ if (ctl) ctl.abort(); }, 25000);
+      var opts = {
         method: 'POST',
         mode: mode,
         headers: { 'Content-Type':'text/plain;charset=utf-8' },
         body: JSON.stringify(payload)
-      });
-    }
-
-    /* Every attempt carries the same submission id, so retrying can never
-       create a second row: the server recognises the repeat and returns the
-       original reference. That makes it safe to keep trying, which matters
-       when a few hundred families reply within the same hour. */
-    var MAX_TRIES = 7;
-
-    function attempt(n){
-      setProgress(n === 1 ? 25 : Math.min(25 + n * 18, 82));
-
-      send('cors')
-        .then(function(r){
-          return r.text().then(function(t){
-            try { return JSON.parse(t); }
-            catch (e) {
-              console.warn('Reply was not JSON.', r.status);
-              return null;
-            }
-          });
-        })
-        .then(function(res){
-          if (res && res.ok) { finish(res); return; }
-
-          // The server said no, but said it is worth trying again.
-          if (res && res.retry && n < MAX_TRIES) {
-            /* Exponential, with jitter so a crowd that all pressed send at
-               the same moment does not return in lockstep. Capped, so the
-               last attempts are still spaced but never absurd. */
-            var wait = Math.min(800 * Math.pow(2, n - 1), 9000) + Math.random() * 900;
-            console.warn('Server busy, retrying in', Math.round(wait), 'ms');
-            showRetrying();
-            setTimeout(function(){ attempt(n + 1); }, wait);
-            return;
-          }
-
-          if (res && res.ok === false) { failed(res); return; }
-          throw new Error('unreadable');
-        })
-        .catch(function(err){
-          // Could not read the reply. The browser may be blocking the
-          // redirect Apps Script answers with; the write may well have
-          // succeeded. Try once more, then fall back.
-          if (n < MAX_TRIES) {
-            console.warn('Reply unreadable, attempt', n, err);
-            setTimeout(function(){ attempt(n + 1); }, 700 * n);
-            return;
-          }
-          /* Last resort: send once more in a mode the browser will not let
-             us read, then ASK THE SERVER whether it actually saved. We
-             never confirm on faith — a parent believing they have a place
-             that does not exist is the one failure worth avoiding above
-             all others. */
-          console.warn('Reply unreadable. Sending blind, then verifying.');
-          send('no-cors')
-            .then(function(){ verify(1); })
-            .catch(function(err2){
-              console.error('RSVP could not be sent at all:', err2);
-              failed({ error:'unreachable' });
-            });
-        });
+      };
+      if (ctl) opts.signal = ctl.signal;
+      return fetch(ENDPOINT, opts).then(function(r){
+        clearTimeout(timer);
+        return r;
+      }).catch(function(e){ clearTimeout(timer); throw e; });
     }
 
     /* Asks the server whether the RSVP is in the sheet. Tries a few times,
@@ -3021,28 +2983,33 @@ function rsvp(){
     function verify(attemptNo){
       var MAX_CHECKS = 6;
       setProgress(88);
-      fetch(ENDPOINT, {
-        method:'POST',
-        headers:{ 'Content-Type':'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action:'verify', ref: myRef, rid: rid })
-      })
-      .then(function(r){ return r.json(); })
-      .then(function(res){
-        if (res && res.saved) { finish({ ref: res.ref || myRef, verified: true }); return; }
-        if (attemptNo < MAX_CHECKS){
-          setTimeout(function(){ verify(attemptNo + 1); }, 1200 * attemptNo);
-          return;
-        }
-        // It genuinely is not there. Say so, rather than pretending.
-        failed({ error:'unsaved' });
-      })
-      .catch(function(){
-        if (attemptNo < MAX_CHECKS){
-          setTimeout(function(){ verify(attemptNo + 1); }, 1200 * attemptNo);
-          return;
-        }
-        failed({ error:'unsaved' });
-      });
+      console.info('RSVP: verifying, attempt', attemptNo);
+      post({ action:'verify', ref: myRef, rid: rid }, 15000)
+        .then(function(res){
+          if (res && res.saved){
+            console.info('RSVP: confirmed saved as', res.ref || myRef);
+            finish({ ref: res.ref || myRef, verified: true });
+            return;
+          }
+          if (res === null){
+            console.error('RSVP: verify replied with something that is not JSON. ' +
+                          'The deployed script is likely older than this page.');
+          }
+          if (attemptNo < MAX_CHECKS){
+            setTimeout(function(){ verify(attemptNo + 1); }, 1200 * attemptNo);
+            return;
+          }
+          /* Six checks over roughly twenty seconds and still nothing. Say
+             so rather than leaving the bar sitting at eighty-eight. */
+          failed({ error:'unsaved' });
+        })
+        .catch(function(){
+          if (attemptNo < MAX_CHECKS){
+            setTimeout(function(){ verify(attemptNo + 1); }, 1200 * attemptNo);
+            return;
+          }
+          failed({ error:'unsaved' });
+        });
     }
 
     function finish(res){
@@ -3096,6 +3063,39 @@ function rsvp(){
 
   /* The bar reports real milestones, but creeps forward slowly between
      them so it never looks frozen while waiting on the network. */
+  /* A request with no time limit is a request that can hang for ever, and
+     the progress bar has nothing to tell the guest while it does. Every
+     call now gives up after a set time so the flow can move on. */
+  function post(body, ms){
+    var ctl = window.AbortController ? new AbortController() : null;
+    var timer = setTimeout(function(){
+      if (ctl) ctl.abort();
+    }, ms || 20000);
+
+    var opts = {
+      method:'POST',
+      headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+      body: JSON.stringify(body)
+    };
+    if (ctl) opts.signal = ctl.signal;
+
+    return fetch(ENDPOINT, opts)
+      .then(function(r){
+        clearTimeout(timer);
+        return r.text().then(function(t){
+          try { return JSON.parse(t); }
+          catch (e) {
+            console.warn('Reply was not JSON:', r.status, t.slice(0, 200));
+            return null;
+          }
+        });
+      })
+      .catch(function(err){
+        clearTimeout(timer);
+        throw err;
+      });
+  }
+
   function setProgress(pct){
     var f = document.getElementById('progFill');
     var t = document.getElementById('progPct');
