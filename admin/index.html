@@ -388,7 +388,18 @@ select option{background:var(--forest);color:var(--cream)}
 .dl dd small{display:block;color:var(--stone);font-size:.85rem;margin-top:.2rem}
 
 /* ---------------- activity log ---------------- */
-.log-row{display:grid;grid-template-columns:auto 1fr auto;gap:1rem;align-items:baseline;
+.log-icon{width:30px;height:30px;flex:none;display:grid;place-items:center;
+  border:1px solid var(--rule);border-radius:50%;background:var(--paper)}
+.log-icon svg{width:14px;height:14px;stroke:var(--gold-deep);fill:none;
+  stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+html[data-theme="dark"] .log-icon svg{stroke:var(--gold)}
+.log-who small{display:block;font-family:var(--f-label);font-size:.5rem;
+  letter-spacing:.16em;text-transform:uppercase;opacity:.7;margin-top:.1rem}
+.log-ref{font-family:var(--f-ui);font-weight:600;color:var(--gold-deep);
+  letter-spacing:.04em}
+html[data-theme="dark"] .log-ref{color:var(--gold-lit)}
+.log-detail{color:var(--ink-3)}
+.log-row{display:grid;grid-template-columns:30px auto 1fr auto;gap:1rem;align-items:baseline;
   padding:.9rem 1.1rem;border-bottom:1px solid rgba(244,241,232,.08)}
 .log-row:last-child{border-bottom:0}
 .log-who{display:flex;align-items:center;gap:.5rem;white-space:nowrap}
@@ -406,7 +417,8 @@ select option{background:var(--forest);color:var(--cream)}
 .log-when{font-family:var(--f-label);font-size:.52rem;letter-spacing:.18em;
   text-transform:uppercase;color:var(--stone);white-space:nowrap}
 @media (max-width:720px){
-  .log-row{grid-template-columns:1fr;gap:.35rem}
+  .log-row{grid-template-columns:30px 1fr;gap:.4rem .7rem}
+  .log-icon{grid-row:span 2}
   .log-when{grid-row:1}
 }
 
@@ -1268,6 +1280,35 @@ html[data-theme="dark"] .tools{background:var(--paper)}
   #refresh.busy .r-icon{animation:none;opacity:.5}
 }
 
+
+/* ============================================================
+   MARKS
+   Small icons on the figures, the year groups and the filters.
+   A screen of numbers is scanned by shape before it is read.
+   ============================================================ */
+.stat{position:relative}
+.stat-i{position:absolute;top:1rem;right:1.1rem;width:26px;height:26px;
+  display:grid;place-items:center;opacity:.28}
+.stat-i svg{width:22px;height:22px;stroke:var(--forest);fill:none;stroke-width:1.5;
+  stroke-linecap:round;stroke-linejoin:round}
+.hero-stat .stat-i{opacity:.4}
+.hero-stat .stat-i svg{stroke:var(--gold-deep)}
+html[data-theme="dark"] .stat-i svg{stroke:var(--gold-lit);opacity:.9}
+
+.yr{position:relative}
+.yr-i{position:absolute;top:.85rem;right:1rem;width:22px;height:22px;
+  display:grid;place-items:center;opacity:.3}
+.yr-i svg{width:19px;height:19px;stroke:var(--forest);fill:none;stroke-width:1.5;
+  stroke-linecap:round;stroke-linejoin:round}
+html[data-theme="dark"] .yr-i svg{stroke:var(--gold-lit)}
+
+.chip{display:inline-flex;align-items:center;gap:.45rem}
+.chip svg{width:14px;height:14px;flex:none;stroke:currentColor;fill:none;
+  stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;opacity:.7}
+.chip[aria-pressed="true"] svg{opacity:1;stroke:var(--gold-deep)}
+html[data-theme="dark"] .chip[aria-pressed="true"] svg{stroke:var(--gold-lit)}
+@media (max-width:560px){.chip svg{display:none}}
+
 </style>
 </head>
 <body>
@@ -1415,10 +1456,10 @@ html[data-theme="dark"] .tools{background:var(--paper)}
     <div class="years" id="years"></div>
 
     <div class="stats">
-      <div class="stat hero-stat"><b id="sHeads">&mdash;</b><span class="label">Coming</span></div>
-      <div class="stat"><b id="sFam">&mdash;</b><span class="label">Families</span></div>
-      <div class="stat"><b id="sPairs">&mdash;</b><span class="label">Coming as a pair</span></div>
-      <div class="stat"><b id="sNotes">&mdash;</b><span class="label">With children listed</span></div>
+      <div class="stat hero-stat"><span class="stat-i"><svg viewBox="0 0 24 24"><path d="M17 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-6A3.5 3.5 0 0 0 4 18.5V20"/><circle cx="10.5" cy="8" r="3.5"/><path d="M20 20v-1.5a3.5 3.5 0 0 0-2.6-3.4"/><path d="M15.5 4.6a3.5 3.5 0 0 1 0 6.8"/></svg></span><b id="sHeads">&mdash;</b><span class="label">Coming</span></div>
+      <div class="stat"><span class="stat-i"><svg viewBox="0 0 24 24"><path d="M4 20v-9l8-6 8 6v9"/><path d="M9.5 20v-5h5v5"/></svg></span><b id="sFam">&mdash;</b><span class="label">Families</span></div>
+      <div class="stat"><span class="stat-i"><svg viewBox="0 0 24 24"><circle cx="8.5" cy="9" r="3"/><circle cx="15.5" cy="9" r="3"/><path d="M3 19v-1a3.5 3.5 0 0 1 3.5-3.5h11A3.5 3.5 0 0 1 21 18v1"/></svg></span><b id="sPairs">&mdash;</b><span class="label">Coming as a pair</span></div>
+      <div class="stat"><span class="stat-i"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.4-7-9.5A3.5 3.5 0 0 1 12 9a3.5 3.5 0 0 1 7 2.5C19 16.6 12 21 12 21z"/></svg></span><b id="sNotes">&mdash;</b><span class="label">With children listed</span></div>
     </div>
 
     <div class="dupe-note hidden" id="dupeNote">
@@ -2288,8 +2329,16 @@ function paintCapacity(live){
 function paintYears(){
   var y = meta.years || {};
   var order = ['Early Years','Lower Primary','Upper Primary','Secondary'];
+  var yIcon = {
+    'Early Years':   '<circle cx="12" cy="9" r="4"/><path d="M5 21c0-3.3 3.1-6 7-6s7 2.7 7 6"/>',
+    'Lower Primary': '<path d="M3 8l9-4 9 4-9 4-9-4z"/><path d="M7 10.5V16c0 1.7 2.2 3 5 3s5-1.3 5-3v-5.5"/>',
+    'Upper Primary': '<path d="M4 19V5h9l7 4v10z"/><path d="M8 19v-6h5v6"/>',
+    'Secondary':     '<path d="M12 3l2.6 5.6L20 9.4l-4 4.1.9 5.8L12 16.6 7.1 19.3l.9-5.8-4-4.1 5.4-.8z"/>'
+  };
   $('years').innerHTML = order.map(function(k){
-    return '<div class="yr"><b>' + (y[k] || 0) + '</b>' +
+    return '<div class="yr"><span class="yr-i"><svg viewBox="0 0 24 24">' +
+           (yIcon[k] || '') + '</svg></span>' +
+           '<b>' + (y[k] || 0) + '</b>' +
            '<span class="label">' + k + '</span></div>';
   }).join('');
 }
@@ -2436,6 +2485,24 @@ $('refresh').addEventListener('click', function(){
     })
     .catch(function(){ syncFailed(); fail(); settle(false); });
 });
+/* A small mark on each filter, so the row reads as a set of choices
+   rather than a wall of words. */
+var CHIP_ICONS = {
+  all:      '<path d="M4 6h16M4 12h16M4 18h16"/>',
+  notes:    '<circle cx="12" cy="8" r="3.2"/><path d="M5 20c0-3.2 3.1-5.5 7-5.5s7 2.3 7 5.5"/>',
+  pairs:    '<circle cx="8.5" cy="9" r="3"/><circle cx="15.5" cy="9" r="3"/><path d="M3 19v-1a3.5 3.5 0 0 1 3.5-3.5h11A3.5 3.5 0 0 1 21 18v1"/>',
+  msg:      '<path d="M21 12a8 8 0 1 1-3.2-6.4"/><path d="M8 10h8M8 14h5"/>',
+  noshow:   '<circle cx="12" cy="12" r="9"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7"/>',
+  cancelled:'<circle cx="12" cy="12" r="9"/><path d="M8 12h8"/>'
+};
+document.querySelectorAll('.chip[data-f]').forEach(function(c){
+  var k = c.getAttribute('data-f');
+  if (CHIP_ICONS[k]){
+    c.insertAdjacentHTML('afterbegin',
+      '<svg viewBox="0 0 24 24" aria-hidden="true">' + CHIP_ICONS[k] + '</svg>');
+  }
+});
+
 document.querySelectorAll('.chip').forEach(function(c){
   c.addEventListener('click', function(){
     filter = c.getAttribute('data-f');
@@ -3998,6 +4065,31 @@ document.querySelectorAll('.tab').forEach(function(t){
   });
 });
 
+/* A small mark for each kind of entry. A log of forty lines is read by
+   shape before it is read by word. */
+var ACT_ICONS = {
+  'signed in':  '<path d="M10 3H5.5A1.5 1.5 0 0 0 4 4.5v15A1.5 1.5 0 0 0 5.5 21H10"/><path d="M20 12H9"/><path d="m16 8 4 4-4 4"/>',
+  'deleted':    '<path d="M4 7h16M10 11v6M14 11v6"/><path d="M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+  'restored':   '<path d="M3 12a9 9 0 1 0 2.6-6.4"/><path d="M3 3v6h6"/>',
+  'edited':     '<path d="M4 20h4L18 10l-4-4L4 16z"/><path d="M14 6l4 4"/>',
+  'added':      '<path d="M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-4A3.5 3.5 0 0 0 5 18.5V20"/><circle cx="10.5" cy="8" r="3.5"/><path d="M18 7v6M15 10h6"/>',
+  'approved':   '<path d="M20 6 9 17l-5-5"/>',
+  'checked in': '<path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16"/><path d="M4 12h16"/>',
+  'set':        '<path d="M4 6h16M4 12h10M4 18h6"/>',
+  'scanned':    '<circle cx="12" cy="12" r="3"/><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/>',
+  'removed':    '<path d="M4 7h16M10 11v6M14 11v6"/><path d="M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+  'purged':     '<path d="M4 7h16M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/><path d="M9 12l6 6M15 12l-6 6"/>',
+  'undid':      '<path d="M3 12a9 9 0 1 0 2.6-6.4"/><path d="M3 3v6h6"/>',
+  'marked':     '<path d="M4 4h16v13H4z"/><path d="m4 6 8 6 8-6"/>'
+};
+
+function actionIcon(action){
+  var a = String(action || '').toLowerCase();
+  var path = '<circle cx="12" cy="12" r="8"/>';
+  for (var k in ACT_ICONS){ if (a.indexOf(k) === 0 || a.indexOf(k) > -1){ path = ACT_ICONS[k]; break; } }
+  return '<svg viewBox="0 0 24 24">' + path + '</svg>';
+}
+
 function loadLog(){
   $('logList').innerHTML = '<div class="skel"><i></i><i></i></div>'.repeat(3);
   api({ action:'activity', token:session })
@@ -4012,14 +4104,21 @@ function loadLog(){
         $('logList').innerHTML = '<div class="empty">Nothing recorded yet.</div>';
         return;
       }
+      /* The field names must match what the server sends: when, action,
+         ref and detail. They did not, which is why every entry showed a
+         name and nothing else. */
       $('logList').innerHTML = e.map(function(x){
-        var when = x.ts ? new Date(x.ts) : null;
+        var when = x.when ? new Date(x.when) : null;
+        var act = String(x.action || '');
         return '<div class="log-row">' +
+          '<span class="log-icon" aria-hidden="true">' + actionIcon(act) + '</span>' +
           '<span class="log-who r-' + esc(x.role) + '">' +
-            '<i aria-hidden="true" style="background:currentColor"></i>' +
-            '<b>' + esc(x.who) + '</b></span>' +
-          '<span class="log-did"><em>' + esc(x.did) + '</em>' +
-            (x.to ? ' \u2014 ' + esc(x.to) : '') + '</span>' +
+            '<b>' + esc(x.who) + '</b>' +
+            (x.role ? '<small>' + esc(x.role) + '</small>' : '') + '</span>' +
+          '<span class="log-did"><em>' + esc(act) + '</em>' +
+            (x.ref ? ' <b class="log-ref">' + esc(x.ref) + '</b>' : '') +
+            (x.detail ? ' <span class="log-detail">' + esc(x.detail) + '</span>' : '') +
+          '</span>' +
           '<span class="log-when">' + (when
             ? when.toLocaleString([], { day:'numeric', month:'short',
                 hour:'2-digit', minute:'2-digit' })
