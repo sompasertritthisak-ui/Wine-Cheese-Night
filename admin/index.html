@@ -696,10 +696,23 @@ html{scrollbar-color:var(--gold) var(--paper-3)}
 .msg-line svg{width:13px;height:13px;flex:none;margin-top:.22rem;
   stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round}
 .door-on .msg-line{color:var(--gold-lit)}
+.no-photo{display:flex;align-items:center;gap:.45rem;margin-top:.4rem;
+  font-size:.88rem;color:var(--danger)}
+.no-photo svg{width:13px;height:13px;flex:none;stroke:currentColor;fill:none;
+  stroke-width:1.7;stroke-linecap:round}
+.door-on .no-photo{color:#F2B25C}
 .note-line{display:flex;align-items:flex-start;gap:.45rem;margin-top:.4rem;
   font-size:.88rem;color:var(--gold-deep);font-style:italic}
 .note-line svg{width:13px;height:13px;flex:none;margin-top:.22rem;
   stroke:currentColor;fill:none;stroke-width:1.8}
+.sheet-card .help{margin:.45rem 0 0;font-size:.88rem;color:var(--ink-3);line-height:1.5}
+.kill-who{margin:0 0 .6rem;font-size:1.05rem;color:var(--ink)}
+.kill-who b{font-family:var(--f-ui);font-weight:600}
+.kill-who span{color:var(--ink-2)}
+.kill-note{margin:0 0 1.4rem;font-size:.92rem;color:var(--ink-2);line-height:1.55}
+#killType{font-size:1.1rem}
+#killGo[disabled]{opacity:.4;cursor:not-allowed;border-color:var(--rule);color:var(--ink-3)}
+#killGo[disabled]:hover{background:transparent;border-color:var(--rule);color:var(--ink-3)}
 .fld .opt{font-family:var(--f-ui);text-transform:none;letter-spacing:normal;
   font-size:.82rem;color:var(--ink-3);margin-left:.2rem}
 .door-on .note-line{color:var(--gold-lit)}
@@ -709,6 +722,370 @@ html{scrollbar-color:var(--gold) var(--paper-3)}
   .bulk-acts{margin-left:0;width:100%}
   .bulk-acts .btn{flex:1;min-width:110px}
 }
+
+
+/* ============================================================
+   ENTRY PASSES
+   Approval is a decision, so this is a review screen rather than
+   a list with a button on it: who is waiting, who has been sent
+   a pass, and who cannot be sent one because we have no address.
+   ============================================================ */
+.pass-head{display:flex;gap:1.2rem;align-items:center;flex-wrap:wrap;margin-bottom:1.2rem}
+.pass-stats{display:flex;gap:1.6rem;flex-wrap:wrap}
+.pass-stats span{font-family:var(--f-ui);font-size:.95rem;color:var(--ink-2)}
+.pass-stats b{font-family:var(--f-display);font-weight:600;font-size:1.5rem;
+  color:var(--forest);margin-right:.35rem}
+.pass-acts{display:flex;gap:.6rem;margin-left:auto;flex-wrap:wrap}
+
+.prow{display:grid;grid-template-columns:26px 1fr auto auto;gap:1rem;align-items:center;
+  padding:.95rem 1.1rem;border-bottom:1px solid var(--rule-2)}
+.prow:last-child{border-bottom:0}
+.prow:hover{background:#FBF9F3}
+.prow .who b{display:block;font-weight:500;font-size:1.05rem;color:var(--ink)}
+.prow .who span{display:block;font-size:.88rem;color:var(--ink-2)}
+.prow .ref{font-family:var(--f-label);font-size:.7rem;letter-spacing:.08em;
+  color:var(--gold-deep);white-space:nowrap}
+.pstate{display:inline-flex;align-items:center;gap:.45rem;padding:.26rem .7rem;
+  font-family:var(--f-label);font-size:.52rem;letter-spacing:.16em;text-transform:uppercase;
+  border:1px solid var(--rule);white-space:nowrap}
+.pstate.sent{border-color:rgba(26,107,65,.45);color:var(--good);background:var(--good-bg)}
+.pstate.ok{border-color:var(--gold-dim);color:var(--gold-deep);background:#FBF3DC}
+.pstate.wait{border-color:var(--rule);color:var(--ink-3);background:var(--paper-3)}
+.pstate.none{border-color:rgba(154,74,18,.4);color:var(--danger);background:var(--danger-bg)}
+.prow .act{display:flex;gap:.4rem}
+.prow .btn{min-height:38px;padding:.45rem .9rem;font-size:.54rem}
+@media (max-width:720px){
+  .prow{grid-template-columns:26px 1fr;grid-template-areas:"pick who" ". ref" ". act";
+    row-gap:.5rem}
+  .prow .pick{grid-area:pick}.prow .who{grid-area:who}
+  .prow .ref{grid-area:ref}.prow .act{grid-area:act}
+  .prow .pstate{display:none}
+  .pass-acts{margin-left:0;width:100%}
+  .pass-acts .btn{flex:1}
+}
+
+
+/* ============================================================
+   PASSES
+   ============================================================ */
+.pass-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:1px;background:var(--rule);border:1px solid var(--rule);margin-bottom:1.6rem}
+.pass-stats .stat{background:var(--paper-2);padding:1.1rem 1.2rem}
+#passList .row{grid-template-columns:26px 1.6fr .8fr 1.4fr auto auto}
+.pass-tag{display:inline-flex;align-items:center;gap:.4rem;padding:.25rem .65rem;
+  font-family:var(--f-label);font-size:.52rem;letter-spacing:.16em;text-transform:uppercase;
+  border:1px solid var(--rule);white-space:nowrap}
+.pass-tag.sent{border-color:rgba(26,107,65,.4);color:var(--good);background:var(--good-bg)}
+.pass-tag.ready{border-color:rgba(208,169,58,.5);color:var(--gold-deep);background:#FBF3DC}
+.pass-tag.none{border-color:rgba(154,74,18,.35);color:var(--danger);background:var(--danger-bg)}
+.no-mail{color:var(--danger);font-style:italic}
+@media (max-width:920px){
+  #passList .row{grid-template-columns:26px 1fr auto;grid-template-areas:
+    "pick who act" "pick ref mail";row-gap:.6rem}
+  #passList .row .pick{grid-area:pick}
+  #passList .row .who{grid-area:who}
+  #passList .row .ref{grid-area:ref}
+  #passList .row .mailcell{grid-area:mail}
+}
+
+/* ============================================================
+   THE SCANNER
+   Dark, because it is used at a gate at night, and full-screen
+   so a phone held at arm's length has nothing else on it.
+   ============================================================ */
+.scan{position:fixed;inset:0;z-index:130;display:none;flex-direction:column;
+  background:var(--forest-deep);color:var(--cream)}
+.scan.open{display:flex}
+.scan-head{display:flex;align-items:center;gap:1rem;padding:.9rem var(--gutter);
+  border-bottom:1px solid var(--gold-dim);background:rgba(4,20,12,.6);flex:none}
+.scan-title{font-family:var(--f-label);font-weight:700;font-size:.66rem;
+  letter-spacing:.24em;text-transform:uppercase;color:var(--gold-lit)}
+.scan-count{font-family:var(--f-ui);font-size:1rem;color:var(--stone);margin-left:auto}
+.scan-head .btn{border-color:var(--gold-dim);color:var(--cream)}
+.scan-stage{position:relative;flex:1;min-height:0;display:grid;place-items:center;
+  overflow:hidden;background:#04120B}
+.scan-stage video{width:100%;height:100%;object-fit:cover;display:block}
+.scan-frame{position:absolute;width:min(64vw,300px);aspect-ratio:1;pointer-events:none}
+.scan-frame i{position:absolute;width:34px;height:34px;border:3px solid var(--gold)}
+.scan-frame i:nth-child(1){top:0;left:0;border-right:0;border-bottom:0}
+.scan-frame i:nth-child(2){top:0;right:0;border-left:0;border-bottom:0}
+.scan-frame i:nth-child(3){bottom:0;left:0;border-right:0;border-top:0}
+.scan-frame i:nth-child(4){bottom:0;right:0;border-left:0;border-top:0}
+.scan-hint{position:absolute;bottom:1.2rem;left:0;right:0;text-align:center;margin:0;
+  font-family:var(--f-ui);font-size:1rem;color:var(--cream);
+  text-shadow:0 1px 6px rgba(0,0,0,.8);padding:0 1rem}
+.scan-result{flex:none;min-height:104px;display:grid;place-items:center;text-align:center;
+  padding:1rem var(--gutter);border-top:1px solid var(--gold-dim);
+  transition:background var(--t-micro)}
+.scan-result b{display:block;font-family:var(--f-display);font-weight:600;
+  font-size:clamp(1.4rem,4.5vw,2rem);color:var(--cream);line-height:1.2}
+.scan-result span{display:block;font-family:var(--f-ui);font-size:1rem;color:var(--stone);
+  margin-top:.35rem}
+.scan-result.good{background:rgba(26,107,65,.35)}
+.scan-result.good b{color:#8FF0B8}
+.scan-result.warn{background:rgba(208,169,58,.22)}
+.scan-result.warn b{color:var(--gold-lit)}
+.scan-result.bad{background:rgba(154,74,18,.35)}
+.scan-result.bad b{color:#F2B25C}
+.scan-manual{flex:none;display:flex;gap:.6rem;padding:.9rem var(--gutter);
+  border-top:1px solid var(--line)}
+.scan-manual input{flex:1;min-height:52px;background:rgba(244,241,232,.06);
+  border:1px solid var(--line);color:var(--cream);font-size:1.05rem;
+  text-transform:uppercase;letter-spacing:.08em}
+.scan-manual input::placeholder{color:var(--stone);text-transform:none;letter-spacing:normal}
+.scan-note{flex:none;margin:0;padding:0 var(--gutter) calc(.9rem + env(safe-area-inset-bottom));
+  font-family:var(--f-label);font-size:.54rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--gold-lit);min-height:1rem}
+
+/* ============================================================
+   RECEPTION MONITOR — read from across a room
+   ============================================================ */
+.monitor,.kiosk{position:fixed;inset:0;z-index:135;display:none;
+  background:radial-gradient(70% 55% at 50% 30%,rgba(208,169,58,.12),transparent 68%),
+             var(--forest-deep);color:var(--cream)}
+.monitor.open,.kiosk.open{display:block}
+.mon-exit{position:absolute;top:1rem;right:1rem;width:52px;height:52px;background:transparent;
+  border:1px solid var(--gold-dim);color:var(--stone);font-size:1.5rem;cursor:pointer;z-index:2}
+.mon-exit:hover{color:var(--gold-lit);border-color:var(--gold)}
+.mon-inner,.kiosk-inner{height:100%;display:grid;place-content:center;justify-items:center;
+  text-align:center;padding:2rem;gap:.4rem}
+.mon-crest{width:min(180px,22vh);margin-bottom:1.5rem}
+.mon-kicker{margin:0;font-family:var(--f-label);font-weight:700;
+  font-size:clamp(.66rem,1.6vw,.92rem);letter-spacing:.34em;text-transform:uppercase;
+  color:var(--gold-lit)}
+.mon-title{margin:.6rem 0 0;font-family:var(--f-display);font-weight:600;
+  font-size:clamp(2.6rem,9vw,7rem);line-height:1.05;color:#FFFFFF}
+.mon-sub{margin:.9rem 0 0;font-family:var(--f-ui);
+  font-size:clamp(1.1rem,2.6vw,1.8rem);color:var(--stone)}
+.mon-tally{position:absolute;bottom:1.6rem;left:0;right:0;text-align:center;margin:0;
+  font-family:var(--f-label);font-size:.62rem;letter-spacing:.26em;text-transform:uppercase;
+  color:var(--stone)}
+.mon-body.greet .mon-title{color:var(--gold-lit)}
+.mon-body.again .mon-title{color:var(--gold)}
+.mon-body.stop .mon-title{color:#F2B25C}
+
+/* ============================================================
+   SELF CHECK-IN KIOSK
+   ============================================================ */
+.kiosk-crest{width:min(130px,16vh);margin-bottom:1rem}
+.kiosk-title{margin:0;font-family:var(--f-display);font-weight:600;
+  font-size:clamp(1.9rem,5vw,3.2rem);color:#FFFFFF}
+.kiosk-sub{margin:.6rem 0 1.6rem;font-family:var(--f-ui);
+  font-size:clamp(1rem,2.2vw,1.3rem);color:var(--stone)}
+.kiosk-scan{width:min(320px,70vw);aspect-ratio:1;border:2px solid var(--gold-dim);
+  overflow:hidden;background:#04120B;margin:0 auto 1.4rem}
+.kiosk-scan video{width:100%;height:100%;object-fit:cover;display:block}
+.kiosk-inner input{width:min(460px,86vw);min-height:60px;font-size:1.15rem;
+  background:rgba(244,241,232,.06);border:1px solid var(--line);color:var(--cream);
+  text-align:center}
+.kiosk-inner input::placeholder{color:var(--stone)}
+.kiosk-hits{width:min(460px,86vw);margin-top:.8rem;display:grid;gap:.5rem}
+.kiosk-hits button{min-height:62px;padding:.8rem 1rem;background:rgba(244,241,232,.05);
+  border:1px solid var(--gold-dim);color:var(--cream);font-family:var(--f-ui);
+  font-size:1.1rem;cursor:pointer;text-align:left}
+.kiosk-hits button:hover{background:rgba(208,169,58,.14);border-color:var(--gold)}
+.kiosk-hits small{display:block;color:var(--stone);font-size:.9rem;margin-top:.2rem}
+.kiosk-answer{text-align:center}
+.kiosk-answer.hidden{display:none}
+.kiosk-answer b{display:block;font-family:var(--f-display);font-weight:600;
+  font-size:clamp(2rem,6vw,4rem);color:var(--gold-lit);line-height:1.1}
+.kiosk-answer span{display:block;font-family:var(--f-ui);
+  font-size:clamp(1.05rem,2.4vw,1.5rem);color:var(--cream);margin-top:.8rem}
+
+@media print{.scan,.monitor,.kiosk{display:none!important}}
+
+
+/* ============================================================
+   DARK MODE
+   The light surface is right for a long afternoon of reading
+   names. It is wrong at nine at night on a laptop by a field.
+   Only the paper tokens change; the green chrome and the gold
+   are the brand and stay put.
+   ============================================================ */
+html[data-theme="dark"]{
+  --paper:#082215; --paper-2:#0C2E1E; --paper-3:#123A26;
+  --ink:#EFEDE4; --ink-2:#A9BDAF; --ink-3:#7C9285;
+  --rule:rgba(244,241,232,.14); --rule-2:rgba(244,241,232,.07);
+  --good:#7FD8A4; --good-bg:rgba(26,107,65,.28);
+  --danger:#F2B25C; --danger-bg:rgba(242,178,92,.16);
+}
+html[data-theme="dark"] body{background:var(--paper);color:var(--ink)}
+html[data-theme="dark"] .bar{border-bottom-color:var(--gold)}
+html[data-theme="dark"] .row:hover{background:rgba(244,241,232,.045)}
+html[data-theme="dark"] .row.head{background:var(--paper-3)}
+html[data-theme="dark"] .row.arrived{background:rgba(26,107,65,.24)}
+html[data-theme="dark"] .row.noshown{background:rgba(242,178,92,.13)}
+html[data-theme="dark"] .row.is-dupe{background:rgba(242,178,92,.1)}
+html[data-theme="dark"] .row.picked{background:rgba(208,169,58,.14)}
+html[data-theme="dark"] .chip[aria-pressed="true"]{background:rgba(208,169,58,.16);
+  color:var(--gold-lit)}
+html[data-theme="dark"] .btn:hover{background:rgba(208,169,58,.14);color:var(--gold-lit)}
+html[data-theme="dark"] .pill.waitlist{background:rgba(208,169,58,.16);color:var(--gold-lit)}
+html[data-theme="dark"] .pill.attended{background:rgba(26,107,65,.3);color:#9FE6BC}
+html[data-theme="dark"] .stat.hero-stat{background:linear-gradient(160deg,#123A26,var(--paper-2))}
+html[data-theme="dark"] .stat.hero-stat b,
+html[data-theme="dark"] .ref,html[data-theme="dark"] .dl dt,
+html[data-theme="dark"] .made .who,html[data-theme="dark"] .msg-line{color:var(--gold-lit)}
+html[data-theme="dark"] .stat b,html[data-theme="dark"] .yr b,
+html[data-theme="dark"] .tab[aria-selected="true"]{color:var(--gold-lit)}
+html[data-theme="dark"] input,html[data-theme="dark"] select,
+html[data-theme="dark"] textarea{background:rgba(244,241,232,.05);color:var(--ink)}
+html[data-theme="dark"] input:-webkit-autofill{
+  -webkit-text-fill-color:var(--ink);
+  -webkit-box-shadow:0 0 0 60px #0C2E1E inset}
+html[data-theme="dark"] .sheet-card,html[data-theme="dark"] .detail-card{
+  background:linear-gradient(175deg,#123A26,#082215 70%)}
+html[data-theme="dark"] .ro-note{background:rgba(208,169,58,.1)}
+html[data-theme="dark"] .dupe-note{background:rgba(242,178,92,.1)}
+html[data-theme="dark"] ::-webkit-scrollbar-track{background:var(--paper-3)}
+html[data-theme="dark"] ::-webkit-scrollbar-thumb{border-color:var(--paper-3)}
+html[data-theme="dark"]{scrollbar-color:var(--gold) var(--paper-3)}
+.i-moon{display:none}
+html[data-theme="dark"] .i-sun{display:none}
+html[data-theme="dark"] .i-moon{display:block}
+.btn.icon-only{padding:.55rem;min-width:42px;justify-content:center}
+.btn.icon-only svg{margin:0}
+
+/* ============================================================
+   THE NIGHT MENU
+   Three evening tools behind one button, so the bar is not ten
+   items wide on an afternoon when none of them are wanted.
+   ============================================================ */
+.menu-wrap{position:relative}
+.menu{position:absolute;top:calc(100% + 8px);left:0;min-width:270px;z-index:90;
+  background:var(--forest-deep);border:1px solid var(--gold-dim);
+  box-shadow:0 24px 60px rgba(0,0,0,.5);display:none;padding:.4rem}
+.menu.open{display:block}
+.menu button{display:block;width:100%;text-align:left;background:transparent;border:0;
+  padding:.8rem .9rem;cursor:pointer;color:var(--cream)}
+.menu button:hover{background:rgba(208,169,58,.14)}
+.menu button b{display:block;font-family:var(--f-label);font-weight:700;font-size:.6rem;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--gold-lit);margin-bottom:.25rem}
+.menu button span{display:block;font-family:var(--f-ui);font-size:.9rem;color:var(--stone);
+  letter-spacing:normal;text-transform:none}
+.bar .chev{font-size:.5rem;opacity:.7;margin-left:.2rem}
+.hidden{display:none!important}
+
+/* ============================================================
+   LANES
+   ============================================================ */
+.lanes,.mon-lanes{display:flex;gap:.4rem}
+.lane-btn{min-height:44px;padding:.5rem 1rem;background:transparent;
+  border:1px solid var(--gold-dim);color:var(--cream);cursor:pointer;
+  font-family:var(--f-label);font-weight:700;font-size:.58rem;letter-spacing:.16em;
+  text-transform:uppercase;transition:all var(--t-micro)}
+.lane-btn:hover{border-color:var(--gold)}
+.lane-btn[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);
+  color:var(--forest-deep)}
+.mon-lanes{position:absolute;top:1rem;left:1rem;z-index:2;opacity:.25;
+  transition:opacity var(--t-ui)}
+.mon-lanes:hover,.mon-lanes:focus-within{opacity:1}
+.scan-lane{font-family:var(--f-label);font-weight:700;font-size:.58rem;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--forest-deep);
+  background:var(--gold);padding:.35rem .7rem}
+@media (max-width:640px){
+  .lanes{width:100%;order:3}
+  .lane-btn{flex:1}
+}
+
+/* ============================================================
+   THE GUIDE
+   ============================================================ */
+.help-card{width:min(760px,100%);max-height:88dvh}
+.help-nav{display:flex;gap:.3rem;border-bottom:1px solid var(--rule);margin-bottom:1.4rem;
+  flex-wrap:wrap}
+.help-tab{background:transparent;border:0;border-bottom:2px solid transparent;
+  padding:.75rem 1rem;min-height:46px;cursor:pointer;color:var(--ink-3);
+  font-family:var(--f-label);font-weight:700;font-size:.58rem;letter-spacing:.16em;
+  text-transform:uppercase}
+.help-tab:hover{color:var(--ink)}
+.help-tab[aria-selected="true"]{color:var(--gold-deep);border-bottom-color:var(--gold)}
+html[data-theme="dark"] .help-tab[aria-selected="true"]{color:var(--gold-lit)}
+.help-body{display:none}
+.help-body.on{display:block}
+.help-body h3{font-family:var(--f-display);font-weight:600;font-size:1.15rem;
+  color:var(--ink);margin:1.6rem 0 .5rem}
+.help-body h3:first-child{margin-top:0}
+.help-body p{margin:0 0 .8rem;font-size:1rem;line-height:1.65;color:var(--ink-2)}
+.help-body b{color:var(--ink)}
+.help-body ul,.help-body ol{margin:0 0 1rem;padding-left:1.3rem}
+.help-body li{font-size:1rem;line-height:1.7;color:var(--ink-2);margin-bottom:.35rem}
+
+
+/* ============================================================
+   PRE-FLIGHT
+   ============================================================ */
+.ready-verdict{padding:1rem 1.2rem;margin-bottom:1.2rem;border:1px solid var(--rule);
+  font-family:var(--f-ui);font-size:1.05rem;line-height:1.5}
+.ready-verdict.go{border-color:rgba(26,107,65,.45);background:var(--good-bg);color:var(--good)}
+.ready-verdict.hold{border-color:rgba(154,74,18,.45);background:var(--danger-bg);color:var(--danger)}
+.ready-verdict b{display:block;font-family:var(--f-display);font-weight:600;
+  font-size:1.3rem;margin-bottom:.2rem}
+.ready-list{display:grid;gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.ready-row{display:grid;grid-template-columns:auto 1fr;gap:.9rem;align-items:start;
+  background:var(--paper-2);padding:.85rem 1rem}
+.ready-dot{width:10px;height:10px;border-radius:50%;margin-top:.45rem}
+.ready-dot.ok{background:var(--good)}
+.ready-dot.warn{background:var(--gold)}
+.ready-dot.bad{background:var(--danger)}
+.ready-row b{display:block;font-family:var(--f-ui);font-weight:600;font-size:1rem;
+  color:var(--ink)}
+.ready-row span{display:block;font-size:.94rem;color:var(--ink-2);margin-top:.15rem}
+.ready-row em{display:block;font-style:normal;font-size:.9rem;color:var(--gold-deep);
+  margin-top:.3rem}
+html[data-theme="dark"] .ready-row em{color:var(--gold-lit)}
+
+/* ============================================================
+   LIVE ARRIVALS
+   ============================================================ */
+.live-big{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:1px;background:var(--rule);border:1px solid var(--rule);margin-bottom:1rem}
+.live-big > div{background:var(--paper-2);padding:1rem}
+.live-big b{display:block;font-family:var(--f-display);font-weight:600;
+  font-size:clamp(1.7rem,5vw,2.6rem);line-height:1;color:var(--forest)}
+html[data-theme="dark"] .live-big b{color:var(--gold-lit)}
+.live-bar{height:10px;background:var(--paper-3);border:1px solid var(--rule);
+  overflow:hidden;margin-bottom:1.6rem}
+.live-bar i{display:block;height:100%;width:0;
+  background:linear-gradient(90deg,var(--forest-3),var(--gold));
+  transition:width 700ms var(--e-out)}
+.live-h{font-family:var(--f-label);font-weight:700;font-size:.6rem;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--gold-deep);margin:0 0 .7rem}
+html[data-theme="dark"] .live-h{color:var(--gold-lit)}
+.live-lanes{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-bottom:1.6rem}
+.live-lane{border:1px solid var(--rule);padding:.85rem 1rem;background:var(--paper-2)}
+.live-lane b{display:block;font-family:var(--f-label);font-weight:700;font-size:.56rem;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:.35rem}
+.live-lane span{font-size:.98rem;color:var(--ink)}
+.live-lane small{display:block;font-size:.85rem;color:var(--ink-3);margin-top:.2rem}
+.live-feed{display:grid;gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.live-feed div{background:var(--paper-2);padding:.7rem 1rem;display:flex;
+  justify-content:space-between;gap:1rem;font-size:.98rem;color:var(--ink)}
+.live-feed small{color:var(--ink-3);white-space:nowrap}
+@media (max-width:560px){.live-lanes{grid-template-columns:1fr}}
+
+/* ============================================================
+   SUMMARY
+   ============================================================ */
+.sum-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+  gap:1px;background:var(--rule);border:1px solid var(--rule);margin-bottom:1.4rem}
+.sum-grid > div{background:var(--paper-2);padding:1rem}
+.sum-grid b{display:block;font-family:var(--f-display);font-weight:600;font-size:1.9rem;
+  line-height:1;color:var(--forest)}
+html[data-theme="dark"] .sum-grid b{color:var(--gold-lit)}
+.sum-bars{display:grid;gap:.55rem;margin-bottom:1.4rem}
+.sum-bar{display:grid;grid-template-columns:130px 1fr auto;gap:.8rem;align-items:center;
+  font-size:.95rem;color:var(--ink-2)}
+.sum-bar i{display:block;height:12px;background:var(--gold);min-width:2px}
+.sum-note{font-size:.92rem;color:var(--ink-3);line-height:1.6}
+@media (max-width:560px){.sum-bar{grid-template-columns:88px 1fr auto;font-size:.88rem}}
+
+/* the search box, when a shortcut has put you in it */
+.kbd-hint{position:absolute;right:.7rem;top:50%;transform:translateY(-50%);
+  font-family:var(--f-label);font-size:.62rem;letter-spacing:.1em;color:var(--ink-3);
+  border:1px solid var(--rule);padding:.15rem .4rem;pointer-events:none;opacity:.7}
+.tools .grow{position:relative}
+@media (max-width:640px){.kbd-hint{display:none}}
 
 </style>
 </head>
@@ -751,7 +1128,32 @@ html{scrollbar-color:var(--gold) var(--paper-3)}
       <button class="btn" id="addBtn">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-4A3.5 3.5 0 0 0 5 18.5V20"/><circle cx="10.5" cy="8" r="3.5"/><path d="M18 7v6M15 10h6"/></svg>
         Add RSVP</button>
-      <button class="btn" id="doorBtn">
+      <span class="menu-wrap">
+        <button class="btn" id="nightBtn" aria-haspopup="true" aria-expanded="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg>
+          On the night <span class="chev" aria-hidden="true">&#9660;</span>
+        </button>
+        <div class="menu" id="nightMenu" role="menu">
+          <button role="menuitem" data-night="ready">
+            <b>Pre-flight check</b><span>Is everything ready for the evening?</span></button>
+          <button role="menuitem" data-night="live">
+            <b>Live arrivals</b><span>Who is coming through, and how fast</span></button>
+          <button role="menuitem" data-night="door">
+            <b>Door mode</b><span>Check guests in at a lane</span></button>
+          <button role="menuitem" data-night="monitor">
+            <b>Welcome monitor</b><span>A second screen that greets arrivals</span></button>
+          <button role="menuitem" data-night="kiosk">
+            <b>Self check-in</b><span>Guests scan their own pass</span></button>
+          <button role="menuitem" data-night="summary">
+            <b>After the event</b><span>A summary to send on</span></button>
+        </div>
+      </span>
+      <button class="btn hidden" id="scanBtn">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16"/><path d="M4 12h16"/></svg>
+        Scan</button>
+      <button class="btn hidden" id="monitorBtn"></button>
+      <button class="btn hidden" id="kioskBtn"></button>
+      <button class="btn hidden" id="doorBtn">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h8"/><path d="M11 12h9"/><path d="m17 8 4 4-4 4"/></svg>
         Door mode</button>
       <button class="btn" id="printBtn">
@@ -760,6 +1162,13 @@ html{scrollbar-color:var(--gold) var(--paper-3)}
       <button class="btn" id="csv">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11"/><path d="m8 10 4 4 4-4"/><path d="M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17"/></svg>
         Export</button>
+      <button class="btn icon-only" id="themeBtn" aria-label="Switch between light and dark">
+        <svg viewBox="0 0 24 24" aria-hidden="true" class="i-sun"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true" class="i-moon"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg>
+      </button>
+      <button class="btn icon-only" id="helpBtn" aria-label="How to use this dashboard">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.2 2.4c-.7.25-1.2.9-1.2 1.6v.5"/><circle cx="12" cy="17" r=".7"/></svg>
+      </button>
       <button class="btn" id="signout">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 3H5.5A1.5 1.5 0 0 0 4 4.5v15A1.5 1.5 0 0 0 5.5 21H10"/><path d="M20 12H9"/><path d="m16 8 4 4-4 4"/></svg>
         Sign out</button>
@@ -778,13 +1187,24 @@ html{scrollbar-color:var(--gold) var(--paper-3)}
       <span class="door-search">
         <input type="search" id="doorQ" placeholder="Type a name" aria-label="Find a guest">
       </span>
-      <button class="btn" id="doorExit">Leave door mode</button>
+      <span class="lanes" role="group" aria-label="Which lane">
+        <button class="lane-btn" data-lane="1" aria-pressed="true">Lane 1</button>
+        <button class="lane-btn" data-lane="2" aria-pressed="false">Lane 2</button>
+        <button class="lane-btn" data-lane="3" aria-pressed="false">Lane 3</button>
+      </span>
+      <button class="btn btn-solid" id="doorScan">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16"/><path d="M4 12h16"/></svg>
+        Scan a pass</button>
+      <button class="btn" id="doorExit">Leave</button>
     </div>
 
     <nav class="tabs" role="tablist">
       <button class="tab" role="tab" data-tab="list" aria-selected="true">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg>
         RSVPs</button>
+      <button class="tab" role="tab" data-tab="passes" aria-selected="false" id="tabPasses" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h4v4H7z"/><path d="M15 9h2M15 12h2M15 15h2"/></svg>
+        Passes</button>
       <button class="tab" role="tab" data-tab="log" aria-selected="false" id="tabLog" hidden>
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
         Activity log</button>
@@ -882,6 +1302,49 @@ html{scrollbar-color:var(--gold) var(--paper-3)}
 
     </div>
 
+    <div class="panel-view" id="viewPasses">
+      <p class="note" style="margin-top:0">Approving a guest sends them an entry pass by
+        email, with a QR code for the gate. Nobody receives one automatically &mdash; the
+        list below is everyone who has RSVP&rsquo;d but not yet been approved.</p>
+
+      <div class="pass-stats">
+        <div class="stat"><b id="pApproved">&mdash;</b><span class="label">Approved</span></div>
+        <div class="stat"><b id="pWaiting">&mdash;</b><span class="label">Awaiting approval</span></div>
+        <div class="stat"><b id="pSent">&mdash;</b><span class="label">Passes sent</span></div>
+        <div class="stat"><b id="pNoEmail">&mdash;</b><span class="label">No email address</span></div>
+      </div>
+
+      <div class="tools">
+        <span class="grow">
+          <input type="search" id="pq" placeholder="Search the guests awaiting approval" aria-label="Search">
+        </span>
+        <span class="chips" role="group" aria-label="Filter">
+          <button class="chip" data-pf="waiting" aria-pressed="true">Awaiting</button>
+          <button class="chip" data-pf="approved" aria-pressed="false">Approved</button>
+          <button class="chip" data-pf="noemail" aria-pressed="false">No email</button>
+        </span>
+        <span class="count" id="pCount"></span>
+      </div>
+
+      <div class="bulk hidden" id="passBulk">
+        <span class="bulk-n"><b id="passPicked">0</b> selected</span>
+        <div class="bulk-acts">
+          <button class="btn btn-solid" id="approveSend">Approve &amp; send passes</button>
+          <button class="btn" id="approveOnly">Approve without sending</button>
+          <button class="btn" id="passClear">Clear</button>
+        </div>
+      </div>
+
+      <div class="list" id="passList">
+        <div class="row head">
+          <span class="pick"><input type="checkbox" id="pPickAll" aria-label="Select all shown"></span>
+          <span>Guest</span><span>Reference</span><span>Email</span><span>Pass</span><span></span>
+        </div>
+        <div id="passRows"></div>
+        <div class="empty hidden" id="passEmpty">Nobody is waiting for approval.</div>
+      </div>
+    </div>
+
     <div class="panel-view" id="viewLog">
       <p class="note" style="margin-top:0;margin-bottom:1.2rem">Every change made by every
         account, newest first. Sign-ins are recorded too. This is visible to
@@ -918,6 +1381,28 @@ html{scrollbar-color:var(--gold) var(--paper-3)}
     <a href="https://wa.me/85677489869">WhatsApp 77489869</a></p>
   <p class="cr">&copy; 2026 Panyathip British International School</p>
 </footer>
+
+<div class="sheet" id="killer" role="dialog" aria-modal="true" aria-labelledby="killTitle">
+  <div class="sheet-scrim" data-kill-close></div>
+  <div class="sheet-card">
+    <h2 id="killTitle">Remove this RSVP</h2>
+    <p class="kill-who">You are about to remove <b id="killName">&mdash;</b>
+      <span id="killMeta"></span></p>
+    <p class="kill-note">This takes them off the guest list. It can be undone from the
+      toast that follows, or by setting their status back in the sheet.</p>
+    <div class="fld">
+      <label class="label" for="killType">Type the guest&rsquo;s name to confirm</label>
+      <input type="text" id="killType" autocomplete="off" spellcheck="false"
+             aria-describedby="killHint">
+      <p class="help" id="killHint">Exactly as shown above.</p>
+    </div>
+    <p class="err" id="killErr" role="alert"></p>
+    <div class="sheet-actions">
+      <button class="btn" data-kill-close>Cancel</button>
+      <button class="btn btn-danger" id="killGo" disabled>Remove this RSVP</button>
+    </div>
+  </div>
+</div>
 
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
   <div class="sheet-scrim" data-sheet-close></div>
@@ -956,6 +1441,210 @@ html{scrollbar-color:var(--gold) var(--paper-3)}
   </div>
 </div>
 
+<!-- ============ the scanner ============ -->
+<div class="scan" id="scan" role="dialog" aria-modal="true" aria-label="Scan a pass">
+  <div class="scan-head">
+    <span class="scan-title" id="scanTitle">Scan a pass</span>
+    <span class="scan-lane" id="scanLane"></span>
+    <span class="scan-count" id="scanCount"></span>
+    <button class="btn" id="scanUndo">Undo last</button>
+    <button class="btn" id="scanClose">Close</button>
+  </div>
+  <div class="scan-stage">
+    <video id="scanVideo" playsinline muted></video>
+    <canvas id="scanCanvas" hidden></canvas>
+    <div class="scan-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <p class="scan-hint" id="scanHint">Hold the guest&rsquo;s QR code inside the frame</p>
+  </div>
+  <div class="scan-result" id="scanResult" aria-live="assertive"></div>
+  <div class="scan-manual">
+    <input type="text" id="scanRef" placeholder="Or type a reference, e.g. WCN-K7P2M"
+           autocomplete="off" spellcheck="false" aria-label="Reference">
+    <button class="btn btn-solid" id="scanRefGo">Check in</button>
+  </div>
+  <p class="scan-note" id="scanQueueNote"></p>
+</div>
+
+<!-- ============ reception monitor ============ -->
+<div class="monitor" id="monitor" role="dialog" aria-modal="true" aria-label="Reception monitor">
+  <button class="mon-exit" id="monExit" aria-label="Leave monitor mode">&times;</button>
+  <span class="mon-lanes" role="group" aria-label="Which lane this screen shows">
+    <button class="lane-btn" data-monlane="1" aria-pressed="true">Lane 1</button>
+    <button class="lane-btn" data-monlane="2" aria-pressed="false">Lane 2</button>
+    <button class="lane-btn" data-monlane="3" aria-pressed="false">Lane 3</button>
+  </span>
+  <div class="mon-inner">
+    <div class="crest mon-crest" role="img" aria-label="PBIS"></div>
+    <div class="mon-body" id="monBody">
+      <p class="mon-kicker">Parent Appreciation Night</p>
+      <h1 class="mon-title">Welcome</h1>
+      <p class="mon-sub">Please have your pass ready</p>
+    </div>
+    <p class="mon-tally" id="monTally"></p>
+  </div>
+</div>
+
+<!-- ============ self check-in kiosk ============ -->
+<div class="kiosk" id="kiosk" role="dialog" aria-modal="true" aria-label="Self check-in">
+  <button class="mon-exit" id="kioskExit" aria-label="Leave kiosk mode">&times;</button>
+  <div class="kiosk-inner">
+    <div class="crest kiosk-crest" role="img" aria-label="PBIS"></div>
+    <div id="kioskStage">
+      <h1 class="kiosk-title">Welcome</h1>
+      <p class="kiosk-sub">Scan your pass below, or search for your name</p>
+      <div class="kiosk-scan">
+        <video id="kioskVideo" playsinline muted></video>
+        <canvas id="kioskCanvas" hidden></canvas>
+      </div>
+      <input type="search" id="kioskQ" placeholder="Type your family name"
+             autocomplete="off" aria-label="Search for your name">
+      <div class="kiosk-hits" id="kioskHits"></div>
+    </div>
+    <div class="kiosk-answer hidden" id="kioskAnswer"></div>
+  </div>
+</div>
+
+<!-- ============ pre-flight ============ -->
+<div class="sheet" id="ready" role="dialog" aria-modal="true" aria-labelledby="readyTitle">
+  <div class="sheet-scrim" data-ready-close></div>
+  <div class="sheet-card help-card">
+    <button class="modal-close" data-ready-close aria-label="Close">&times;</button>
+    <h2 id="readyTitle">Pre-flight check</h2>
+    <p class="kill-note">Everything that has to be true for the evening to work.
+      Run this on the morning of the event.</p>
+    <div class="ready-verdict" id="readyVerdict"></div>
+    <div class="ready-list" id="readyList"></div>
+    <div class="sheet-actions">
+      <button class="btn" data-ready-close>Close</button>
+      <button class="btn btn-solid" id="readyRun">Run the check again</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ live arrivals ============ -->
+<div class="sheet" id="live" role="dialog" aria-modal="true" aria-labelledby="liveTitle">
+  <div class="sheet-scrim" data-live-close></div>
+  <div class="sheet-card help-card">
+    <button class="modal-close" data-live-close aria-label="Close">&times;</button>
+    <h2 id="liveTitle">Live arrivals</h2>
+    <div class="live-big">
+      <div><b id="lvArrived">&mdash;</b><span class="label">Arrived</span></div>
+      <div><b id="lvOut">&mdash;</b><span class="label">Still to come</span></div>
+      <div><b id="lvRate">&mdash;</b><span class="label">Last five minutes</span></div>
+      <div><b id="lvNo">&mdash;</b><span class="label">No shows</span></div>
+    </div>
+    <div class="live-bar"><i id="lvBar"></i></div>
+    <h3 class="live-h">By lane</h3>
+    <div class="live-lanes" id="lvLanes"></div>
+    <h3 class="live-h">Just arrived</h3>
+    <div class="live-feed" id="lvFeed"></div>
+  </div>
+</div>
+
+<!-- ============ post-event summary ============ -->
+<div class="sheet" id="summary" role="dialog" aria-modal="true" aria-labelledby="sumTitle">
+  <div class="sheet-scrim" data-sum-close></div>
+  <div class="sheet-card help-card">
+    <button class="modal-close" data-sum-close aria-label="Close">&times;</button>
+    <h2 id="sumTitle">After the event</h2>
+    <div id="sumBody"></div>
+    <div class="sheet-actions">
+      <button class="btn" data-sum-close>Close</button>
+      <button class="btn" id="sumCopy">Copy as text</button>
+      <button class="btn btn-solid" id="sumPrint">Print</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="help" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+  <div class="sheet-scrim" data-help-close></div>
+  <div class="sheet-card help-card">
+    <button class="modal-close" data-help-close aria-label="Close">&times;</button>
+    <h2 id="helpTitle">Using this dashboard</h2>
+
+    <div class="help-nav" role="tablist">
+      <button class="help-tab" data-help="day" aria-selected="true">Before the night</button>
+      <button class="help-tab" data-help="night" aria-selected="false">On the night</button>
+      <button class="help-tab" data-help="fix" aria-selected="false">If something goes wrong</button>
+    </div>
+
+    <div class="help-body on" data-body="day">
+      <h3>The RSVP list</h3>
+      <p>Everything parents submit lands here within a second. The list refreshes itself
+        every minute, and the time it last did is shown beside the search box.</p>
+      <ul>
+        <li><b>Search</b> matches names, emails, phone numbers, references, children and notes.</li>
+        <li><b>Sort</b> by clicking a column heading. Names sort by surname.</li>
+        <li><b>Office notes</b> are private to staff &mdash; parents never see them.</li>
+        <li><b>Select several rows</b> to change their status together.</li>
+      </ul>
+
+      <h3>Sending entry passes</h3>
+      <p>Open <b>Entry passes</b>. Everyone awaiting approval is listed. Select who should
+        receive a pass and press <b>Approve &amp; send passes</b> &mdash; each guest is emailed
+        a QR code for the gate.</p>
+      <p>Guests with no email address are shown separately. Give them their reference by
+        hand, then use the tick button to record that it has been done.</p>
+
+      <h3>Removing someone</h3>
+      <p>The bin asks you to type the guest&rsquo;s name. Nothing is truly deleted &mdash;
+        it is marked <i>Removed</i>, and an <b>Undo</b> appears for ten seconds.</p>
+    </div>
+
+    <div class="help-body" data-body="night">
+      <h3>Three lanes, three screens</h3>
+      <p>Up to three lanes can check guests in at once. Each lane has a number, and a
+        <b>Welcome monitor</b> set to that number greets only the guests checked in there.</p>
+      <ol>
+        <li>On the phone or tablet at the gate: <b>On the night &rarr; Door mode</b>, then
+          choose <b>Lane 1</b>, <b>2</b> or <b>3</b>.</li>
+        <li>On the screen behind the desk: <b>On the night &rarr; Welcome monitor</b>, and
+          set it to the same lane number.</li>
+      </ol>
+
+      <h3>Three ways to check somebody in</h3>
+      <ul>
+        <li><b>Scan a pass</b> with the camera &mdash; press <i>Scan a pass</i> in door mode.</li>
+        <li><b>A handheld barcode scanner</b> works too; just scan while the window is open.</li>
+        <li><b>By hand</b> &mdash; find the guest in the list and press <b>Check in</b>, or type
+          their reference.</li>
+      </ul>
+      <p>All three feed the same lane and the same monitor.</p>
+
+      <h3>No signal?</h3>
+      <p>Check-ins are saved on the device and sent as soon as the connection returns. A
+        line at the bottom of the scanner tells you how many are waiting. Keep going.</p>
+    </div>
+
+    <div class="help-body" data-body="fix">
+      <h3>Somebody is not on the list</h3>
+      <p>Use <b>Add RSVP</b> to put them on it, then check them in as normal.</p>
+
+      <h3>A guest scanned twice</h3>
+      <p>The second scan says <i>already checked in</i> and changes nothing. No action needed.</p>
+
+      <h3>Someone was removed by mistake</h3>
+      <p>Press <b>Undo</b> on the message that appears. If it has gone, set their Status back
+        to <i>Confirmed</i> in the spreadsheet.</p>
+
+      <h3>A pass will not scan</h3>
+      <p>Type the reference instead &mdash; it is printed under the QR code in their email and
+        looks like WCN-K7P2M. It works exactly the same.</p>
+
+      <h3>Keyboard shortcuts</h3>
+      <ul>
+        <li><b>/</b> jump to the search box</li>
+        <li><b>Esc</b> close whatever is open, or clear the search</li>
+        <li><b>?</b> open this guide</li>
+        <li><b>d</b> door mode &middot; <b>r</b> refresh &middot; <b>t</b> light or dark</li>
+      </ul>
+
+      <h3>The list looks out of date</h3>
+      <p>Press <b>Refresh</b>. If that fails, the spreadsheet is the record and is never wrong.</p>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -986,6 +1675,29 @@ function api(payload){
     headers:{ 'Content-Type':'text/plain;charset=utf-8' },
     body: JSON.stringify(payload)
   }).then(function(r){ return r.json(); });
+}
+
+/* Marking forty people arrived by mistake should cost one press to fix. */
+function undoBulk(n, status, before){
+  var t = $('toast');
+  t.innerHTML = '';
+  t.appendChild(document.createTextNode(n + ' set to ' + status + '  '));
+  var a = document.createElement('button');
+  a.className = 'btn';
+  a.style.cssText = 'min-height:34px;padding:.35rem .8rem;margin-left:.7rem';
+  a.textContent = 'Undo';
+  a.addEventListener('click', function(){
+    api({ action:'unbulk', token:session, back:before })
+      .then(function(res){
+        if (res && res.ok){ toast(res.restored + ' put back'); load(true); }
+        else toast('Could not undo that.');
+      })
+      .catch(function(){ toast('No connection.'); });
+  });
+  t.appendChild(a);
+  t.classList.add('up');
+  clearTimeout(t.__t);
+  t.__t = setTimeout(function(){ t.classList.remove('up'); }, 12000);
 }
 
 /* A removal with ten seconds to change your mind. */
@@ -1074,7 +1786,10 @@ function enter(v){
   $('viewerNote').classList.add('hidden');
   $('roNote').classList.toggle('hidden', !!rights.edit);
   $('tabLog').hidden = !rights.log;
-  ['addBtn','doorBtn'].forEach(function(id){ $(id).hidden = !rights.edit; });
+  ['addBtn','nightBtn'].forEach(function(id){
+    var el = $(id); if (el) el.hidden = !rights.edit;
+  });
+  $('tabPasses').hidden = !rights.edit;
   $('emails').hidden = !rights.contacts;
   $('csv').hidden = !rights.export;
 
@@ -1231,7 +1946,7 @@ function visible(){
     if (doorMode){
       if (r.status === 'Cancelled') return false;
       if (!q) return true;
-      return (r.name + ' ' + r.guest).toLowerCase().indexOf(q) > -1;
+      return loose((r.name + ' ' + r.guest).toLowerCase(), q);
     }
     if (filter === 'notes' && !(r.children || '').trim()) return false;
     if (filter === 'flagged' && !(r.note || '').trim()) return false;
@@ -1331,6 +2046,8 @@ function render(){
 
   var admin = !!rights.contacts;      // may see full contact details
   var canEdit = !!rights.edit;
+  if ($('viewPasses').classList.contains('on')) renderPasses();
+
   $('rows').innerHTML = list.map(function(r){
     var st = r.status || 'Confirmed';
     return '<div class="row' + (r.dupe ? ' is-dupe' : '') + ' can-open' +
@@ -1343,6 +2060,10 @@ function render(){
         (r.message ? '<span class="msg-line"><svg viewBox="0 0 24 24">' +
           '<path d="M21 12a8 8 0 1 1-3.2-6.4"/><path d="M8 10h8M8 14h5"/></svg>' +
           esc(r.message) + '</span>' : '') +
+        (r.photos === 'No' ? '<span class="no-photo"><svg viewBox="0 0 24 24">' +
+          '<path d="M3 3l18 18"/><path d="M21 17V8a1.5 1.5 0 0 0-1.5-1.5H16l-1.5-2h-5"/>' +
+          '<path d="M3.5 6.8A1.5 1.5 0 0 0 3 8v9a1.5 1.5 0 0 0 1.5 1.5H17"/></svg>' +
+          'Asked not to be photographed</span>' : '') +
         (r.note ? '<span class="note-line"><svg viewBox="0 0 24 24">' +
           '<path d="M4 5h16M4 12h16M4 19h9"/></svg>' + esc(r.note) + '</span>' : '') +
         '<span' + (admin ? '' : ' class="masked"') + '>' + esc(r.email) + '</span>' +
@@ -1395,21 +2116,85 @@ document.querySelectorAll('.chip').forEach(function(c){
 $('rows').addEventListener('click', function(e){
   var b = e.target.closest('[data-del]');
   if (!b) return;
-  if (role !== 'administrator'){ toast('Only an administrator can delete an RSVP.'); return; }
-  var ref = b.getAttribute('data-del');
-  var row = data.filter(function(r){ return r.ref === ref; })[0];
-  b.disabled = true;
-  // Nothing is destroyed: the row is marked Removed, so it can come back.
+  openKiller(b.getAttribute('data-del'));
+});
+
+/* ============================================================
+   REMOVING AN RSVP
+   A tap is too cheap for something that takes a family off the
+   list, so the guest's name has to be typed. It is the difference
+   between a slip and a decision.
+   ============================================================ */
+var killRef = null;
+
+function openKiller(ref){
+  var r = data.filter(function(x){ return x.ref === ref; })[0];
+  if (!r) return;
+  killRef = ref;
+  $('killName').textContent = r.name;
+  $('killMeta').textContent = '\u2014 ' + (r.party || 1) +
+    (r.party === 1 ? ' place' : ' places') + ' \u00b7 ' + r.ref;
+  $('killType').value = '';
+  $('killErr').textContent = '';
+  $('killGo').disabled = true;
+  $('killer').classList.add('open');
+  setTimeout(function(){ $('killType').focus(); }, 60);
+}
+
+function closeKiller(){
+  $('killer').classList.remove('open');
+  killRef = null;
+}
+
+/* Case and spacing are forgiven; the name is not. */
+function killMatches(){
+  var r = data.filter(function(x){ return x.ref === killRef; })[0];
+  if (!r) return false;
+  var typed = $('killType').value.trim().toLowerCase().replace(/\s+/g, ' ');
+  var want  = String(r.name).trim().toLowerCase().replace(/\s+/g, ' ');
+  return typed === want;
+}
+
+$('killType').addEventListener('input', function(){
+  var ok = killMatches();
+  $('killGo').disabled = !ok;
+  $('killErr').textContent = '';
+});
+$('killType').addEventListener('keydown', function(e){
+  if (e.key === 'Enter' && killMatches()){ e.preventDefault(); $('killGo').click(); }
+});
+document.querySelectorAll('[data-kill-close]').forEach(function(el){
+  el.addEventListener('click', closeKiller);
+});
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape' && $('killer').classList.contains('open')) closeKiller();
+});
+
+$('killGo').addEventListener('click', function(){
+  if (!killMatches()){
+    $('killErr').textContent = 'The name does not match. Nothing has been removed.';
+    return;
+  }
+  var ref = killRef;
+  var row = data.filter(function(x){ return x.ref === ref; })[0];
+  var btn = this;
+  btn.disabled = true;
+
   api({ action:'delete', token:session, ref:ref })
     .then(function(res){
+      btn.disabled = false;
       if (res && res.error === 'expired'){ expire(); return; }
       if (res && res.ok){
+        closeKiller();
         undoable(row ? row.name : ref, ref, res.was || 'Confirmed');
         load(true);
-      } else { b.disabled = false; toast(res && res.error === 'forbidden'
-        ? 'Your account may not remove RSVPs.' : 'That row could not be removed.'); }
+      } else {
+        $('killErr').textContent = res && res.error === 'forbidden'
+          ? 'Your account cannot remove RSVPs.'
+          : 'That row could not be removed.';
+      }
     })
-    .catch(function(){ b.disabled = false; toast('No connection.'); });
+    .catch(function(){ btn.disabled = false; $('killErr').textContent = 'No connection.'; });
 });
 
 /* ---------------- duplicates ---------------- */
@@ -1456,6 +2241,9 @@ function setDoor(on){
   render();
 }
 $('doorBtn').addEventListener('click', function(){ setDoor(true); });
+var sb = $('scanBtn'); if (sb) sb.addEventListener('click', openScanner);
+$('doorScan').addEventListener('click', openScanner);
+/* The old direct buttons now live in the night menu. */
 $('doorExit').addEventListener('click', function(){ setDoor(false); });
 $('doorQ').addEventListener('input', render);
 
@@ -1471,7 +2259,7 @@ $('rows').addEventListener('click', function(e){
     ? (row.status === 'Attended' ? 'Confirmed' : 'Attended')
     : (row.status === 'No show'  ? 'Confirmed' : 'No show');
   b.disabled = true;
-  api({ action:'update', token:session, ref:ref, status:next })
+  api({ action:'update', token:session, ref:ref, status:next, lane:myLane })
     .then(function(res){
       b.disabled = false;
       if (res && res.error === 'expired'){ expire(); return; }
@@ -1482,6 +2270,11 @@ $('rows').addEventListener('click', function(e){
         if (next === 'Attended') meta.arrived += n;
         if (next === 'No show')  meta.noShow  += n;
         row.status = next;
+        if (next === 'Attended'){
+          var said = { ref: row.ref, name: row.name, party: row.party,
+                       guest: row.guest, photos: row.photos, already: false };
+          monitorShow(said); announce(said);
+        }
         toast(next === 'Attended' ? row.name + ' checked in'
             : next === 'No show'  ? row.name + ' marked as not arriving'
             : row.name + ' set back to confirmed');
@@ -1625,7 +2418,7 @@ document.querySelectorAll('[data-bulk]').forEach(function(b){
         b.disabled = false;
         if (res && res.error === 'expired'){ expire(); return; }
         if (res && res.ok){
-          toast(res.changed + ' set to ' + status);
+          undoBulk(res.changed, status, res.before || {});
           picked = {};
           syncBulk();
           load(true);
@@ -1636,6 +2429,1053 @@ document.querySelectorAll('[data-bulk]').forEach(function(b){
   });
 });
 
+/* ============================================================
+   THE QR LIBRARY
+   Loaded only when a scanner is first opened, from whichever CDN
+   answers first. The dashboard is used all day without scanning;
+   there is no reason to carry the weight until it is wanted.
+   ============================================================ */
+var QR_SOURCES = [
+  'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js',
+  'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js',
+  'https://unpkg.com/jsqr@1.4.0/dist/jsQR.js'
+];
+var qrLoading = false;
+
+function withQR(done, fail){
+  if (typeof jsQR !== 'undefined'){ done(); return; }
+  if (qrLoading){
+    var wait = setInterval(function(){
+      if (typeof jsQR !== 'undefined'){ clearInterval(wait); done(); }
+    }, 120);
+    setTimeout(function(){ clearInterval(wait);
+      if (typeof jsQR === 'undefined' && fail) fail(); }, 12000);
+    return;
+  }
+  qrLoading = true;
+  var i = 0;
+  (function next(){
+    if (i >= QR_SOURCES.length){ qrLoading = false; if (fail) fail(); return; }
+    var el = document.createElement('script');
+    el.src = QR_SOURCES[i++];
+    el.onload = function(){ qrLoading = false; done(); };
+    el.onerror = next;
+    document.head.appendChild(el);
+  })();
+}
+
+/* ============================================================
+   THE CHECK-IN QUEUE
+   Wifi at a football field is not something to depend on. Every
+   check-in is written to the device first and sent afterwards, so
+   a dropped connection at the gate delays a record rather than
+   losing one.
+   ============================================================ */
+var QKEY = 'pbis.checkin.queue';
+
+function queueRead(){
+  try { return JSON.parse(localStorage.getItem(QKEY) || '[]'); }
+  catch (err) { return []; }
+}
+function queueWrite(q){
+  try { localStorage.setItem(QKEY, JSON.stringify(q.slice(-500))); } catch (err) {}
+}
+function queueAdd(item){
+  var q = queueRead();
+  if (!q.some(function(x){ return x.ref === item.ref; })) q.push(item);
+  queueWrite(q);
+  paintQueue();
+}
+function paintQueue(){
+  var n = queueRead().length;
+  var el = $('scanQueueNote');
+  if (el) el.textContent = n
+    ? n + ' check-in' + (n === 1 ? '' : 's') + ' waiting to send \u2014 they will go as soon as there is a signal'
+    : '';
+}
+
+/* Sends whatever is waiting. Called after every scan and on a timer. */
+function queueFlush(){
+  var q = queueRead();
+  if (!q.length || !session) return;
+  var item = q[0];
+  api({ action:'checkin', token:session, ref:item.ref, s:item.s })
+    .then(function(res){
+      if (res && (res.ok || res.error === 'not found')){
+        queueWrite(queueRead().filter(function(x){ return x.ref !== item.ref; }));
+        paintQueue();
+        queueFlush();           // keep going while the line is open
+      }
+    })
+    .catch(function(){ /* still offline; try again on the next tick */ });
+}
+setInterval(queueFlush, 15000);
+window.addEventListener('online', queueFlush);
+
+/* ============================================================
+   READING A PASS
+   ============================================================ */
+function parseTicket(text){
+  if (typeof text !== 'string') return null;
+  var raw = text.trim();
+  if (!raw || raw.length > 400) return null;
+
+  // A bare reference, typed or read by a hardware scanner.
+  var bare = raw.toUpperCase().replace(/\s+/g, '');
+  if (/^WCN-[A-Z0-9]{5}$/.test(bare)) return { ref: bare, s: '' };
+
+  if (!/^https?:\/\//i.test(raw)) return null;
+  var url;
+  try { url = new URL(raw); } catch (err) { return null; }
+
+  /* The host check matters: without it, a code pointing at any domain
+     would be accepted as one of ours. */
+  var host = String(url.hostname || '').toLowerCase();
+  var ours = ['parentappreciation.pbis.edu.la', 'pbis.edu.la'];
+  var same = host === String(window.location.hostname || '').toLowerCase();
+  if (ours.indexOf(host) === -1 && !(same && host)) return null;
+
+  var ref = String(url.searchParams.get('ref') || '').toUpperCase();
+  if (!/^WCN-[A-Z0-9]{5}$/.test(ref)) return null;
+  return { ref: ref, s: String(url.searchParams.get('s') || '') };
+}
+
+/* A short tone and a buzz, so the person scanning need not look up. */
+function scanFeedback(kind){
+  try {
+    if (navigator.vibrate) navigator.vibrate(kind === 'good' ? 40 : [30, 60, 30]);
+    var Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+    var ctx = new Ctx();
+    var o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = kind === 'good' ? 880 : 220;
+    g.gain.setValueAtTime(0.06, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.22);
+    o.start(); o.stop(ctx.currentTime + 0.22);
+    setTimeout(function(){ try { ctx.close(); } catch (e) {} }, 400);
+  } catch (err) {}
+}
+
+/* ============================================================
+   THE SCANNER
+   ============================================================ */
+var scanStream = null, scanRAF = null, scanLast = '', scanLastAt = 0, scanTally = 0;
+var lastCheckIn = null;
+
+/* One press to undo the last check-in, for the guest waved through by
+   mistake while somebody else's pass was on screen. */
+function undoLastCheckIn(){
+  if (!lastCheckIn){ toast('Nothing to undo.'); return; }
+  var c = lastCheckIn;
+  lastCheckIn = null;
+  api({ action:'update', token:session, ref:c.ref, status:c.was })
+    .then(function(res){
+      if (res && res.ok){
+        toast(c.name + ' set back to ' + c.was);
+        scanTally = Math.max(scanTally - 1, 0);
+        $('scanCount').textContent = scanTally + ' checked in';
+        scanSay('warn', 'Undone', c.name + ' is no longer checked in');
+        load(true);
+      } else toast('Could not undo that.');
+    })
+    .catch(function(){ toast('No connection.'); });
+}
+
+function scanSay(kind, title, sub){
+  var el = $('scanResult');
+  el.className = 'scan-result ' + (kind || '');
+  el.innerHTML = '<div><b>' + esc(title) + '</b>' +
+                 (sub ? '<span>' + esc(sub) + '</span>' : '') + '</div>';
+}
+
+function openScanner(){
+  $('scan').classList.add('open');
+  document.documentElement.classList.add('modal-open');
+  scanTally = 0;
+  $('scanCount').textContent = '';
+  scanSay('', 'Ready', 'Point the camera at a pass');
+  paintQueue();
+  document.addEventListener('keydown', hwScanner);
+  withQR(startCamera, function(){
+    scanSay('warn', 'Camera scanning unavailable',
+            'Type the reference below, or use a hardware scanner.');
+  });
+}
+
+function startCamera(){
+  var video = $('scanVideo');
+  navigator.mediaDevices.getUserMedia({
+    video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 } },
+    audio: false
+  }).then(function(stream){
+    scanStream = stream;
+    video.srcObject = stream;
+    video.play();
+    scanLoop();
+  }).catch(function(err){
+    console.warn('Camera refused:', err);
+    scanSay('warn', 'No camera',
+            'Allow camera access, or type the reference below.');
+  });
+}
+
+function scanLoop(){
+  var video = $('scanVideo'), canvas = $('scanCanvas');
+  if (!$('scan').classList.contains('open')) return;
+  scanRAF = requestAnimationFrame(scanLoop);
+  if (video.readyState !== video.HAVE_ENOUGH_DATA || typeof jsQR === 'undefined') return;
+
+  /* Scan a centre crop at a modest size. Reading a full 1280px frame
+     every tick is more work than a phone can finish, and the code is in
+     the middle of the frame anyway. */
+  var side = Math.min(video.videoWidth, video.videoHeight);
+  var box = Math.round(side * 0.7);
+  var sx = Math.round((video.videoWidth - box) / 2);
+  var sy = Math.round((video.videoHeight - box) / 2);
+  canvas.width = 360; canvas.height = 360;
+  var ctx = canvas.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(video, sx, sy, box, box, 0, 0, 360, 360);
+  var img = ctx.getImageData(0, 0, 360, 360);
+  var code = jsQR(img.data, img.width, img.height, { inversionAttempts: 'attemptBoth' });
+  if (code && code.data) handleScan(code.data);
+}
+
+function handleScan(text){
+  var now = Date.now();
+  // The same code sits in front of the lens for several frames.
+  if (text === scanLast && now - scanLastAt < 3000) return;
+  scanLast = text; scanLastAt = now;
+
+  var t = parseTicket(text);
+  if (!t){
+    scanFeedback('bad');
+    scanSay('bad', 'Not one of ours', 'That code was not issued for this evening.');
+    return;
+  }
+  checkInRef(t.ref, t.s);
+}
+
+function checkInRef(ref, sig){
+  scanSay('warn', 'Checking\u2026', ref);
+
+  api({ action:'checkin', token:session, ref:ref, s:sig, lane:myLane })
+    .then(function(res){
+      if (res && res.error === 'expired'){ expire(); return; }
+      if (res && res.error === 'badticket'){
+        scanFeedback('bad');
+        scanSay('bad', 'Pass not valid', 'The code did not match our records.');
+        return;
+      }
+      if (res && res.error === 'not found'){
+        scanFeedback('bad');
+        scanSay('bad', 'Not on the list', ref + ' \u2014 check with the office.');
+        return;
+      }
+      if (!res || !res.ok){
+        // Could not reach the server: hold it and carry on.
+        queueAdd({ ref: ref, s: sig, lane: myLane, at: Date.now() });
+        scanFeedback('good');
+        scanSay('warn', 'Saved on this device', 'It will send when the signal returns.');
+        return;
+      }
+
+      scanFeedback('good');
+      if (res.already){
+        scanSay('warn', res.name, 'Already checked in');
+      } else {
+        scanTally++;
+        $('scanCount').textContent = scanTally + ' checked in';
+        var sub = (res.party || 1) + (res.party === 1 ? ' place' : ' places') +
+                  (res.guest ? ' \u00b7 with ' + res.guest : '');
+        scanSay('good', res.name, sub);
+        lastCheckIn = { ref: ref, was: res.was || 'Confirmed', name: res.name };
+        if (res.note) toast('Note: ' + res.note);
+        if (res.photos === 'No') toast('Please do not photograph this guest');
+      }
+      monitorShow(res);
+      announce(res);
+      load(true);
+    })
+    .catch(function(){
+      queueAdd({ ref: ref, s: sig, lane: myLane, at: Date.now() });
+      scanFeedback('good');
+      scanSay('warn', 'Saved on this device', 'It will send when the signal returns.');
+    });
+}
+
+/* A hardware scanner types very fast and ends with Enter. */
+var hwBuf = '', hwAt = 0;
+function hwScanner(e){
+  if (!$('scan').classList.contains('open')) return;
+  if (document.activeElement === $('scanRef')) return;
+  var now = Date.now();
+  if (now - hwAt > 120) hwBuf = '';
+  hwAt = now;
+  if (e.key === 'Enter'){
+    if (hwBuf.length > 3) handleScan(hwBuf);
+    hwBuf = '';
+    return;
+  }
+  if (e.key.length === 1) hwBuf += e.key;
+}
+
+function closeScanner(){
+  $('scan').classList.remove('open');
+  document.documentElement.classList.remove('modal-open');
+  document.removeEventListener('keydown', hwScanner);
+  if (scanRAF) cancelAnimationFrame(scanRAF);
+  if (scanStream){ scanStream.getTracks().forEach(function(t){ t.stop(); }); scanStream = null; }
+  $('scanVideo').srcObject = null;
+}
+
+$('scanClose').addEventListener('click', closeScanner);
+$('scanUndo').addEventListener('click', undoLastCheckIn);
+$('scanRefGo').addEventListener('click', function(){
+  var v = $('scanRef').value.trim().toUpperCase();
+  if (!/^WCN-[A-Z0-9]{5}$/.test(v)){
+    scanSay('bad', 'That is not a reference', 'They look like WCN-K7P2M.');
+    return;
+  }
+  $('scanRef').value = '';
+  checkInRef(v, '');
+});
+$('scanRef').addEventListener('keydown', function(e){
+  if (e.key === 'Enter'){ e.preventDefault(); $('scanRefGo').click(); }
+});
+
+/* ============================================================
+   THE RECEPTION MONITOR
+   A second screen at the desk. It never acts; it only welcomes.
+   ============================================================ */
+var monTimer = null;
+
+function monitorShow(res){
+  var m = $('monitor');
+  if (!m.classList.contains('open')) return;
+  clearTimeout(monTimer);
+  var body = $('monBody');
+  var first = String(res.name || '').split(/\s+/)[0];
+  if (res.already){
+    body.className = 'mon-body again';
+    body.innerHTML = '<p class="mon-kicker">Already with us</p>' +
+      '<h1 class="mon-title">' + esc(res.name) + '</h1>' +
+      '<p class="mon-sub">This pass has been used \u2014 please see the desk</p>';
+  } else {
+    body.className = 'mon-body greet';
+    body.innerHTML = '<p class="mon-kicker">Welcome</p>' +
+      '<h1 class="mon-title">' + esc(first) + '</h1>' +
+      '<p class="mon-sub">' + esc(res.name) +
+      (res.guest ? ' &amp; ' + esc(res.guest) : '') + '</p>';
+  }
+  $('monTally').textContent = (meta.arrived || 0) + ' guests have arrived';
+  monTimer = setTimeout(monitorRest, 6000);
+}
+
+function monitorRest(){
+  var body = $('monBody');
+  body.className = 'mon-body';
+  body.innerHTML = '<p class="mon-kicker">Parent Appreciation Night</p>' +
+    '<h1 class="mon-title">Welcome</h1>' +
+    '<p class="mon-sub">Please have your pass ready</p>';
+}
+
+$('monExit').addEventListener('click', function(){
+  $('monitor').classList.remove('open');
+  document.documentElement.classList.remove('modal-open');
+  if (monPoll) clearInterval(monPoll);
+});
+
+/* ============================================================
+   SELF CHECK-IN KIOSK
+   ============================================================ */
+var kioskStream = null, kioskRAF = null, kioskIdle = null, kioskLast = '', kioskLastAt = 0;
+
+function openKiosk(){
+  $('kiosk').classList.add('open');
+  document.documentElement.classList.add('modal-open');
+  kioskReset();
+  withQR(function(){
+    navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'user' } }, audio: false
+    }).then(function(stream){
+      kioskStream = stream;
+      $('kioskVideo').srcObject = stream;
+      $('kioskVideo').play();
+      kioskLoop();
+    }).catch(function(){ /* search still works without a camera */ });
+  }, function(){});
+}
+
+function kioskLoop(){
+  if (!$('kiosk').classList.contains('open')) return;
+  kioskRAF = requestAnimationFrame(kioskLoop);
+  var video = $('kioskVideo'), canvas = $('kioskCanvas');
+  if (video.readyState !== video.HAVE_ENOUGH_DATA || typeof jsQR === 'undefined') return;
+  var side = Math.min(video.videoWidth, video.videoHeight);
+  canvas.width = 320; canvas.height = 320;
+  var ctx = canvas.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(video, (video.videoWidth - side) / 2, (video.videoHeight - side) / 2,
+                side, side, 0, 0, 320, 320);
+  var img = ctx.getImageData(0, 0, 320, 320);
+  var code = jsQR(img.data, img.width, img.height, { inversionAttempts: 'attemptBoth' });
+  if (!code || !code.data) return;
+  var now = Date.now();
+  if (code.data === kioskLast && now - kioskLastAt < 5000) return;
+  kioskLast = code.data; kioskLastAt = now;
+  var t = parseTicket(code.data);
+  if (t) kioskCheckIn(t.ref, t.s);
+}
+
+function kioskCheckIn(ref, sig){
+  api({ action:'checkin', token:session, ref:ref, s:sig, lane:myLane })
+    .then(function(res){
+      if (!res || !res.ok){
+        kioskAnswer('Please see the desk', 'We could not find that pass.');
+        return;
+      }
+      scanFeedback('good');
+      var first = String(res.name || '').split(/\s+/)[0];
+      kioskAnswer(res.already ? 'Welcome back, ' + first : 'Welcome, ' + first,
+        res.already ? 'You are already checked in \u2014 do go through.'
+                    : 'You are checked in. Please go through to the field.');
+      load(true);
+    })
+    .catch(function(){ kioskAnswer('Please see the desk', 'We could not reach the list.'); });
+}
+
+function kioskAnswer(title, sub){
+  $('kioskStage').classList.add('hidden');
+  var a = $('kioskAnswer');
+  a.classList.remove('hidden');
+  a.innerHTML = '<b>' + esc(title) + '</b><span>' + esc(sub) + '</span>';
+  clearTimeout(kioskIdle);
+  kioskIdle = setTimeout(kioskReset, 7000);
+}
+
+function kioskReset(){
+  clearTimeout(kioskIdle);
+  $('kioskAnswer').classList.add('hidden');
+  $('kioskStage').classList.remove('hidden');
+  $('kioskQ').value = '';
+  $('kioskHits').innerHTML = '';
+}
+
+$('kioskQ').addEventListener('input', function(){
+  var q = this.value.trim().toLowerCase();
+  var box = $('kioskHits');
+  if (q.length < 2){ box.innerHTML = ''; return; }
+  var hits = data.filter(function(r){
+    return r.status !== 'Cancelled' && r.status !== 'Removed' &&
+           (r.name + ' ' + r.guest).toLowerCase().indexOf(q) > -1;
+  }).slice(0, 5);
+  box.innerHTML = hits.length
+    ? hits.map(function(r){
+        return '<button type="button" data-kref="' + esc(r.ref) + '">' + esc(r.name) +
+          '<small>' + (r.party || 1) + (r.party === 1 ? ' place' : ' places') +
+          (r.status === 'Attended' ? ' \u00b7 already checked in' : '') + '</small></button>';
+      }).join('')
+    : '<button type="button" disabled>No match \u2014 please see the desk</button>';
+});
+$('kioskHits').addEventListener('click', function(e){
+  var b = e.target.closest('[data-kref]');
+  if (b) kioskCheckIn(b.getAttribute('data-kref'), '');
+});
+$('kioskExit').addEventListener('click', function(){
+  $('kiosk').classList.remove('open');
+  document.documentElement.classList.remove('modal-open');
+  if (kioskRAF) cancelAnimationFrame(kioskRAF);
+  if (kioskStream){ kioskStream.getTracks().forEach(function(t){ t.stop(); }); kioskStream = null; }
+  $('kioskVideo').srcObject = null;
+});
+
+/* ============================================================
+   PASSES — approving guests and sending their tickets
+   ============================================================ */
+var passFilter = 'waiting', passPicked = {};
+
+function passList(){
+  var q = ($('pq').value || '').toLowerCase();
+  return data.filter(function(r){
+    if (r.status === 'Cancelled' || r.status === 'Removed') return false;
+    if (passFilter === 'waiting'  && r.approved === 'Yes') return false;
+    if (passFilter === 'approved' && r.approved !== 'Yes') return false;
+    if (passFilter === 'noemail'  && r.email) return false;
+    if (!q) return true;
+    return (r.name + ' ' + r.ref + ' ' + r.email).toLowerCase().indexOf(q) > -1;
+  }).sort(function(a, b){ return String(a.name).localeCompare(String(b.name)); });
+}
+
+function renderPasses(){
+  var live = data.filter(function(r){
+    return r.status !== 'Cancelled' && r.status !== 'Removed';
+  });
+  $('pApproved').textContent = live.filter(function(r){ return r.approved === 'Yes'; }).length;
+  $('pWaiting').textContent  = live.filter(function(r){ return r.approved !== 'Yes'; }).length;
+  $('pSent').textContent     = live.filter(function(r){ return r.qrSent; }).length;
+  $('pNoEmail').textContent  = live.filter(function(r){ return !r.email; }).length;
+
+  var rows = passList();
+  $('pCount').textContent = rows.length + (rows.length === 1 ? ' guest' : ' guests');
+  $('passEmpty').classList.toggle('hidden', rows.length > 0);
+
+  $('passRows').innerHTML = rows.map(function(r){
+    var tag = r.qrSent ? '<span class="pass-tag sent">Pass sent</span>'
+            : r.approved === 'Yes' ? '<span class="pass-tag ready">Approved</span>'
+            : !r.email ? '<span class="pass-tag none">No email</span>'
+            : '<span class="pass-tag">Awaiting</span>';
+    return '<div class="row' + (passPicked[r.ref] ? ' picked' : '') + '">' +
+      '<span class="pick"><input type="checkbox" data-ppick="' + esc(r.ref) + '"' +
+        (passPicked[r.ref] ? ' checked' : '') + ' aria-label="Select ' + esc(r.name) + '"></span>' +
+      '<div class="who"><b>' + esc(r.name) + '</b>' +
+        '<span>' + (r.party || 1) + (r.party === 1 ? ' place' : ' places') +
+        (r.guest ? ' \u00b7 with ' + esc(r.guest) : '') + '</span></div>' +
+      '<span class="ref">' + esc(r.ref) + '</span>' +
+      '<span class="mailcell">' + (r.email ? esc(r.email)
+        : '<span class="no-mail">no email given</span>') + '</span>' +
+      '<span>' + tag + '</span>' +
+      '<span class="act">' + (r.email
+        ? '<button class="icon-btn edit" data-resend="' + esc(r.ref) +
+          '" aria-label="Send the pass to ' + esc(r.name) + '">' +
+          '<svg viewBox="0 0 24 24"><path d="M4 4h16v13H4z"/><path d="m4 6 8 6 8-6"/></svg></button>'
+        : '<button class="icon-btn" data-marksent="' + esc(r.ref) +
+          '" aria-label="Mark the pass as given by hand">' +
+          '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></button>') + '</span>' +
+    '</div>';
+  }).join('');
+  syncPassBulk();
+}
+
+function passPickedRefs(){
+  return Object.keys(passPicked).filter(function(k){ return passPicked[k]; });
+}
+function syncPassBulk(){
+  var n = passPickedRefs().length;
+  $('passPicked').textContent = n;
+  $('passBulk').classList.toggle('hidden', n === 0);
+  var shown = passList();
+  $('pPickAll').checked = shown.length > 0 &&
+    shown.every(function(r){ return passPicked[r.ref]; });
+}
+
+$('pq').addEventListener('input', renderPasses);
+document.querySelectorAll('[data-pf]').forEach(function(c){
+  c.addEventListener('click', function(){
+    passFilter = c.getAttribute('data-pf');
+    document.querySelectorAll('[data-pf]').forEach(function(x){
+      x.setAttribute('aria-pressed', x === c ? 'true' : 'false');
+    });
+    renderPasses();
+  });
+});
+$('passRows').addEventListener('change', function(e){
+  var box = e.target.closest('[data-ppick]');
+  if (!box) return;
+  var ref = box.getAttribute('data-ppick');
+  if (box.checked) passPicked[ref] = true; else delete passPicked[ref];
+  box.closest('.row').classList.toggle('picked', box.checked);
+  syncPassBulk();
+});
+$('pPickAll').addEventListener('change', function(){
+  var on = this.checked;
+  passList().forEach(function(r){
+    if (on) passPicked[r.ref] = true; else delete passPicked[r.ref];
+  });
+  renderPasses();
+});
+$('passClear').addEventListener('click', function(){
+  passPicked = {}; renderPasses();
+});
+
+function doApprove(send){
+  var refs = passPickedRefs();
+  if (!refs.length) return;
+  var withMail = refs.filter(function(ref){
+    var r = data.filter(function(x){ return x.ref === ref; })[0];
+    return r && r.email;
+  }).length;
+
+  if (send && !confirm('Approve ' + refs.length + ' guest' + (refs.length === 1 ? '' : 's') +
+      ' and send ' + withMail + ' entry pass' + (withMail === 1 ? '' : 'es') + ' by email?' +
+      (withMail < refs.length ? '\n\n' + (refs.length - withMail) +
+       ' have no email address and will need their pass another way.' : ''))) return;
+
+  $('approveSend').disabled = true; $('approveOnly').disabled = true;
+  api({ action:'approve', token:session, refs:refs, send:!!send })
+    .then(function(res){
+      $('approveSend').disabled = false; $('approveOnly').disabled = false;
+      if (res && res.error === 'expired'){ expire(); return; }
+      if (res && res.ok){
+        toast(res.approved + ' approved' +
+          (res.queued ? ', ' + res.queued + ' pass' + (res.queued === 1 ? '' : 'es') +
+           ' on the way' : ''));
+        if (res.noEmail && res.noEmail.length){
+          toast(res.noEmail.length + ' have no email \u2014 see the No email filter');
+        }
+        passPicked = {};
+        load(true);
+      } else toast('That could not be applied.');
+    })
+    .catch(function(){
+      $('approveSend').disabled = false; $('approveOnly').disabled = false;
+      toast('No connection.');
+    });
+}
+$('approveSend').addEventListener('click', function(){ doApprove(true); });
+$('approveOnly').addEventListener('click', function(){ doApprove(false); });
+
+$('passRows').addEventListener('click', function(e){
+  var send = e.target.closest('[data-resend]');
+  if (send){
+    var ref = send.getAttribute('data-resend');
+    send.disabled = true;
+    api({ action:'approve', token:session, refs:[ref], send:true })
+      .then(function(res){
+        send.disabled = false;
+        if (res && res.ok){ toast('Pass on its way'); load(true); }
+        else toast('That could not be sent.');
+      })
+      .catch(function(){ send.disabled = false; toast('No connection.'); });
+    return;
+  }
+  var hand = e.target.closest('[data-marksent]');
+  if (hand){
+    var r2 = hand.getAttribute('data-marksent');
+    api({ action:'marksent', token:session, ref:r2 })
+      .then(function(res){
+        if (res && res.ok){ toast('Marked as given by hand'); load(true); }
+      })
+      .catch(function(){ toast('No connection.'); });
+  }
+});
+
+
+/* ============================================================
+   THEME
+   Remembered per device, because the person at the gate and the
+   person in the office want different things from the screen.
+   ============================================================ */
+(function(){
+  var saved = null;
+  try { saved = localStorage.getItem('pbis.theme'); } catch (err) {}
+  if (!saved && window.matchMedia &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches) saved = 'dark';
+  if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+})();
+
+$('themeBtn').addEventListener('click', function(){
+  var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  if (dark) document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme', 'dark');
+  try { localStorage.setItem('pbis.theme', dark ? 'light' : 'dark'); } catch (err) {}
+});
+
+/* ============================================================
+   THE NIGHT MENU
+   ============================================================ */
+$('nightBtn').addEventListener('click', function(e){
+  e.stopPropagation();
+  var m = $('nightMenu');
+  var open = m.classList.toggle('open');
+  this.setAttribute('aria-expanded', open ? 'true' : 'false');
+});
+document.addEventListener('click', function(){
+  $('nightMenu').classList.remove('open');
+  $('nightBtn').setAttribute('aria-expanded', 'false');
+});
+$('nightMenu').addEventListener('click', function(e){
+  var b = e.target.closest('[data-night]');
+  if (!b) return;
+  var which = b.getAttribute('data-night');
+  $('nightMenu').classList.remove('open');
+  if (which === 'door') setDoor(true);
+  if (which === 'monitor') openMonitor();
+  if (which === 'kiosk') openKiosk();
+  if (which === 'ready') openReady();
+  if (which === 'live') openLive();
+  if (which === 'summary') openSummary();
+});
+
+/* ============================================================
+   LANES
+   Three gates, three screens. The lane a device is set to is
+   remembered, so a tablet left at gate two is still gate two in
+   the morning.
+   ============================================================ */
+var myLane = 1, monLane = 1, monPoll = null, monSeen = '';
+
+try { myLane = parseInt(localStorage.getItem('pbis.lane'), 10) || 1; } catch (err) {}
+try { monLane = parseInt(localStorage.getItem('pbis.monlane'), 10) || 1; } catch (err) {}
+
+function paintLanes(){
+  document.querySelectorAll('[data-lane]').forEach(function(b){
+    b.setAttribute('aria-pressed',
+      String(parseInt(b.getAttribute('data-lane'), 10) === myLane));
+  });
+  document.querySelectorAll('[data-monlane]').forEach(function(b){
+    b.setAttribute('aria-pressed',
+      String(parseInt(b.getAttribute('data-monlane'), 10) === monLane));
+  });
+  var sl = $('scanLane');
+  if (sl) sl.textContent = 'Lane ' + myLane;
+}
+
+document.querySelectorAll('[data-lane]').forEach(function(b){
+  b.addEventListener('click', function(){
+    myLane = parseInt(b.getAttribute('data-lane'), 10) || 1;
+    try { localStorage.setItem('pbis.lane', String(myLane)); } catch (err) {}
+    paintLanes();
+    toast('This device is now Lane ' + myLane);
+  });
+});
+document.querySelectorAll('[data-monlane]').forEach(function(b){
+  b.addEventListener('click', function(e){
+    e.stopPropagation();
+    monLane = parseInt(b.getAttribute('data-monlane'), 10) || 1;
+    try { localStorage.setItem('pbis.monlane', String(monLane)); } catch (err) {}
+    monSeen = '';
+    paintLanes();
+    monitorRest();
+  });
+});
+paintLanes();
+
+/* Same-device speed: a monitor in another tab hears instantly rather than
+   waiting for the next poll. The poll remains the source of truth for
+   monitors on other machines. */
+var laneWire = null;
+try { laneWire = new BroadcastChannel('pbis-lane'); } catch (err) {}
+
+function announce(res){
+  if (!laneWire) return;
+  try { laneWire.postMessage({ lane: myLane, at: Date.now(), res: res }); } catch (err) {}
+}
+if (laneWire){
+  laneWire.onmessage = function(e){
+    var m = e.data;
+    if (!m || m.lane !== monLane) return;
+    if (!$('monitor').classList.contains('open')) return;
+    monSeen = m.res.ref + ':' + m.at;
+    monitorShow(m.res);
+  };
+}
+
+/* ============================================================
+   THE MONITOR
+   ============================================================ */
+function openMonitor(){
+  $('monitor').classList.add('open');
+  document.documentElement.classList.add('modal-open');
+  paintLanes();
+  monitorRest();
+  monSeen = '';
+  if (monPoll) clearInterval(monPoll);
+  monPoll = setInterval(pollLane, 1200);
+  pollLane();
+}
+
+function pollLane(){
+  if (!$('monitor').classList.contains('open') || !session) return;
+  api({ action:'lane', token:session, lane:monLane })
+    .then(function(res){
+      if (!res || !res.ok) return;
+      if (typeof res.arrived === 'number'){
+        meta.arrived = res.arrived;
+        $('monTally').textContent = res.arrived + ' guests have arrived';
+      }
+      var l = res.last;
+      if (!l) return;
+      var key = l.ref + ':' + l.at;
+      if (key === monSeen) return;
+      // Ignore anything older than half a minute, so opening a monitor
+      // does not replay a welcome from earlier in the evening.
+      if (Date.now() - l.at > 30000){ monSeen = key; return; }
+      monSeen = key;
+      monitorShow(l);
+    })
+    .catch(function(){});
+}
+
+/* ============================================================
+   STAYING SIGNED IN
+   The office has this open from the afternoon until the last
+   guest leaves. Being asked to sign in again mid-queue is the
+   sort of thing that turns a tool into a liability.
+   ============================================================ */
+setInterval(function(){
+  if (!session) return;
+  api({ action:'keepalive', token:session })
+    .then(function(res){
+      if (res && res.error === 'expired') expire();
+      else remember({ token: session, role: role, can: rights,
+                      name: me.name, title: me.team, hours: 14 });
+    })
+    .catch(function(){});
+}, 5 * 60 * 1000);
+
+/* ============================================================
+   THE GUIDE
+   ============================================================ */
+$('helpBtn').addEventListener('click', function(){ $('help').classList.add('open'); });
+document.querySelectorAll('[data-help-close]').forEach(function(el){
+  el.addEventListener('click', function(){ $('help').classList.remove('open'); });
+});
+document.querySelectorAll('.help-tab').forEach(function(t){
+  t.addEventListener('click', function(){
+    var which = t.getAttribute('data-help');
+    document.querySelectorAll('.help-tab').forEach(function(x){
+      x.setAttribute('aria-selected', String(x === t));
+    });
+    document.querySelectorAll('.help-body').forEach(function(bd){
+      bd.classList.toggle('on', bd.getAttribute('data-body') === which);
+    });
+  });
+});
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape' && $('help').classList.contains('open')){
+    $('help').classList.remove('open');
+  }
+});
+
+
+/* ============================================================
+   PRE-FLIGHT
+   ============================================================ */
+function openReady(){
+  $('ready').classList.add('open');
+  runReady();
+}
+function runReady(){
+  $('readyVerdict').className = 'ready-verdict';
+  $('readyVerdict').innerHTML = '<b>Checking\u2026</b>';
+  $('readyList').innerHTML = '';
+  $('readyRun').disabled = true;
+
+  api({ action:'preflight', token:session })
+    .then(function(res){
+      $('readyRun').disabled = false;
+      if (res && res.error === 'expired'){ expire(); return; }
+      if (!res || !res.ok){
+        $('readyVerdict').className = 'ready-verdict hold';
+        $('readyVerdict').innerHTML = '<b>Could not run the check</b>' +
+          'The dashboard could not reach the script.';
+        return;
+      }
+      var v = $('readyVerdict');
+      if (res.bad){
+        v.className = 'ready-verdict hold';
+        v.innerHTML = '<b>' + res.bad + ' thing' + (res.bad === 1 ? '' : 's') +
+          ' needs attention</b>Fix the red lines below before the evening.';
+      } else if (res.warn){
+        v.className = 'ready-verdict';
+        v.innerHTML = '<b>Ready, with ' + res.warn + ' to look at</b>' +
+          'Nothing is broken. The amber lines are worth a glance.';
+      } else {
+        v.className = 'ready-verdict go';
+        v.innerHTML = '<b>Everything is ready</b>All checks passed.';
+      }
+      $('readyList').innerHTML = (res.checks || []).map(function(c){
+        return '<div class="ready-row"><span class="ready-dot ' + c.state + '"></span>' +
+          '<div><b>' + esc(c.label) + '</b>' +
+          (c.detail ? '<span>' + esc(c.detail) + '</span>' : '') +
+          (c.fix ? '<em>' + esc(c.fix) + '</em>' : '') + '</div></div>';
+      }).join('');
+    })
+    .catch(function(){
+      $('readyRun').disabled = false;
+      $('readyVerdict').className = 'ready-verdict hold';
+      $('readyVerdict').innerHTML = '<b>No connection</b>Try again in a moment.';
+    });
+}
+$('readyRun').addEventListener('click', runReady);
+document.querySelectorAll('[data-ready-close]').forEach(function(el){
+  el.addEventListener('click', function(){ $('ready').classList.remove('open'); });
+});
+
+/* ============================================================
+   LIVE ARRIVALS
+   ============================================================ */
+var livePoll = null;
+
+function openLive(){
+  $('live').classList.add('open');
+  pollLive();
+  if (livePoll) clearInterval(livePoll);
+  livePoll = setInterval(pollLive, 8000);
+}
+function closeLive(){
+  $('live').classList.remove('open');
+  if (livePoll) clearInterval(livePoll);
+}
+function pollLive(){
+  if (!$('live').classList.contains('open')) return;
+  api({ action:'arrivals', token:session })
+    .then(function(res){
+      if (!res || !res.ok) return;
+      $('lvArrived').textContent = res.arrived;
+      $('lvOut').textContent = res.stillOut;
+      $('lvRate').textContent = res.recent;
+      $('lvNo').textContent = res.noShow;
+      $('lvBar').style.width =
+        (res.expected ? Math.min(res.arrived / res.expected * 100, 100) : 0) + '%';
+
+      $('lvLanes').innerHTML = [1,2,3].map(function(L){
+        var l = res.lanes && res.lanes[L];
+        return '<div class="live-lane"><b>Lane ' + L + '</b>' +
+          (l ? '<span>' + esc(l.name) + '</span><small>' + since(l.at) + '</small>'
+             : '<span style="color:var(--ink-3)">Nothing yet</span>') + '</div>';
+      }).join('');
+
+      $('lvFeed').innerHTML = (res.latest || []).length
+        ? res.latest.map(function(x){
+            return '<div><span>' + esc(x.name) + '</span>' +
+              '<small>' + since(new Date(x.at).getTime()) + '</small></div>';
+          }).join('')
+        : '<div><span style="color:var(--ink-3)">Nobody has arrived yet</span></div>';
+    })
+    .catch(function(){});
+}
+function since(ms){
+  var s = Math.round((Date.now() - ms) / 1000);
+  if (s < 60) return 'just now';
+  var m = Math.round(s / 60);
+  if (m < 60) return m + ' min ago';
+  return Math.round(m / 60) + ' hr ago';
+}
+document.querySelectorAll('[data-live-close]').forEach(function(el){
+  el.addEventListener('click', closeLive);
+});
+
+/* ============================================================
+   THE MORNING AFTER
+   ============================================================ */
+var sumText = '';
+
+function openSummary(){
+  $('summary').classList.add('open');
+  $('sumBody').innerHTML = '<p class="sum-note">Working it out\u2026</p>';
+  api({ action:'summary', token:session })
+    .then(function(res){
+      if (!res || !res.ok){
+        $('sumBody').innerHTML = '<p class="sum-note">That could not be worked out.</p>';
+        return;
+      }
+      var y = res.years || {}, order = ['Early Years','Lower Primary','Upper Primary','Secondary'];
+      var most = Math.max.apply(null, order.map(function(k){ return y[k] || 0; }).concat([1]));
+      var hours = Object.keys(res.hours || {}).sort();
+      var busiest = hours.reduce(function(best, k){
+        return (res.hours[k] > (res.hours[best] || 0)) ? k : best;
+      }, hours[0] || '');
+
+      $('sumBody').innerHTML =
+        '<div class="sum-grid">' +
+          '<div><b>' + res.arrived + '</b><span class="label">Attended</span></div>' +
+          '<div><b>' + res.rate + '%</b><span class="label">Of those expected</span></div>' +
+          '<div><b>' + res.noShow + '</b><span class="label">No shows</span></div>' +
+          '<div><b>' + res.families + '</b><span class="label">Families</span></div>' +
+        '</div>' +
+        '<h3 class="live-h">Children by year group</h3>' +
+        '<div class="sum-bars">' + order.map(function(k){
+          return '<div class="sum-bar"><span>' + k + '</span>' +
+            '<i style="width:' + Math.round((y[k] || 0) / most * 100) + '%"></i>' +
+            '<span>' + (y[k] || 0) + '</span></div>';
+        }).join('') + '</div>' +
+        (hours.length ? '<h3 class="live-h">When they arrived</h3><div class="sum-bars">' +
+          hours.map(function(k){
+            var n = res.hours[k];
+            return '<div class="sum-bar"><span>' + k + '</span>' +
+              '<i style="width:' + Math.round(n / res.arrived * 100) + '%"></i>' +
+              '<span>' + n + '</span></div>';
+          }).join('') + '</div>' : '') +
+        '<p class="sum-note">' + res.event + ' \u00b7 ' + res.expected +
+        ' expected, ' + res.arrived + ' attended' +
+        (busiest ? ', busiest at ' + busiest : '') + '.</p>';
+
+      sumText = [
+        'PARENT APPRECIATION NIGHT \u2014 ' + res.event,
+        '',
+        'Attended:      ' + res.arrived + ' of ' + res.expected + ' (' + res.rate + '%)',
+        'Families:      ' + res.families,
+        'No shows:      ' + res.noShow,
+        'Cancelled:     ' + res.cancelled,
+        'Came as pairs: ' + res.pairs,
+        '',
+        'Children by year group:',
+        order.map(function(k){ return '  ' + k + ': ' + (y[k] || 0); }).join('\n'),
+        busiest ? '\nBusiest half hour: ' + busiest : ''
+      ].join('\n');
+    })
+    .catch(function(){
+      $('sumBody').innerHTML = '<p class="sum-note">No connection.</p>';
+    });
+}
+document.querySelectorAll('[data-sum-close]').forEach(function(el){
+  el.addEventListener('click', function(){ $('summary').classList.remove('open'); });
+});
+$('sumCopy').addEventListener('click', function(){
+  navigator.clipboard.writeText(sumText).then(function(){ toast('Summary copied'); },
+    function(){ toast('Could not copy.'); });
+});
+$('sumPrint').addEventListener('click', function(){ window.print(); });
+
+/* ============================================================
+   KEYBOARD
+   The office lives in this for hours. Reaching for the mouse to
+   search is the sort of small friction that adds up.
+   ============================================================ */
+document.addEventListener('keydown', function(e){
+  var typing = /^(INPUT|TEXTAREA|SELECT)$/.test((e.target.tagName || ''));
+  var anyOpen = document.querySelector('.sheet.open, .detail.open, .scan.open, ' +
+                                       '.monitor.open, .kiosk.open');
+
+  if (e.key === 'Escape' && !anyOpen && typing && e.target.id === 'q'){
+    e.target.value = ''; render(); e.target.blur(); return;
+  }
+  if (typing || anyOpen || !session) return;
+
+  if (e.key === '/'){ e.preventDefault(); $('q').focus(); return; }
+  if (e.key === '?'){ e.preventDefault(); $('help').classList.add('open'); return; }
+  if (e.key === 'r'){ e.preventDefault(); load(); toast('Refreshed'); return; }
+  if (e.key === 't'){ e.preventDefault(); $('themeBtn').click(); return; }
+  if (e.key === 'd' && rights.edit){ e.preventDefault(); setDoor(!doorMode); return; }
+});
+
+/* ============================================================
+   FORGIVING SEARCH
+   "Somchay" should find "Somchai". At a gate, with a queue behind
+   somebody, an exact-match search is the wrong tool.
+   ============================================================ */
+function near(a, b){
+  if (a === b) return 0;
+  if (Math.abs(a.length - b.length) > 2) return 99;
+  var prev = [], cur = [];
+  for (var j = 0; j <= b.length; j++) prev[j] = j;
+  for (var i = 1; i <= a.length; i++){
+    cur[0] = i;
+    for (var k = 1; k <= b.length; k++){
+      cur[k] = Math.min(prev[k] + 1, cur[k-1] + 1,
+                        prev[k-1] + (a.charAt(i-1) === b.charAt(k-1) ? 0 : 1));
+    }
+    prev = cur.slice();
+  }
+  return prev[b.length];
+}
+
+/* A word matches if it contains the term, or is within one keystroke of it.
+   Two edits on a short word matches too much to be useful. */
+function loose(hay, term){
+  if (!term) return true;
+  if (hay.indexOf(term) > -1) return true;
+  if (term.length < 4) return false;
+  var words = hay.split(/[\s,;()]+/);
+  for (var i = 0; i < words.length; i++){
+    var w = words[i];
+    if (!w || Math.abs(w.length - term.length) > 2) continue;
+    if (near(w, term) <= (term.length > 6 ? 2 : 1)) return true;
+  }
+  return false;
+}
+
 /* ---------------- tabs ---------------- */
 document.querySelectorAll('.tab').forEach(function(t){
   t.addEventListener('click', function(){
@@ -1644,9 +3484,11 @@ document.querySelectorAll('.tab').forEach(function(t){
       x.setAttribute('aria-selected', x === t ? 'true' : 'false');
     });
     $('viewList').classList.toggle('on', which === 'list');
+    $('viewPasses').classList.toggle('on', which === 'passes');
     $('viewLog').classList.toggle('on', which === 'log');
     $('listNote').style.display = which === 'list' ? '' : 'none';
     if (which === 'log') loadLog();
+    if (which === 'passes') renderPasses();
   });
 });
 
@@ -1712,6 +3554,9 @@ function openDetail(ref){
         : '<span style="color:var(--stone)">None listed</span>') +
     row('Status', esc(r.status || 'Confirmed')) +
     (r.message ? row('Message from them', esc(r.message)) : '') +
+    row('Photographs', r.photos === 'No'
+        ? '<em style="font-style:italic;color:var(--danger)">Has asked not to be photographed</em>'
+        : 'Happy to appear') +
     (r.note ? row('Office notes', '<em style="font-style:italic">' + esc(r.note) + '</em>') : '') +
     row('Received', r.ts ? new Date(r.ts).toLocaleString([], { weekday:'short',
         day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : '\u2014');
