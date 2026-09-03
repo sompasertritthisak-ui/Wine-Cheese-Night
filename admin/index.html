@@ -1985,7 +1985,10 @@ function remember(res){
   } catch (err) { /* private browsing refuses storage; sign-in still works */ }
 }
 function forget(){
-  try { sessionStorage.removeItem(SESSION_KEY); } catch (err) {}
+  try {
+    sessionStorage.removeItem(SESSION_KEY);
+    sessionStorage.removeItem(CACHE_KEY);
+  } catch (err) {}
 }
 function resume(){
   var raw;
@@ -2104,7 +2107,12 @@ function skeleton(){
 }
 
 function load(quiet){
-  if (!quiet) skeleton();
+  /* Show something real rather than a row of grey bars. */
+  if (!quiet && !data.length){
+    if (!paintFromCache()) skeleton();
+  } else if (!quiet) {
+    render();
+  }
   if (syncState !== 'retry') setSync('busy');
   api({ action:'list', token:session })
     .then(function(res){
@@ -2112,6 +2120,7 @@ function load(quiet){
       if (!res || !res.ok){ syncFailed(); fail(res); return; }
       syncOk();
       data = res.replies || [];
+      rememberList(res);
       role = res.role || role;
       meta.capacity = res.capacity || meta.capacity;
       meta.arrived  = res.arrived || 0;
@@ -2414,6 +2423,7 @@ $('refresh').addEventListener('click', function(){
       if (!res || !res.ok){ syncFailed(); fail(res); settle(false); return; }
       syncOk();
       data = res.replies || [];
+      rememberList(res);
       meta.capacity = res.capacity || meta.capacity;
       meta.arrived  = res.arrived || 0;
       meta.noShow   = res.noShow || 0;
@@ -3933,6 +3943,44 @@ document.addEventListener('visibilitychange', function(){
     if (!lastLoad || Date.now() - lastLoad > 45000) load(true);
   }
 });
+
+/* ============================================================
+   THE LAST KNOWN LIST
+   Waiting two seconds on a blank page is the difference between a
+   tool that feels quick and one that does not. The last list is
+   kept on the device and painted at once, then replaced the
+   moment the real one lands. The sync light says which you are
+   looking at, so nobody is misled.
+   ============================================================ */
+var CACHE_KEY = 'pbis.list.cache';
+
+function rememberList(res){
+  try {
+    sessionStorage.setItem(CACHE_KEY, JSON.stringify({
+      at: Date.now(),
+      replies: res.replies, capacity: res.capacity, arrived: res.arrived,
+      noShow: res.noShow, years: res.years, duplicates: res.duplicates
+    }));
+  } catch (err) { /* private mode, or the list is very large */ }
+}
+
+function paintFromCache(){
+  var raw;
+  try { raw = sessionStorage.getItem(CACHE_KEY); } catch (err) { return false; }
+  if (!raw) return false;
+  var v;
+  try { v = JSON.parse(raw); } catch (err) { return false; }
+  // Anything older than a quarter of an hour is not worth showing.
+  if (!v || !v.replies || Date.now() - v.at > 900000) return false;
+
+  data = v.replies;
+  meta.capacity = v.capacity || meta.capacity;
+  meta.arrived = v.arrived || 0;
+  meta.noShow = v.noShow || 0;
+  meta.years = v.years || {};
+  render();
+  return true;
+}
 
 /* ---------------- tabs ---------------- */
 document.querySelectorAll('.tab').forEach(function(t){
