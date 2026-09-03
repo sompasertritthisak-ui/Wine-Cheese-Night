@@ -743,6 +743,23 @@ html{scrollbar-color:var(--gold) var(--paper-3)}
    a pass, and who cannot be sent one because we have no address.
    ============================================================ */
 .pass-head{display:flex;gap:1.2rem;align-items:center;flex-wrap:wrap;margin-bottom:1.2rem}
+.claim-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);
+  border:1px solid var(--rule);margin-bottom:1.4rem}
+.claim-stats > div{background:var(--paper-2);padding:1rem}
+.claim-stats b{display:block;font-family:var(--f-display);font-weight:600;font-size:1.9rem;
+  line-height:1;color:var(--forest)}
+html[data-theme="dark"] .claim-stats b{color:var(--gold-lit)}
+.claim-said{min-height:74px;display:grid;place-items:center;text-align:center;
+  padding:.9rem;margin:1rem 0;border:1px solid var(--rule);background:var(--paper)}
+.claim-said b{display:block;font-family:var(--f-display);font-weight:600;font-size:1.4rem;
+  color:var(--ink)}
+.claim-said span{display:block;font-size:.95rem;color:var(--ink-2);margin-top:.3rem}
+.claim-said.good{border-color:rgba(26,107,65,.5);background:var(--good-bg)}
+.claim-said.good b{color:var(--good)}
+.claim-said.warn{border-color:rgba(208,169,58,.55);background:#FBF3DC}
+.claim-said.warn b{color:var(--gold-deep)}
+.claim-said.bad{border-color:rgba(154,74,18,.5);background:var(--danger-bg)}
+.claim-said.bad b{color:var(--danger)}
 .pass-stats{display:flex;gap:1.6rem;flex-wrap:wrap}
 .pass-stats span{font-family:var(--f-ui);font-size:.95rem;color:var(--ink-2)}
 .pass-stats b{font-family:var(--f-display);font-weight:600;font-size:1.5rem;
@@ -1371,6 +1388,12 @@ html[data-theme="dark"] .chip[aria-pressed="true"] svg{stroke:var(--gold-lit)}
             <b>Welcome monitor</b><span>A second screen that greets arrivals</span></button>
           <button role="menuitem" data-night="kiosk">
             <b>Self check-in</b><span>Guests scan their own pass</span></button>
+          <button role="menuitem" data-night="claim">
+            <b>Prize claims</b><span>Check a survey code on the way out</span></button>
+          <button role="menuitem" data-night="survey">
+            <b>Open the survey</b><span>The form parents fill in</span></button>
+          <button role="menuitem" data-night="screen">
+            <b>Survey screen</b><span>The live counter for the television</span></button>
           <button role="menuitem" data-night="summary">
             <b>After the event</b><span>A summary to send on</span></button>
         </div>
@@ -1622,6 +1645,33 @@ html[data-theme="dark"] .chip[aria-pressed="true"] svg{stroke:var(--gold-lit)}
     <a href="https://wa.me/85677489869">WhatsApp 77489869</a></p>
   <p class="cr">&copy; 2026 Panyathip British International School</p>
 </footer>
+
+<div class="sheet" id="claimBox" role="dialog" aria-modal="true" aria-labelledby="clTitle">
+  <div class="sheet-scrim" data-cl-close></div>
+  <div class="sheet-card">
+    <button class="modal-close" data-cl-close aria-label="Close">&times;</button>
+    <h2 id="clTitle">Prize claims</h2>
+    <p class="kill-note">Type the code on the parent&rsquo;s screen, or scan it. It looks
+      like <b>PBIS-07-K3M9</b>. Each one can only be collected once.</p>
+
+    <div class="claim-stats">
+      <div><b id="clDone">&mdash;</b><span class="label">Surveys finished</span></div>
+      <div><b id="clGiven">&mdash;</b><span class="label">Gifts handed over</span></div>
+    </div>
+
+    <div class="fld">
+      <label class="label" for="clCode">Claim code</label>
+      <input type="text" id="clCode" placeholder="PBIS-07-K3M9" autocomplete="off"
+             spellcheck="false" style="text-transform:uppercase;font-size:1.2rem;
+             letter-spacing:.1em">
+    </div>
+    <div class="claim-said" id="clSaid"></div>
+    <div class="sheet-actions">
+      <button class="btn" data-cl-close>Close</button>
+      <button class="btn btn-solid" id="clGo">Check the code</button>
+    </div>
+  </div>
+</div>
 
 <div class="sheet" id="sendPass" role="dialog" aria-modal="true" aria-labelledby="spTitle">
   <div class="sheet-scrim" data-sp-close></div>
@@ -3505,6 +3555,9 @@ $('nightMenu').addEventListener('click', function(e){
   if (which === 'ready') openReady();
   if (which === 'live') openLive();
   if (which === 'summary') openSummary();
+  if (which === 'claim') openClaims();
+  if (which === 'survey') window.open('/survey/', '_blank', 'noopener');
+  if (which === 'screen') window.open('/survey/live/', '_blank', 'noopener');
 });
 
 /* ============================================================
@@ -4048,6 +4101,75 @@ function paintFromCache(){
   render();
   return true;
 }
+
+/* ============================================================
+   PRIZE CLAIMS
+   Fifty gifts and a queue at the door. The only thing that must
+   not happen is one code collecting two gifts, so the server
+   marks it the moment it is honoured.
+   ============================================================ */
+function openClaims(){
+  $('claimBox').classList.add('open');
+  $('clCode').value = '';
+  $('clSaid').className = 'claim-said';
+  $('clSaid').innerHTML = '<span>Waiting for a code</span>';
+  refreshClaims();
+  setTimeout(function(){ $('clCode').focus(); }, 60);
+}
+
+function refreshClaims(){
+  api({ action:'surveylist', token:session })
+    .then(function(res){
+      if (!res || !res.ok) return;
+      $('clDone').textContent = res.done;
+      $('clGiven').textContent = res.claimed;
+    })
+    .catch(function(){});
+}
+
+function claimSay(kind, title, sub){
+  var el = $('clSaid');
+  el.className = 'claim-said ' + kind;
+  el.innerHTML = '<div><b>' + esc(title) + '</b>' +
+                 (sub ? '<span>' + esc(sub) + '</span>' : '') + '</div>';
+}
+
+function checkClaim(){
+  var code = $('clCode').value.trim().toUpperCase();
+  if (!code){ return; }
+  $('clGo').disabled = true;
+  api({ action:'claim', token:session, code:code })
+    .then(function(res){
+      $('clGo').disabled = false;
+      $('clCode').value = '';
+      $('clCode').focus();
+      if (res && res.error === 'expired'){ expire(); return; }
+      if (!res || !res.ok){
+        claimSay('bad',
+          res && res.error === 'notfound' ? 'Not on the list' : 'Not a valid code',
+          'Check the spelling, or ask them to show the screen again.');
+        return;
+      }
+      if (res.already){
+        claimSay('warn', res.name, 'This gift has already been collected');
+      } else {
+        claimSay('good', res.name, 'Number ' + res.slot + ' \u2014 hand over the gift');
+      }
+      refreshClaims();
+    })
+    .catch(function(){
+      $('clGo').disabled = false;
+      claimSay('bad', 'No connection', 'Try again in a moment.');
+    });
+}
+
+$('clGo').addEventListener('click', checkClaim);
+$('clCode').addEventListener('keydown', function(e){
+  if (e.key === 'Enter'){ e.preventDefault(); checkClaim(); }
+});
+document.querySelectorAll('[data-cl-close]').forEach(function(el){
+  el.addEventListener('click', function(){ $('claimBox').classList.remove('open'); });
+});
 
 /* ---------------- tabs ---------------- */
 document.querySelectorAll('.tab').forEach(function(t){
