@@ -2978,6 +2978,62 @@ function rsvp(){
       }).catch(function(e){ clearTimeout(timer); throw e; });
     }
 
+    /* The submission itself.
+       Busy means the server is serving somebody else this second, not that
+       anything is wrong, so it comes straight back rather than making the
+       guest watch a bar. Everything is bounded: no path here can run
+       longer than the ceiling set above. */
+    function attempt(n){
+      var MAX_TRIES = 6;
+      setProgress(18 + n * 6);
+      console.info('RSVP: sending, attempt', n);
+
+      send('cors')
+        .then(function(r){
+          console.info('RSVP: server answered', r.status, r.type);
+          return r.text().then(function(t){
+            try { return JSON.parse(t); }
+            catch (e) {
+              console.warn('RSVP: reply was not JSON', r.status, t.slice(0, 200));
+              return null;
+            }
+          });
+        })
+        .then(function(res){
+          if (res && res.ok){ finish(res); return; }
+
+          /* The server is busy or asked us to try again. */
+          if (res && res.retry && n < MAX_TRIES){
+            showRetrying();
+            setTimeout(function(){ attempt(n + 1); }, Math.min(900 * n, 4000));
+            return;
+          }
+          /* A real refusal: bad data, over capacity, not saved. */
+          if (res && res.ok === false){ failed(res); return; }
+
+          /* Unreadable. Send once more blind, then ask the server whether
+             it landed. The submission id makes the repeat harmless. */
+          console.warn('RSVP: reply unreadable \u2014 sending blind, then verifying.');
+          send('no-cors')
+            .then(function(){ verify(1); })
+            .catch(function(err){
+              console.error('RSVP: could not be sent at all', err);
+              failed({ error:'unreachable' });
+            });
+        })
+        .catch(function(err){
+          console.warn('RSVP: request failed', err && err.name);
+          if (n < MAX_TRIES){
+            showRetrying();
+            setTimeout(function(){ attempt(n + 1); }, Math.min(900 * n, 4000));
+            return;
+          }
+          /* Out of tries. It may still have been written, so ask before
+             telling anybody it failed. */
+          verify(1);
+        });
+    }
+
     /* Asks the server whether the RSVP is in the sheet. Tries a few times,
        because the write may still be queued behind others during a rush. */
     function verify(attemptNo){
