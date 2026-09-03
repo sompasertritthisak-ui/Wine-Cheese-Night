@@ -330,8 +330,8 @@ input::placeholder,textarea::placeholder{color:var(--fg-2)}
         <!-- 3 -->
         <section class="sec" data-sec="2">
           <h2>Your journey with PBIS</h2>
-          <p class="lede">There are no right answers here. Plain honesty is the most
-            useful thing you can give us.</p>
+          <p class="lede">There are no right answers here. Plain honesty is the most useful
+            thing you can give us. <b>Please answer at least two.</b></p>
           <div class="f">
             <label for="why">What made you consider PBIS?</label>
             <textarea id="why"></textarea>
@@ -515,6 +515,7 @@ Object.keys(CHOICES).forEach(function(key){
         el.setAttribute('aria-pressed',
           String(picked[key].indexOf(el.textContent) > -1));
       });
+      if ($('topErr').textContent && !stepGap(at)) $('topErr').textContent = '';
     });
     box.appendChild(b);
   });
@@ -543,29 +544,108 @@ function paint(){
   if (f) f.focus({ preventScroll:true });
 }
 
+/* ============================================================
+   WHAT EACH STEP NEEDS
+   Not everything is required — a parent who abandons the form at
+   question nine gives us nothing. But a prize is for a survey,
+   and a name with six taps on Continue is not one. Each step
+   asks for enough to be worth having, and says so where it is
+   asked rather than at the end.
+   ============================================================ */
+function words(v){
+  return String(v || '').trim().split(/\s+/).filter(function(w){ return w; }).length;
+}
+
+function bad(id, msg){
+  var wrap = $('f-' + id) || $(id);
+  if (wrap) wrap.classList.add('bad');
+  var e = $('e-' + id);
+  if (e) e.textContent = msg;
+}
+function clear(id){
+  var wrap = $('f-' + id) || $(id);
+  if (wrap) wrap.classList.remove('bad');
+  var e = $('e-' + id);
+  if (e) e.textContent = '';
+}
+
 function nameOk(){
   var ok = true;
   [['first','Please enter your first name.'],
    ['last','Please enter your last name.']].forEach(function(pair){
-    var el = $(pair[0]), wrap = $('f-' + pair[0]);
-    var good = el.value.trim().length >= 1;
-    wrap.classList.toggle('bad', !good);
-    $('e-' + pair[0]).textContent = good ? '' : pair[1];
-    if (!good) ok = false;
+    var v = $(pair[0]).value.trim();
+    /* Two characters, because a single letter is not a name and this is
+       what a gift is being given against. */
+    if (v.length < 2){ bad(pair[0], pair[1]); ok = false; }
+    else clear(pair[0]);
   });
-  if (!ok) $('f-first').scrollIntoView({ behavior:'smooth', block:'center' });
   return ok;
+}
+
+/* Returns an empty string when the step is complete, or what is missing. */
+function stepGap(i){
+  if (i === 0) return nameOk() ? '' : 'name';
+
+  if (i === 1){
+    var need = [];
+    if (!picked.children.length) need.push('how many children you have');
+    if (!picked.ages.length) need.push('their ages');
+    return need.length ? 'Please tell us ' + need.join(' and ') + '.' : '';
+  }
+
+  if (i === 2){
+    /* Two of the four, so nobody has to write four essays, but nobody
+       gets through having written nothing either. */
+    var done = ['why','concerns','fees','needTrue']
+      .filter(function(k){ return words($(k).value) >= 3; }).length;
+    if (done >= 2) return '';
+    return done === 0
+      ? 'Please answer at least two of these questions \u2014 they are the ones that ' +
+        'help us most.'
+      : 'One more, and this step is done.';
+  }
+
+  if (i === 3){
+    if (!picked.priorities.length) return 'Please choose at least one priority.';
+    if (words($('challenges').value) < 3 && words($('improvements').value) < 3){
+      return 'Please answer one of the two questions below.';
+    }
+    return '';
+  }
+
+  if (i === 4){
+    if (!picked.heard.length) return 'Please tell us how you first heard about PBIS.';
+    return '';
+  }
+
+  return '';   // the last step is genuinely optional
+}
+
+function stepOk(i){
+  var gap = stepGap(i);
+  if (!gap) { $('topErr').textContent = ''; return true; }
+  $('topErr').textContent = gap === 'name' ? '' : gap;
+  var firstBad = secs[i].querySelector('.f.bad');
+  (firstBad || secs[i]).scrollIntoView({ behavior:'smooth', block: firstBad ? 'center' : 'start' });
+  return false;
 }
 
 $('back').addEventListener('click', function(){ if (at > 0){ at--; paint(); } });
 $('next').addEventListener('click', function(){
-  if (at === 0 && !nameOk()) return;
+  if (!stepOk(at)) return;
   if (at < secs.length - 1){ at++; paint(); return; }
   send();
 });
 ['first','last'].forEach(function(id){
   $(id).addEventListener('input', function(){
     if ($('f-' + id).classList.contains('bad')) nameOk();
+  });
+});
+
+/* Once a step has complained, stop complaining as soon as it is satisfied. */
+['why','concerns','fees','needTrue','challenges','improvements'].forEach(function(id){
+  $(id).addEventListener('input', function(){
+    if ($('topErr').textContent && !stepGap(at)) $('topErr').textContent = '';
   });
 });
 paint();
@@ -599,7 +679,12 @@ var sending = false;
 
 function send(){
   if (sending) return;
-  if (!nameOk()){ at = 0; paint(); nameOk(); return; }
+  /* Walk every step before sending. Somebody who skipped ahead is taken
+     back to the first thing that is missing, rather than refused at the
+     end with no idea why. */
+  for (var i = 0; i < secs.length; i++){
+    if (stepGap(i)){ at = i; paint(); stepOk(i); return; }
+  }
   sending = true;
   $('next').disabled = true;
   $('next').classList.add('busy');
@@ -649,6 +734,11 @@ function fail(res){
     ? res.message
     : 'We could not send your answers just now. Please try once more, or ask a ' +
       'member of staff.';
+  if (res && (res.error === 'thin' || res.error === 'name')){
+    for (var k = 0; k < secs.length; k++){
+      if (stepGap(k)){ at = k; paint(); stepOk(k); return; }
+    }
+  }
 }
 
 function finish(res){
