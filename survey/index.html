@@ -305,10 +305,12 @@ input::placeholder,textarea::placeholder{color:var(--fg-2)}
             <div class="f" id="f-email">
               <label for="email">Email <span class="opt">(optional)</span></label>
               <input type="email" id="email" autocomplete="email">
+              <div class="err" id="e-email"></div>
             </div>
             <div class="f" id="f-phone">
-              <label for="phone">Phone <span class="opt">(optional)</span></label>
+              <label for="phone">Phone <span class="req">*</span></label>
               <input type="tel" id="phone" autocomplete="tel">
+              <div class="err" id="e-phone"></div>
             </div>
           </div>
         </section>
@@ -318,11 +320,12 @@ input::placeholder,textarea::placeholder{color:var(--fg-2)}
           <h2>Your family</h2>
           <p class="lede">Just enough to understand who we are hearing from.</p>
           <div class="f">
-            <span class="lab">How many children do you have?</span>
+            <span class="lab">How many children do you have? <span class="req">*</span></span>
             <div class="opts" id="children" role="group" aria-label="Number of children"></div>
           </div>
           <div class="f">
-            <span class="lab">How old are they? <span class="opt">(choose any that apply)</span></span>
+            <span class="lab">How old are they? <span class="req">*</span>
+              <span class="opt">choose any that apply</span></span>
             <div class="opts grid" id="ages" role="group" aria-label="Ages"></div>
           </div>
         </section>
@@ -331,22 +334,26 @@ input::placeholder,textarea::placeholder{color:var(--fg-2)}
         <section class="sec" data-sec="2">
           <h2>Your journey with PBIS</h2>
           <p class="lede">There are no right answers here. Plain honesty is the most useful
-            thing you can give us. <b>Please answer at least two.</b></p>
+            thing you can give us.</p>
           <div class="f">
             <label for="why">What made you consider PBIS?</label>
             <textarea id="why"></textarea>
+            <div class="err" id="e-why"></div>
           </div>
           <div class="f">
             <label for="concerns">What concerns or hesitations, if any, do you have about PBIS?</label>
             <textarea id="concerns"></textarea>
+            <div class="err" id="e-concerns"></div>
           </div>
           <div class="f">
             <label for="fees">Was tuition a deciding factor? If you compared PBIS with another school, how did the fees compare?</label>
             <textarea id="fees"></textarea>
+            <div class="err" id="e-fees"></div>
           </div>
           <div class="f">
             <label for="needTrue">What would need to be true for you to choose, or keep choosing, PBIS?</label>
             <textarea id="needTrue"></textarea>
+            <div class="err" id="e-needTrue"></div>
           </div>
         </section>
 
@@ -355,17 +362,20 @@ input::placeholder,textarea::placeholder{color:var(--fg-2)}
           <h2>What matters to you</h2>
           <p class="lede">What you weigh up when choosing a school.</p>
           <div class="f">
-            <span class="lab">Your main priorities <span class="opt">(up to three)</span></span>
+            <span class="lab">Your main priorities <span class="req">*</span>
+              <span class="opt">up to three</span></span>
             <div class="opts grid" id="priorities" role="group" aria-label="Priorities"></div>
             <p class="cap-note" id="prioNote">Choose up to three</p>
           </div>
           <div class="f">
             <label for="challenges">What makes choosing a school difficult?</label>
             <textarea id="challenges" placeholder="Budget, distance, curriculum, not enough information&hellip;"></textarea>
+            <div class="err" id="e-challenges"></div>
           </div>
           <div class="f">
             <label for="improvements">What would you like to see more of at an international school?</label>
             <textarea id="improvements"></textarea>
+            <div class="err" id="e-improvements"></div>
           </div>
         </section>
 
@@ -374,12 +384,12 @@ input::placeholder,textarea::placeholder{color:var(--fg-2)}
           <h2>How you hear from us</h2>
           <p class="lede">So we reach families the way they would like to be reached.</p>
           <div class="f">
-            <span class="lab">How did you first hear about PBIS?</span>
+            <span class="lab">How did you first hear about PBIS? <span class="req">*</span></span>
             <div class="opts grid" id="heard" role="group" aria-label="How you heard"></div>
           </div>
           <div class="f">
-            <span class="lab">How would you prefer to hear about schools?
-              <span class="opt">(choose any that apply)</span></span>
+            <span class="lab">How would you prefer to hear about schools? <span class="req">*</span>
+              <span class="opt">choose any that apply</span></span>
             <div class="opts grid" id="prefers" role="group" aria-label="Preferences"></div>
           </div>
         </section>
@@ -387,13 +397,14 @@ input::placeholder,textarea::placeholder{color:var(--fg-2)}
         <!-- 6 -->
         <section class="sec" data-sec="5">
           <h2>About you</h2>
-          <p class="lede">Optional, and it helps us understand our community.</p>
+          <p class="lede">The last few. These help us understand who our community is.</p>
           <div class="f">
-            <label for="nationality">Nationality <span class="opt">(optional)</span></label>
+            <label for="nationality">Nationality <span class="req">*</span></label>
             <input type="text" id="nationality">
+            <div class="err" id="e-nationality"></div>
           </div>
           <div class="f">
-            <span class="lab">Age group <span class="opt">(optional)</span></span>
+            <span class="lab">Age group <span class="req">*</span></span>
             <div class="opts" id="ageGroup" role="group" aria-label="Age group"></div>
           </div>
           <div class="f">
@@ -583,8 +594,31 @@ function nameOk(){
 }
 
 /* Returns an empty string when the step is complete, or what is missing. */
+/* Returns an empty string when the step is complete, or what is missing.
+   Every question is required now, so this marks each offending field
+   rather than only saying something is wrong. */
 function stepGap(i){
-  if (i === 0) return nameOk() ? '' : 'name';
+  var miss = 0;
+
+  if (i === 0){
+    if (!nameOk()) miss++;
+    /* A phone number is how a gift gets chased down, so it is required.
+       Email is offered but not insisted on — though if one is given it
+       has to be usable, or it is worse than none. */
+    var ph = $('phone').value.trim();
+    if (ph.replace(/[^0-9]/g, '').length < 8){
+      bad('phone', 'Please give a phone number with at least eight digits.');
+      miss++;
+    } else clear('phone');
+
+    var em = $('email').value.trim();
+    if (em && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)){
+      bad('email', 'That email will not reach you \u2014 check for a typo, or leave it blank.');
+      miss++;
+    } else clear('email');
+
+    return miss ? 'Please complete the fields marked above.' : '';
+  }
 
   if (i === 1){
     var need = [];
@@ -594,31 +628,44 @@ function stepGap(i){
   }
 
   if (i === 2){
-    /* Two of the four, so nobody has to write four essays, but nobody
-       gets through having written nothing either. */
-    var done = ['why','concerns','fees','needTrue']
-      .filter(function(k){ return words($(k).value) >= 3; }).length;
-    if (done >= 2) return '';
-    return done === 0
-      ? 'Please answer at least two of these questions \u2014 they are the ones that ' +
-        'help us most.'
-      : 'One more, and this step is done.';
+    ['why','concerns','fees','needTrue'].forEach(function(k){
+      if (words($(k).value) < 3){ bad(k, 'Please answer this one too.'); miss++; }
+      else clear(k);
+    });
+    return miss ? (miss === 1 ? 'One question still to answer.'
+                              : miss + ' questions still to answer.') : '';
   }
 
   if (i === 3){
-    if (!picked.priorities.length) return 'Please choose at least one priority.';
-    if (words($('challenges').value) < 3 && words($('improvements').value) < 3){
-      return 'Please answer one of the two questions below.';
+    if (!picked.priorities.length){
+      $('prioNote').textContent = 'Please choose at least one';
+      miss++;
+    } else {
+      $('prioNote').textContent = 'Choose up to three';
     }
-    return '';
+    ['challenges','improvements'].forEach(function(k){
+      if (words($(k).value) < 3){ bad(k, 'Please answer this one too.'); miss++; }
+      else clear(k);
+    });
+    return miss ? 'Please complete the fields marked above.' : '';
   }
 
   if (i === 4){
-    if (!picked.heard.length) return 'Please tell us how you first heard about PBIS.';
-    return '';
+    var n = [];
+    if (!picked.heard.length) n.push('how you first heard about PBIS');
+    if (!picked.prefers.length) n.push('how you would prefer to hear from us');
+    return n.length ? 'Please tell us ' + n.join(' and ') + '.' : '';
   }
 
-  return '';   // the last step is genuinely optional
+  if (i === 5){
+    if (String($('nationality').value).trim().length < 2){
+      bad('nationality', 'Please tell us your nationality.'); miss++;
+    } else clear('nationality');
+    if (!picked.ageGroup.length) miss++;
+    return miss ? 'Please complete the fields marked above.' : '';
+  }
+
+  return '';
 }
 
 function stepOk(i){
@@ -643,8 +690,13 @@ $('next').addEventListener('click', function(){
 });
 
 /* Once a step has complained, stop complaining as soon as it is satisfied. */
-['why','concerns','fees','needTrue','challenges','improvements'].forEach(function(id){
+['why','concerns','fees','needTrue','challenges','improvements','nationality',
+ 'email','phone'].forEach(function(id){
   $(id).addEventListener('input', function(){
+    var wrap = $('f-' + id) || $(id);
+    // Only re-check once this step has already complained, so nobody is
+    // told off while they are still typing their first answer.
+    if (wrap && wrap.classList.contains('bad')) stepGap(at);
     if ($('topErr').textContent && !stepGap(at)) $('topErr').textContent = '';
   });
 });
