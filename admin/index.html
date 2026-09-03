@@ -1087,6 +1087,65 @@ html[data-theme="dark"] .sum-grid b{color:var(--gold-lit)}
 .tools .grow{position:relative}
 @media (max-width:640px){.kbd-hint{display:none}}
 
+
+/* ============================================================
+   THE BAR, WITH MORE COLOUR
+   The icons were currentColor at 90% — the same cream as the
+   words beside them, which made the whole bar read as one grey
+   mass. Gold gives each control a mark of its own, and the
+   primary actions now carry a filled gold face.
+   ============================================================ */
+.bar .btn svg{stroke:var(--gold);opacity:1;stroke-width:1.8}
+.bar .btn:hover svg{stroke:var(--gold-lit)}
+.bar .btn{border-color:rgba(208,169,58,.5);color:var(--cream);font-weight:700}
+.bar .btn:hover{border-color:var(--gold);background:rgba(208,169,58,.16);
+  color:var(--gold-lit)}
+
+/* The two people reach for most, filled rather than outlined. */
+#addBtn,#nightBtn{background:var(--gold);border-color:var(--gold);
+  color:var(--forest-deep)}
+#addBtn svg,#nightBtn svg{stroke:var(--forest-deep)}
+#addBtn:hover,#nightBtn:hover{background:var(--gold-lit);border-color:var(--gold-lit);
+  color:var(--forest-deep)}
+#addBtn:hover svg,#nightBtn:hover svg{stroke:var(--forest-deep)}
+#nightBtn .chev{color:var(--forest-deep);opacity:.8}
+
+/* Sign out is the one destructive control up there. */
+#signout svg{stroke:#E8A46A}
+#signout:hover{border-color:#E8A46A;background:rgba(232,164,106,.14);color:#F0BE90}
+#signout:hover svg{stroke:#F0BE90}
+
+/* The two round icon buttons sit quieter until wanted. */
+#themeBtn svg,#helpBtn svg{stroke:var(--gold);opacity:.85}
+#themeBtn:hover svg,#helpBtn:hover svg{stroke:var(--gold-lit);opacity:1}
+
+/* Tabs get their icons in gold too, brightest on the active one. */
+.tab svg{stroke:var(--gold-deep);opacity:.75}
+.tab:hover svg{opacity:1}
+.tab[aria-selected="true"] svg{stroke:var(--gold);opacity:1}
+html[data-theme="dark"] .tab svg{stroke:var(--gold)}
+html[data-theme="dark"] .tab[aria-selected="true"] svg{stroke:var(--gold-lit)}
+
+/* Row actions: gold for the edit, amber for the bin, so the
+   dangerous one is never a slip of the eye. */
+.icon-btn svg{stroke:currentColor;stroke-width:1.8}
+.icon-btn.edit{color:var(--gold-deep);border-color:rgba(208,169,58,.4)}
+.icon-btn.edit:hover{color:var(--forest-deep);background:var(--gold);
+  border-color:var(--gold)}
+html[data-theme="dark"] .icon-btn.edit{color:var(--gold-lit)}
+html[data-theme="dark"] .icon-btn.edit:hover{color:var(--forest-deep)}
+.icon-btn[data-del]{color:var(--danger);border-color:rgba(154,74,18,.32)}
+.icon-btn[data-del]:hover{background:var(--danger);border-color:var(--danger);color:#FFF}
+html[data-theme="dark"] .icon-btn[data-del]:hover{color:var(--forest-deep)}
+
+/* The night menu, so each line is scannable by its own mark. */
+.menu button b{color:var(--gold-lit)}
+.menu button:hover b{color:#FFF0C4}
+
+@media (max-width:920px){
+  .bar .btn svg{stroke-width:1.9}
+}
+
 </style>
 </head>
 <body>
@@ -1268,6 +1327,7 @@ html[data-theme="dark"] .sum-grid b{color:var(--gold-lit)}
         <button class="chip" data-f="msg" aria-pressed="false">With a message</button>
         <button class="chip" data-f="noshow" aria-pressed="false">No shows</button>
         <button class="chip" data-f="cancelled" aria-pressed="false">Cancelled</button>
+        <button class="chip" data-f="removed" aria-pressed="false">Removed</button>
       </span>
       <span class="count" id="count"></span>
       <span class="stamp" id="stamp"></span>
@@ -1878,6 +1938,18 @@ function load(quiet){
       if (res.title) me.team = res.title;
       meta.years    = res.years || {};
       lastLoad = Date.now();
+
+      /* A row the office cannot see is the one failure worth shouting
+         about. The server flags them; if any arrive, say so rather than
+         letting them sit unnoticed. */
+      var buried = data.filter(function(r){
+        return r.live === false && r.status !== 'Removed' && r.status !== 'Cancelled';
+      });
+      if (buried.length){
+        console.error('Rows hidden from the dashboard:', buried);
+        toast(buried.length + ' guest(s) are in the sheet but hidden \u2014 run the pre-flight check');
+      }
+
       render();
       if (quiet) toast('List refreshed');
     })
@@ -1942,9 +2014,13 @@ document.querySelectorAll('.sortable').forEach(function(h){
 function visible(){
   var q = (doorMode ? $('doorQ').value : $('q').value || '').toLowerCase();
   return data.filter(function(r){
-    if (r.status === 'Removed' && filter !== 'removed') return false;
+    /* The server says whether a row is live. We do not second-guess it:
+       holding a second copy of that rule here is exactly how a guest once
+       ended up in the sheet but not on this screen. */
+    var live = (r.live !== undefined) ? r.live : true;
+    if (!live && filter !== 'removed' && filter !== 'cancelled') return false;
     if (doorMode){
-      if (r.status === 'Cancelled') return false;
+      if (r.live === false) return false;
       if (!q) return true;
       return loose((r.name + ' ' + r.guest).toLowerCase(), q);
     }
@@ -1954,6 +2030,7 @@ function visible(){
     if (filter === 'pairs' && r.party !== 2) return false;
     if (filter === 'noshow' && r.status !== 'No show') return false;
     if (filter === 'cancelled' && r.status !== 'Cancelled') return false;
+    if (filter === 'removed' && r.status !== 'Removed') return false;
     if (filter !== 'cancelled' && filter !== 'all' && r.status === 'Cancelled') return false;
     if (!q) return true;
     return (r.name + ' ' + r.email + ' ' + r.phone + ' ' + r.ref + ' ' +
@@ -2026,7 +2103,7 @@ function render(){
   }
 
   var live = data.filter(function(r){
-    return r.status !== 'Cancelled' && r.status !== 'Removed';
+    return r.live !== undefined ? r.live : true;
   });
   paintCapacity(live);
   paintYears();
@@ -2078,7 +2155,11 @@ function render(){
           (picked[r.ref] ? ' checked' : '') +
           ' aria-label="Select ' + esc(r.name) + '">'
         : '') + '</span>' +
-      '<span class="act">' + (
+      '<span class="act">' + (r.status === 'Removed' && canEdit && !doorMode
+        ? '<button class="icon-btn edit" data-reinstate="' + esc(r.ref) + '" ' +
+          'aria-label="Put ' + esc(r.name) + ' back on the list">' +
+          '<svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 2.6-6.4"/><path d="M3 3v6h6"/>' +
+          '</svg></button>' : '') + (
         doorMode
           ? '<span class="door-actions">' +
               '<button class="arrive" data-arrive="' + esc(r.ref) + '">' +
@@ -2114,6 +2195,21 @@ document.querySelectorAll('.chip').forEach(function(c){
 
 /* ---------------- delete ---------------- */
 $('rows').addEventListener('click', function(e){
+  var back = e.target.closest('[data-reinstate]');
+  if (back){
+    var bref = back.getAttribute('data-reinstate');
+    var brow = data.filter(function(x){ return x.ref === bref; })[0];
+    back.disabled = true;
+    api({ action:'restore', token:session, ref:bref, was:'Confirmed' })
+      .then(function(res){
+        back.disabled = false;
+        if (res && res.ok){ toast((brow ? brow.name : bref) + ' put back on the list');
+                            load(true); }
+        else toast('That could not be restored.');
+      })
+      .catch(function(){ back.disabled = false; toast('No connection.'); });
+    return;
+  }
   var b = e.target.closest('[data-del]');
   if (!b) return;
   openKiller(b.getAttribute('data-del'));
@@ -2866,7 +2962,7 @@ $('kioskQ').addEventListener('input', function(){
   var box = $('kioskHits');
   if (q.length < 2){ box.innerHTML = ''; return; }
   var hits = data.filter(function(r){
-    return r.status !== 'Cancelled' && r.status !== 'Removed' &&
+    return r.live !== false &&
            (r.name + ' ' + r.guest).toLowerCase().indexOf(q) > -1;
   }).slice(0, 5);
   box.innerHTML = hits.length
@@ -2897,7 +2993,7 @@ var passFilter = 'waiting', passPicked = {};
 function passList(){
   var q = ($('pq').value || '').toLowerCase();
   return data.filter(function(r){
-    if (r.status === 'Cancelled' || r.status === 'Removed') return false;
+    if (r.live === false) return false;
     if (passFilter === 'waiting'  && r.approved === 'Yes') return false;
     if (passFilter === 'approved' && r.approved !== 'Yes') return false;
     if (passFilter === 'noemail'  && r.email) return false;
@@ -2908,7 +3004,7 @@ function passList(){
 
 function renderPasses(){
   var live = data.filter(function(r){
-    return r.status !== 'Cancelled' && r.status !== 'Removed';
+    return r.live !== undefined ? r.live : true;
   });
   $('pApproved').textContent = live.filter(function(r){ return r.approved === 'Yes'; }).length;
   $('pWaiting').textContent  = live.filter(function(r){ return r.approved !== 'Yes'; }).length;
@@ -2934,7 +3030,11 @@ function renderPasses(){
       '<span class="mailcell">' + (r.email ? esc(r.email)
         : '<span class="no-mail">no email given</span>') + '</span>' +
       '<span>' + tag + '</span>' +
-      '<span class="act">' + (r.email
+      '<span class="act">' + (r.status === 'Removed' && canEdit && !doorMode
+        ? '<button class="icon-btn edit" data-reinstate="' + esc(r.ref) + '" ' +
+          'aria-label="Put ' + esc(r.name) + ' back on the list">' +
+          '<svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 2.6-6.4"/><path d="M3 3v6h6"/>' +
+          '</svg></button>' : '') + (r.email
         ? '<button class="icon-btn edit" data-resend="' + esc(r.ref) +
           '" aria-label="Send the pass to ' + esc(r.name) + '">' +
           '<svg viewBox="0 0 24 24"><path d="M4 4h16v13H4z"/><path d="m4 6 8 6 8-6"/></svg></button>'
@@ -3587,7 +3687,7 @@ document.addEventListener('keydown', function(e){
 $('emails').addEventListener('click', function(){
   if (role !== 'administrator'){ toast('Only an administrator can copy addresses.'); return; }
   var live = sortRows(visible()).filter(function(r){
-    return r.status !== 'Cancelled' && r.email;
+    return r.live !== false && r.email;
   });
   var txt = live.map(function(r){ return r.email; }).join(', ');
   if (!txt){ toast('No addresses to copy yet.'); return; }
