@@ -1003,7 +1003,12 @@ html.gate-shut,html.gate-shut body{overflow:hidden}
 .node.is-current .cap{color:var(--gold-lit)}
 .node:not([disabled]):hover .dot{border-color:var(--gold)}
 .stepper-note{font-family:var(--f-label);font-size:.56rem;letter-spacing:.24em;
-  text-transform:uppercase;color:var(--fg-2);text-align:center;margin:0 0 2rem}
+  text-transform:uppercase;color:var(--fg-2);text-align:center;margin:0 0 2rem;
+  display:block;width:100%;
+  /* Letter-spacing puts a gap after the final character too, and that gap
+     is counted when centring — which drags the line left by half a space.
+     Indenting by the same amount puts it back. */
+  text-indent:.24em}
 @media (max-width:420px){.node .cap{font-size:.48rem;letter-spacing:.14em}
   .node{min-width:60px}.stepper-rail{left:20px;right:20px}}
 
@@ -1212,7 +1217,7 @@ html.modal-open,html.modal-open body{overflow:hidden}
    ============================================================ */
 .wordmark .sub.tagline{display:flex;flex-direction:column;gap:.85rem;
   max-width:none;text-align:center;line-height:1.35}
-.tagline span{font-family:var(--f-display);font-weight:700;
+.tagline span{font-family:var(--f-display);font-weight:700;text-indent:.14em;
   font-size:clamp(.9rem,2.1vw,1.35rem);letter-spacing:.14em;text-transform:uppercase;
   color:var(--gold-lit);text-shadow:0 1px 0 rgba(0,0,0,.4)}
 .tagline span+span{color:var(--cream)}
@@ -1399,7 +1404,7 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
    is the wrong weight for the one date that carries a consequence.
    It now reads as a statement with a gold rule either side.
    ============================================================ */
-.deadline{margin:1.5rem auto 0;max-width:none;text-align:center;
+.deadline{margin:1.5rem auto 0;max-width:none;text-align:center;text-indent:.22em;
   display:flex;align-items:center;justify-content:center;gap:.9rem;
   font-family:var(--f-label);font-weight:700;
   font-size:clamp(.88rem,2.1vw,1.18rem);letter-spacing:.22em;text-transform:uppercase;
@@ -1449,9 +1454,10 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
 .rsvp-card .add-child{min-height:52px;font-size:.72rem;font-weight:700}
 .rsvp-card .step-nav .btn{min-height:58px;font-size:.74rem;font-weight:700;
   padding:1.1rem 2rem}
-.rsvp-card .node .cap{font-size:.62rem;font-weight:700}
+.rsvp-card .node .cap{font-size:.62rem;font-weight:700;text-indent:.2em}
 .rsvp-card .node .dot{width:44px;height:44px;font-size:.92rem}
-.stepper-note{font-size:.68rem;font-weight:700;color:var(--accent)}
+.stepper-note{font-size:.68rem;font-weight:700;color:var(--accent);
+  letter-spacing:.22em;text-indent:.22em}
 .reassure li{font-size:1rem}
 
 /* ============================================================
@@ -1994,8 +2000,11 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
         </div>
 
         <div class="field" id="f-children">
-          <label id="lbl-children" data-t="f.children">Your child at PBIS</label>
-          <div class="child-rows" id="childRows" role="group" aria-labelledby="lbl-children"></div>
+          <label id="lbl-children"><span data-t="f.children">Your child at PBIS</span>
+            <span class="req" aria-hidden="true">*</span></label>
+          <div class="child-rows" id="childRows" role="group" aria-labelledby="lbl-children"
+               aria-describedby="e-children"></div>
+          <div class="err" id="e-children" role="alert"></div>
           <button type="button" class="btn btn-ghost add-child" id="addChild" hidden>
             <span aria-hidden="true">+</span> <span data-t="f.addChild">Add another child</span>
           </button>
@@ -2620,6 +2629,11 @@ function rsvp(){
     div.querySelectorAll('input,select').forEach(function(el){
       el.addEventListener('input', syncAdd);
       el.addEventListener('change', syncAdd);
+      el.addEventListener('blur', function(){
+        if (document.getElementById('f-children').classList.contains('invalid')) {
+          checkChildren();
+        }
+      });
     });
     var rm = div.querySelector('.child-remove');
     if (rm) rm.addEventListener('click', function(){
@@ -2637,6 +2651,7 @@ function rsvp(){
   /* The add button only exists once every row already on screen has both
      a name and a year group. */
   function syncAdd(){
+    if (document.getElementById('f-children').classList.contains('invalid')) checkChildren();
     var rows = childWrap.querySelectorAll('.child-row');
     var complete = rows.length > 0;
     Array.prototype.forEach.call(rows, function(d){
@@ -2773,12 +2788,37 @@ function rsvp(){
     err.textContent = ok ? '' : rule.msg;
     return ok;
   }
+  /* The evening is for PBIS parents, so a child at the school is what
+     makes somebody eligible. One is enough; the year group matters as much
+     as the name, because it is what the seating is built from. */
+  function checkChildren(){
+    var field = document.getElementById('f-children');
+    var err = document.getElementById('e-children');
+    var rows = childWrap.querySelectorAll('.child-row');
+    var good = 0, partial = false;
+
+    Array.prototype.forEach.call(rows, function(d){
+      var n = d.querySelector('.child-name').value.trim();
+      var y = d.querySelector('.child-year').value;
+      if (n && y) good++;
+      else if (n || y) partial = true;
+    });
+
+    var ok = good > 0 && !partial;
+    field.classList.toggle('invalid', !ok);
+    err.textContent = ok ? ''
+      : partial ? 'Please give both a name and a year group for each child.'
+      : 'Please tell us your child\u2019s name and year group. This evening is for ' +
+        'PBIS families, and it is how we seat you.';
+    return ok;
+  }
+
   function stepOneOk(){
     // Every field is checked before returning, so all the faults show at
     // once rather than one per attempt.
     var a = check('first'), b = check('last'),
-        c = check('phone'), d = check('email');
-    if (a && b && c && d) return true;
+        c = check('phone'), d = check('email'), e = checkChildren();
+    if (a && b && c && d && e) return true;
     var first = form.querySelector('.field.invalid input');
     if (first) first.focus();
     return false;
@@ -2797,7 +2837,12 @@ function rsvp(){
   /* ---- submit ---- */
   form.addEventListener('submit', function(e){
     e.preventDefault();
-    if (!stepOneOk()){ show(0, -1); return; }
+    if (!stepOneOk()){
+      show(0, -1);
+      var bad = form.querySelector('.step.active .field.invalid');
+      if (bad) bad.scrollIntoView({ behavior: REDUCE ? 'auto' : 'smooth', block:'center' });
+      return;
+    }
     if (!checkGuest()){
       document.getElementById('guestFirst').focus();
       var gf = document.getElementById('f-guests');
@@ -3031,6 +3076,7 @@ function rsvp(){
       f.classList.remove('invalid', 'valid');
     });
     form.querySelectorAll('.err').forEach(function(e){ e.textContent = ''; });
+    document.getElementById('f-children').classList.remove('invalid');
     ['e-adults','submitErr'].forEach(function(id){
       var el = document.getElementById(id);
       if (el){ el.textContent = ''; el.classList.remove('on'); }
