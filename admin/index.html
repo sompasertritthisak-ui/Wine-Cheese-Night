@@ -743,6 +743,27 @@ html{scrollbar-color:var(--gold) var(--paper-3)}
    a pass, and who cannot be sent one because we have no address.
    ============================================================ */
 .pass-head{display:flex;gap:1.2rem;align-items:center;flex-wrap:wrap;margin-bottom:1.2rem}
+.sv-row{display:grid;grid-template-columns:auto 1fr auto auto;gap:1rem;
+  align-items:center;padding:1rem 1.1rem;border-bottom:1px solid var(--rule-2);
+  cursor:pointer}
+.sv-row:last-child{border-bottom:0}
+.sv-row:hover{background:#FBF9F3}
+html[data-theme="dark"] .sv-row:hover{background:rgba(244,241,232,.045)}
+.sv-no{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;
+  border:1px solid var(--rule);font-family:var(--f-display);font-weight:600;
+  font-size:.9rem;color:var(--forest)}
+html[data-theme="dark"] .sv-no{color:var(--gold-lit)}
+.sv-no.win{border-color:var(--gold);background:#FBF3DC;color:var(--gold-deep)}
+html[data-theme="dark"] .sv-no.win{background:rgba(208,169,58,.16);color:var(--gold-lit)}
+.sv-who b{display:block;font-size:1.05rem;color:var(--ink)}
+.sv-who span{display:block;font-size:.9rem;color:var(--ink-2);margin-top:.15rem}
+.sv-ref{font-family:var(--f-ui);font-weight:600;color:var(--gold-deep);white-space:nowrap}
+html[data-theme="dark"] .sv-ref{color:var(--gold-lit)}
+.sv-when{font-size:.86rem;color:var(--ink-3);white-space:nowrap}
+@media (max-width:720px){
+  .sv-row{grid-template-columns:34px 1fr;gap:.5rem .8rem}
+  .sv-ref,.sv-when{grid-column:2}
+}
 .claim-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);
   border:1px solid var(--rule);margin-bottom:1.4rem}
 .claim-stats > div{background:var(--paper-2);padding:1rem}
@@ -1455,6 +1476,9 @@ html[data-theme="dark"] .chip[aria-pressed="true"] svg{stroke:var(--gold-lit)}
       <button class="tab" role="tab" data-tab="passes" aria-selected="false" id="tabPasses" hidden>
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h4v4H7z"/><path d="M15 9h2M15 12h2M15 15h2"/></svg>
         Passes</button>
+      <button class="tab" role="tab" data-tab="survey" aria-selected="false" id="tabSurvey" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h9a2 2 0 0 1 2 2v14H8z"/><path d="M8 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h2"/><path d="M11 9h5M11 13h5M11 17h3"/></svg>
+        Survey</button>
       <button class="tab" role="tab" data-tab="log" aria-selected="false" id="tabLog" hidden>
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
         Activity log</button>
@@ -1609,6 +1633,34 @@ html[data-theme="dark"] .chip[aria-pressed="true"] svg{stroke:var(--gold-lit)}
       </div>
     </div>
 
+    <div class="panel-view" id="viewSurvey">
+      <p class="note" style="margin-top:0">Every survey a parent has completed on the
+        evening, newest first. The first fifty carry a gift; everyone has a reference,
+        so any answer can be found again by name or by code.</p>
+
+      <div class="pass-stats">
+        <div class="stat"><b id="svDone">&mdash;</b><span class="label">Completed</span></div>
+        <div class="stat"><b id="svPrize">&mdash;</b><span class="label">Gifts won</span></div>
+        <div class="stat"><b id="svClaimed">&mdash;</b><span class="label">Gifts collected</span></div>
+        <div class="stat"><b id="svLeft">&mdash;</b><span class="label">Gifts remaining</span></div>
+      </div>
+
+      <div class="tools">
+        <span class="grow">
+          <input type="search" id="svq" placeholder="Search a name, reference or answer" aria-label="Search the survey">
+        </span>
+        <button class="btn" id="svExport">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11"/><path d="m8 10 4 4 4-4"/><path d="M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17"/></svg>
+          Export</button>
+        <span class="count" id="svCount"></span>
+      </div>
+
+      <div class="list" id="svList">
+        <div id="svRows"></div>
+        <div class="empty hidden" id="svEmpty">Nobody has completed the survey yet.</div>
+      </div>
+    </div>
+
     <div class="panel-view" id="viewLog">
       <p class="note" style="margin-top:0;margin-bottom:1.2rem">Every change made by every
         account, newest first. Sign-ins are recorded too. This is visible to
@@ -1645,6 +1697,19 @@ html[data-theme="dark"] .chip[aria-pressed="true"] svg{stroke:var(--gold-lit)}
     <a href="https://wa.me/85677489869">WhatsApp 77489869</a></p>
   <p class="cr">&copy; 2026 Panyathip British International School</p>
 </footer>
+
+<div class="sheet" id="svOne" role="dialog" aria-modal="true" aria-labelledby="svTitle">
+  <div class="sheet-scrim" data-sv-close></div>
+  <div class="sheet-card help-card">
+    <button class="modal-close" data-sv-close aria-label="Close">&times;</button>
+    <h2 id="svTitle">&mdash;</h2>
+    <p class="sub" id="svSub">&mdash;</p>
+    <dl class="dl" id="svBody"></dl>
+    <div class="sheet-actions">
+      <button class="btn" data-sv-close>Close</button>
+    </div>
+  </div>
+</div>
 
 <div class="sheet" id="claimBox" role="dialog" aria-modal="true" aria-labelledby="clTitle">
   <div class="sheet-scrim" data-cl-close></div>
@@ -2116,6 +2181,7 @@ function enter(v){
     var el = $(id); if (el) el.hidden = !rights.edit;
   });
   $('tabPasses').hidden = !rights.edit;
+  $('tabSurvey').hidden = false;   // everyone who can sign in may read it
   $('emails').hidden = !rights.contacts;
   $('csv').hidden = !rights.export;
 
@@ -4178,6 +4244,111 @@ document.querySelectorAll('[data-cl-close]').forEach(function(el){
   el.addEventListener('click', function(){ $('claimBox').classList.remove('open'); });
 });
 
+/* ============================================================
+   THE SURVEY
+   Read-only. The answers are what the evening was for, and the
+   office should be able to find any one of them by name or by
+   the reference the parent was shown.
+   ============================================================ */
+var svData = [], svHeads = [];
+
+function loadSurvey(){
+  $('svRows').innerHTML = '<div class="skel"><i></i><i></i></div>'.repeat(3);
+  api({ action:'surveylist', token:session })
+    .then(function(res){
+      if (res && res.error === 'expired'){ expire(); return; }
+      if (!res || !res.ok){
+        $('svRows').innerHTML = '<div class="empty">The survey could not be read.</div>';
+        return;
+      }
+      svData = res.entries || [];
+      svHeads = res.headers || [];
+      $('svDone').textContent = res.done;
+      $('svPrize').textContent = Math.min(res.done, res.total);
+      $('svClaimed').textContent = res.claimed;
+      $('svLeft').textContent = Math.max(res.total - res.done, 0);
+      renderSurvey();
+    })
+    .catch(function(){
+      $('svRows').innerHTML = '<div class="empty">No connection.</div>';
+    });
+}
+
+function svVisible(){
+  var q = ($('svq').value || '').toLowerCase();
+  if (!q) return svData;
+  return svData.filter(function(r){
+    var hay = Object.keys(r).map(function(k){ return r[k]; }).join(' ').toLowerCase();
+    return loose(hay, q);
+  });
+}
+
+function renderSurvey(){
+  var rows = svVisible();
+  $('svCount').textContent = rows.length + (rows.length === 1 ? ' response' : ' responses');
+  $('svEmpty').classList.toggle('hidden', rows.length > 0);
+  $('svRows').innerHTML = rows.map(function(r, i){
+    var slot = r.c1, ref = r.c2, first = r.c4, last = r.c5;
+    var when = r.c0 ? new Date(r.c0) : null;
+    return '<div class="sv-row" data-sv="' + esc(ref) + '">' +
+      '<span class="sv-no' + (slot ? ' win' : '') + '">' + esc(slot || '\u2013') + '</span>' +
+      '<span class="sv-who"><b>' + esc(first + ' ' + last) + '</b>' +
+        '<span>' + esc(r.c6 || r.c7 || 'no contact given') +
+        (String(r.c3) === 'Yes' ? ' \u00b7 gift collected' : '') + '</span></span>' +
+      '<span class="sv-ref">' + esc(ref) + '</span>' +
+      '<span class="sv-when">' + (when ? when.toLocaleTimeString([],
+        { hour:'2-digit', minute:'2-digit' }) : '') + '</span>' +
+    '</div>';
+  }).join('');
+}
+
+$('svq').addEventListener('input', renderSurvey);
+
+$('svRows').addEventListener('click', function(e){
+  var row = e.target.closest('[data-sv]');
+  if (!row) return;
+  var ref = row.getAttribute('data-sv');
+  var r = svData.filter(function(x){ return x.c2 === ref; })[0];
+  if (!r) return;
+
+  $('svTitle').textContent = (r.c4 + ' ' + r.c5).trim();
+  $('svSub').textContent = ref + (r.c1 ? ' \u00b7 respondent ' + r.c1 + ' of 50' : '') +
+    (r.c0 ? ' \u00b7 ' + new Date(r.c0).toLocaleString() : '');
+
+  /* Every column, in the order the parent answered them. Blank answers are
+     left out rather than shown as empty rows. */
+  var out = '';
+  for (var i = 4; i < svHeads.length; i++){
+    var v = r['c' + i];
+    if (!v || !String(v).trim()) continue;
+    out += '<dt>' + esc(svHeads[i]) + '</dt><dd>' + esc(v) + '</dd>';
+  }
+  $('svBody').innerHTML = out || '<dd>No answers recorded.</dd>';
+  $('svOne').classList.add('open');
+});
+
+document.querySelectorAll('[data-sv-close]').forEach(function(el){
+  el.addEventListener('click', function(){ $('svOne').classList.remove('open'); });
+});
+
+$('svExport').addEventListener('click', function(){
+  var rows = svVisible();
+  if (!rows.length){ toast('Nothing to export.'); return; }
+  var body = rows.map(function(r){
+    return svHeads.map(function(_, i){ return r['c' + i] || ''; });
+  });
+  var csv = [svHeads].concat(body).map(function(line){
+    return line.map(function(cell){
+      return '"' + String(cell).replace(/"/g, '""') + '"';
+    }).join(',');
+  }).join('\n');
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\ufeff' + csv], { type:'text/csv;charset=utf-8' }));
+  a.download = 'PBIS-parent-survey.csv';
+  a.click();
+  toast(rows.length + ' response' + (rows.length === 1 ? '' : 's') + ' exported');
+});
+
 /* ---------------- tabs ---------------- */
 document.querySelectorAll('.tab').forEach(function(t){
   t.addEventListener('click', function(){
@@ -4187,10 +4358,12 @@ document.querySelectorAll('.tab').forEach(function(t){
     });
     $('viewList').classList.toggle('on', which === 'list');
     $('viewPasses').classList.toggle('on', which === 'passes');
+    $('viewSurvey').classList.toggle('on', which === 'survey');
     $('viewLog').classList.toggle('on', which === 'log');
     $('listNote').style.display = which === 'list' ? '' : 'none';
     if (which === 'log') loadLog();
     if (which === 'passes') renderPasses();
+    if (which === 'survey') loadSurvey();
   });
 });
 
