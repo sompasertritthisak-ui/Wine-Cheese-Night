@@ -743,6 +743,13 @@ html{scrollbar-color:var(--gold) var(--paper-3)}
    a pass, and who cannot be sent one because we have no address.
    ============================================================ */
 .pass-head{display:flex;gap:1.2rem;align-items:center;flex-wrap:wrap;margin-bottom:1.2rem}
+.sv-edit{width:100%;min-height:52px;margin-top:.3rem;font-size:1rem;
+  background:var(--paper-2);border:1px solid var(--rule);color:var(--ink);
+  padding:.6rem .7rem;font-family:var(--f-ui)}
+.sv-edit:focus{border-color:var(--gold);outline:none;
+  box-shadow:0 0 0 3px rgba(208,169,58,.16)}
+.sv-locked{opacity:.55}
+.sv-hint{font-size:.9rem;color:var(--ink-3);margin:.2rem 0 1rem}
 .sv-row{display:grid;grid-template-columns:auto 1fr auto auto;gap:1rem;
   align-items:center;padding:1rem 1.1rem;border-bottom:1px solid var(--rule-2);
   cursor:pointer}
@@ -1649,6 +1656,9 @@ html[data-theme="dark"] .chip[aria-pressed="true"] svg{stroke:var(--gold-lit)}
         <span class="grow">
           <input type="search" id="svq" placeholder="Search a name, reference or answer" aria-label="Search the survey">
         </span>
+        <button class="btn hidden" id="svClear">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6"/><path d="M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>
+          Clear test data</button>
         <button class="btn" id="svExport">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11"/><path d="m8 10 4 4 4-4"/><path d="M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17"/></svg>
           Export</button>
@@ -1707,6 +1717,8 @@ html[data-theme="dark"] .chip[aria-pressed="true"] svg{stroke:var(--gold-lit)}
     <dl class="dl" id="svBody"></dl>
     <div class="sheet-actions">
       <button class="btn" data-sv-close>Close</button>
+      <button class="btn hidden" id="svEditBtn">Edit answers</button>
+      <button class="btn btn-danger hidden" id="svDelBtn">Delete this response</button>
     </div>
   </div>
 </div>
@@ -4250,7 +4262,7 @@ document.querySelectorAll('[data-cl-close]').forEach(function(el){
    office should be able to find any one of them by name or by
    the reference the parent was shown.
    ============================================================ */
-var svData = [], svHeads = [];
+var svData = [], svHeads = [], svMayEdit = false, svOpenRef = null, svEditing = false;
 
 function loadSurvey(){
   $('svRows').innerHTML = '<div class="skel"><i></i><i></i></div>'.repeat(3);
@@ -4279,6 +4291,8 @@ function loadSurvey(){
       }
       svData = res.entries || [];
       svHeads = res.headers || [];
+      svMayEdit = !!res.mayEdit;
+      $('svClear').classList.toggle('hidden', !res.mayClear);
       $('svDone').textContent = res.done;
       $('svPrize').textContent = Math.min(res.done, res.total);
       $('svClaimed').textContent = res.claimed || 0;
@@ -4340,11 +4354,141 @@ $('svRows').addEventListener('click', function(e){
     out += '<dt>' + esc(svHeads[i]) + '</dt><dd>' + esc(v) + '</dd>';
   }
   $('svBody').innerHTML = out || '<dd>No answers recorded.</dd>';
+  svOpenRef = ref;
+  svEditing = false;
+  $('svEditBtn').textContent = 'Edit answers';
+  $('svEditBtn').classList.toggle('hidden', !svMayEdit);
+  $('svDelBtn').classList.toggle('hidden', !svMayEdit);
   $('svOne').classList.add('open');
 });
 
 document.querySelectorAll('[data-sv-close]').forEach(function(el){
   el.addEventListener('click', function(){ $('svOne').classList.remove('open'); });
+});
+
+/* ============================================================
+   CORRECTING A RESPONSE
+   The answers and the parent's details can be put right. The
+   slot, the reference and the timestamp cannot: a prize claim
+   rests on those three, and a typo in a name should not be able
+   to disturb them.
+   ============================================================ */
+function svShowEditable(){
+  var r = svData.filter(function(x){ return x.c2 === svOpenRef; })[0];
+  if (!r) return;
+  var out = '<p class="sv-hint">The reference, slot and time are fixed. ' +
+            'Everything else can be corrected.</p>';
+  for (var i = 4; i < svHeads.length; i++){
+    out += '<dt>' + esc(svHeads[i]) + '</dt>' +
+      '<dd><textarea class="sv-edit" data-col="' + (i + 1) + '" rows="' +
+      (String(r['c' + i] || '').length > 70 ? 3 : 1) + '">' +
+      esc(r['c' + i] || '') + '</textarea></dd>';
+  }
+  out += '<dt class="sv-locked">Reference</dt><dd class="sv-locked">' +
+         esc(r.c2) + '</dd>';
+  $('svBody').innerHTML = out;
+}
+
+$('svEditBtn').addEventListener('click', function(){
+  if (!svEditing){
+    svEditing = true;
+    this.textContent = 'Save changes';
+    svShowEditable();
+    return;
+  }
+
+  var boxes = $('svBody').querySelectorAll('.sv-edit');
+  var r = svData.filter(function(x){ return x.c2 === svOpenRef; })[0];
+  var jobs = [];
+  Array.prototype.forEach.call(boxes, function(t){
+    var col = parseInt(t.getAttribute('data-col'), 10);
+    var now = t.value.trim();
+    /* Only send what actually changed. A round trip per field would be
+       slow and would fill the log with entries nobody made. */
+    if (String(r['c' + (col - 1)] || '').trim() !== now){
+      jobs.push({ col: col, value: now });
+    }
+  });
+
+  if (!jobs.length){ toast('Nothing changed'); $('svOne').classList.remove('open'); return; }
+
+  var btn = this;
+  btn.disabled = true;
+  btn.textContent = 'Saving\u2026';
+  var done = 0, bad = 0;
+  jobs.forEach(function(j){
+    api({ action:'surveyedit', token:session, ref:svOpenRef, col:j.col, value:j.value })
+      .then(function(res){ if (!res || !res.ok) bad++; })
+      .catch(function(){ bad++; })
+      .then(function(){
+        if (++done < jobs.length) return;
+        btn.disabled = false;
+        btn.textContent = 'Edit answers';
+        svEditing = false;
+        $('svOne').classList.remove('open');
+        toast(bad ? bad + ' change(s) could not be saved'
+                  : jobs.length + ' change' + (jobs.length === 1 ? '' : 's') + ' saved');
+        loadSurvey();
+      });
+  });
+});
+
+$('svDelBtn').addEventListener('click', function(){
+  var r = svData.filter(function(x){ return x.c2 === svOpenRef; })[0];
+  var who = r ? (r.c4 + ' ' + r.c5).trim() : svOpenRef;
+  if (!confirm('Delete the response from ' + who + '?\n\n' +
+               'An Undo appears afterwards for twenty seconds.')) return;
+
+  var btn = this;
+  btn.disabled = true;
+  api({ action:'surveydelete', token:session, ref:svOpenRef })
+    .then(function(res){
+      btn.disabled = false;
+      if (res && res.ok){
+        $('svOne').classList.remove('open');
+        svUndo(who, res.row || []);
+        loadSurvey();
+      } else toast('That could not be deleted.');
+    })
+    .catch(function(){ btn.disabled = false; toast('No connection.'); });
+});
+
+function svUndo(who, rowData){
+  var t = $('toast');
+  t.innerHTML = '';
+  t.appendChild(document.createTextNode(who + ' deleted  '));
+  var a = document.createElement('button');
+  a.className = 'btn';
+  a.style.cssText = 'min-height:34px;padding:.35rem .8rem;margin-left:.7rem';
+  a.textContent = 'Undo';
+  a.addEventListener('click', function(){
+    api({ action:'surveyundo', token:session, row:rowData })
+      .then(function(res){
+        if (res && res.ok){ toast(who + ' put back'); loadSurvey(); }
+        else toast('Could not undo that.');
+      })
+      .catch(function(){ toast('No connection.'); });
+  });
+  t.appendChild(a);
+  t.classList.add('up');
+  clearTimeout(t.__t);
+  t.__t = setTimeout(function(){ t.classList.remove('up'); }, 20000);
+}
+
+$('svClear').addEventListener('click', function(){
+  var typed = prompt('This deletes EVERY survey response and cannot be undone.\n\n' +
+                     'Type CLEAR THE SURVEY to confirm:');
+  if (typed === null) return;
+  if (typed.trim().toUpperCase() !== 'CLEAR THE SURVEY'){
+    toast('Not cleared \u2014 the words did not match.');
+    return;
+  }
+  api({ action:'surveyclear', token:session, confirm:'CLEAR THE SURVEY' })
+    .then(function(res){
+      if (res && res.ok){ toast(res.cleared + ' response(s) cleared'); loadSurvey(); }
+      else toast('That could not be cleared.');
+    })
+    .catch(function(){ toast('No connection.'); });
 });
 
 $('svExport').addEventListener('click', function(){
