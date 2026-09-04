@@ -4258,14 +4258,30 @@ function loadSurvey(){
     .then(function(res){
       if (res && res.error === 'expired'){ expire(); return; }
       if (!res || !res.ok){
-        $('svRows').innerHTML = '<div class="empty">The survey could not be read.</div>';
+        /* Say what the server said, rather than a polite blank. A stale
+           deployment and an empty sheet look identical otherwise, and that
+           cost us two rounds of guessing. */
+        console.error('surveylist failed:', res);
+        var why = res && res.error === 'unknown action'
+          ? 'The Apps Script deployment is older than this page. ' +
+            'Deploy a new version and try again.'
+          : (res && (res.message || res.error)) || 'No answer from the script.';
+        $('svRows').innerHTML = '<div class="empty">' + esc(why) + '</div>';
+        $('svEmpty').classList.add('hidden');
+        return;
+      }
+      if (typeof res.done !== 'number'){
+        console.error('surveylist returned an unexpected shape:', res);
+        $('svRows').innerHTML = '<div class="empty">The script answered, but not ' +
+          'with a survey list \u2014 the deployment is probably out of date.</div>';
+        $('svEmpty').classList.add('hidden');
         return;
       }
       svData = res.entries || [];
       svHeads = res.headers || [];
       $('svDone').textContent = res.done;
       $('svPrize').textContent = Math.min(res.done, res.total);
-      $('svClaimed').textContent = res.claimed;
+      $('svClaimed').textContent = res.claimed || 0;
       $('svLeft').textContent = Math.max(res.total - res.done, 0);
       renderSurvey();
     })
