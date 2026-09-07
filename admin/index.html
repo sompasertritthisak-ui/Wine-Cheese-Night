@@ -1360,6 +1360,12 @@ html[data-theme="dark"] .rs-row.picked{background:rgba(208,169,58,.14)}
 .rs-row span{display:block;font-size:.9rem;color:var(--ink-2);margin-top:.12rem}
 .rs-row .no-mail{color:var(--danger);font-style:italic}
 .rs-row.off{opacity:.45;cursor:not-allowed}
+.pass-acts{display:flex;gap:.7rem;flex-wrap:wrap;margin:0 0 1.4rem}
+.pass-acts .btn{flex:0 1 auto}
+@media (max-width:640px){
+  .pass-acts{gap:.5rem}
+  .pass-acts .btn{flex:1 1 100%;justify-content:center}
+}
 .bh-tools{display:flex;align-items:center;gap:1rem;margin-bottom:1.2rem;flex-wrap:wrap}
 .bh-tools .count{margin-right:auto}
 .bh-list{display:grid;gap:1px;background:var(--rule);border:1px solid var(--rule);
@@ -1973,15 +1979,6 @@ img,svg,video,canvas{max-width:100%}
           <button class="chip" data-pf="waiting" aria-pressed="true">Awaiting</button>
           <button class="chip" data-pf="approved" aria-pressed="false">Approved</button>
           <button class="chip" data-pf="noemail" aria-pressed="false">No email</button>
-        <button class="btn btn-solid hidden" id="approveAll">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/><path d="M14 6 9 11"/></svg>
-          <span id="approveAllLabel">Approve everyone waiting</span></button>
-        <button class="btn" id="resendBtn">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v13H4z"/><path d="m4 6 8 6 8-6"/><path d="M17 19a4 4 0 1 0-4-4"/><path d="M13 12v3h3"/></svg>
-          Re-send confirmation</button>
-        <button class="btn btn-solid" id="byHandAll" style="margin-left:auto">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg>
-          Passes to give by hand</button>
         </span>
         <span class="sortwrap">
           <label class="sortlab" for="pSort">Sort</label>
@@ -1993,6 +1990,21 @@ img,svg,video,canvas{max-width:100%}
           </select>
         </span>
         <span class="count" id="pCount"></span>
+      </div>
+
+      <!-- The three bulk actions, on their own row. They were nested inside
+           the filter group above, which is styled for small chips — so they
+           were there but squeezed out of sight. -->
+      <div class="pass-acts">
+        <button class="btn btn-solid hidden" id="approveAll">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/><path d="M14 6 9 11"/></svg>
+          <span id="approveAllLabel">Approve everyone waiting</span></button>
+        <button class="btn" id="resendBtn">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v13H4z"/><path d="m4 6 8 6 8-6"/><path d="M17 19a4 4 0 1 0-4-4"/><path d="M13 12v3h3"/></svg>
+          Re-send confirmation to guests</button>
+        <button class="btn" id="byHandAll">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg>
+          Passes to give by hand</button>
       </div>
 
       <div class="bulk hidden" id="passBulk">
