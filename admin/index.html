@@ -1,4 +1,4 @@
-\<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en-GB">
 <head>
 <meta charset="utf-8">
@@ -1375,18 +1375,20 @@ html[data-theme="dark"] .bh-row .ref{color:var(--gold-lit)}
   background-image:radial-gradient(70% 50% at 50% 25%,rgba(208,169,58,.14),transparent 65%)}
 .onepass.open{display:grid}
 .op-card{text-align:center;width:min(460px,100%);max-height:94dvh;overflow-y:auto}
-/* The whole pass on white, framed in gold: the crest above the code,
-   the name and reference below. Nothing overlaps the code itself. */
-.op-qr{background:#FFF;padding:20px 22px 18px;display:inline-block;
-  border:3px solid var(--gold);text-align:center}
-.op-crest{display:block;width:min(168px,38vw);margin:0 auto .4rem;
+/* Two materials, as on the invitation: the crest on forest green where it
+   was drawn to sit, the code on white where it has to sit. Gold-framed. */
+.op-card-in{display:inline-block;border:3px solid var(--gold);text-align:center;
+  background:#FFF}
+.op-band{background:var(--forest-deep);padding:16px 22px 12px;
+  border-bottom:2px solid var(--gold)}
+.op-crest{display:block;width:min(176px,42vw);margin:0 auto;
   background:var(--logo) center/contain no-repeat;aspect-ratio:900/728;
-  min-height:calc(min(168px,38vw) * 0.808);
-  filter:none}
-.op-k{margin:0 0 .8rem;font-family:var(--f-label);font-weight:700;font-size:.56rem;
+  min-height:calc(min(176px,42vw) * 0.808)}
+.op-qr{background:#FFF;padding:16px 22px 18px}
+.op-k{margin:0 0 .9rem;font-family:var(--f-label);font-weight:700;font-size:.56rem;
   letter-spacing:.3em;text-transform:uppercase;color:var(--gold-deep);text-indent:.3em}
 .op-qr img{display:block;width:min(280px,64vw);height:auto;margin:0 auto}
-.op-title{margin:.9rem 0 .2rem;font-family:var(--f-display);font-weight:600;
+.op-title{margin:1rem 0 .2rem;font-family:var(--f-display);font-weight:600;
   font-size:clamp(1.3rem,4.4vw,1.8rem);color:#0A2318;line-height:1.2}
 .op-ref{margin:0;font-family:var(--f-ui);font-weight:600;
   font-size:clamp(1rem,3.4vw,1.2rem);letter-spacing:.14em;color:#4E6555}
@@ -1413,10 +1415,14 @@ html[data-theme="dark"] .bh-row .ref{color:var(--gold-lit)}
 .pp-sheet:last-child{page-break-after:auto}
 .pp-k{font-size:9pt;letter-spacing:3px;text-transform:uppercase;color:#8A6E14;margin:0}
 .pp-name{font-size:20pt;font-weight:bold;margin:6mm 0 2mm}
-.pp-qr{border:2.5pt solid #D0A93A;padding:7mm 6mm;display:inline-block;background:#FFF}
-.pp-qr img{display:block;width:56mm;height:56mm;margin:0 auto}
-.pp-crest{width:40mm;height:32mm;margin:0 auto 2mm;
+.pp-card{border:2.5pt solid #D0A93A;display:inline-block;background:#FFF;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+.pp-band{background:#072517;padding:6mm 8mm 4mm;border-bottom:1.5pt solid #D0A93A;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+.pp-crest{width:44mm;height:35mm;margin:0 auto;
   background:var(--logo) center/contain no-repeat}
+.pp-qr{padding:5mm 8mm 6mm;background:#FFF}
+.pp-qr img{display:block;width:56mm;height:56mm;margin:0 auto}
 .pp-ref{font-size:16pt;font-weight:bold;letter-spacing:2px;margin:4mm 0 1mm}
 .pp-meta{font-size:10pt;color:#4E6555;margin:0}
 .pp-cut{margin-top:8mm;border-top:1px dashed #B9B2A0;padding-top:3mm;
@@ -1955,12 +1961,16 @@ tr{page-break-inside:avoid}
 <div class="onepass" id="onePass" role="dialog" aria-modal="true" aria-label="Entry pass">
   <button class="mon-exit" id="opClose" aria-label="Close">&times;</button>
   <div class="op-card" id="opCard">
-    <div class="op-qr">
-      <span class="crest op-crest" role="img" aria-label="PBIS"></span>
-      <p class="op-k">Entry pass</p>
-      <img id="opImg" alt="Entry code">
-      <h2 class="op-title" id="opName">&mdash;</h2>
-      <p class="op-ref" id="opRef">&mdash;</p>
+    <div class="op-card-in">
+      <div class="op-band">
+        <span class="crest op-crest" role="img" aria-label="PBIS"></span>
+      </div>
+      <div class="op-qr">
+        <p class="op-k">Entry pass</p>
+        <img id="opImg" alt="Entry code">
+        <h2 class="op-title" id="opName">&mdash;</h2>
+        <p class="op-ref" id="opRef">&mdash;</p>
+      </div>
     </div>
     <p class="op-sub" id="opSub">&mdash;</p>
     <div class="op-acts">
@@ -4980,12 +4990,14 @@ $('bhPrint').addEventListener('click', function(){
   if (!bhRows.length){ toast('Nothing to print.'); return; }
   $('printArea').innerHTML = bhRows.map(function(r){
     return '<div class="pp-sheet">' +
-      '<div class="pp-qr">' +
-        '<div class="pp-crest"></div>' +
-        '<p class="pp-k">Entry pass</p>' +
-        '<img src="' + qrSrc(r) + '" alt="">' +
-        '<div class="pp-name">' + esc(r.name) + '</div>' +
-        '<div class="pp-ref">' + esc(r.ref) + '</div>' +
+      '<div class="pp-card">' +
+        '<div class="pp-band"><div class="pp-crest"></div></div>' +
+        '<div class="pp-qr">' +
+          '<p class="pp-k">Entry pass</p>' +
+          '<img src="' + qrSrc(r) + '" alt="">' +
+          '<div class="pp-name">' + esc(r.name) + '</div>' +
+          '<div class="pp-ref">' + esc(r.ref) + '</div>' +
+        '</div>' +
       '</div>' +
       '<p class="pp-meta">' + (r.party || 1) +
         (r.party === 1 ? ' place' : ' places') +
