@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+\<!DOCTYPE html>
 <html lang="en-GB">
 <head>
 <meta charset="utf-8">
@@ -1375,18 +1375,21 @@ html[data-theme="dark"] .bh-row .ref{color:var(--gold-lit)}
   background-image:radial-gradient(70% 50% at 50% 25%,rgba(208,169,58,.14),transparent 65%)}
 .onepass.open{display:grid}
 .op-card{text-align:center;width:min(460px,100%);max-height:94dvh;overflow-y:auto}
-.op-crest{display:block;width:min(96px,20vw);margin:0 auto .8rem;
+/* The whole pass on white, framed in gold: the crest above the code,
+   the name and reference below. Nothing overlaps the code itself. */
+.op-qr{background:#FFF;padding:20px 22px 18px;display:inline-block;
+  border:3px solid var(--gold);text-align:center}
+.op-crest{display:block;width:min(168px,38vw);margin:0 auto .4rem;
   background:var(--logo) center/contain no-repeat;aspect-ratio:900/728;
-  min-height:calc(min(96px,20vw) * 0.808)}
-.op-k{margin:0;font-family:var(--f-label);font-weight:700;font-size:.62rem;
-  letter-spacing:.3em;text-transform:uppercase;color:var(--gold-lit);text-indent:.3em}
-.op-title{margin:.5rem 0 1.1rem;font-family:var(--f-display);font-weight:600;
-  font-size:clamp(1.5rem,5vw,2.1rem);color:#FFF;line-height:1.15}
-/* white, always: a dark code on a dark panel cannot be scanned */
-.op-qr{background:#FFF;padding:14px;display:inline-block;border:2px solid var(--gold)}
-.op-qr img{display:block;width:min(280px,64vw);height:auto}
-.op-ref{margin:1rem 0 0;font-family:var(--f-display);font-weight:700;
-  font-size:clamp(1.3rem,5vw,1.9rem);letter-spacing:.1em;color:var(--gold-lit)}
+  min-height:calc(min(168px,38vw) * 0.808);
+  filter:none}
+.op-k{margin:0 0 .8rem;font-family:var(--f-label);font-weight:700;font-size:.56rem;
+  letter-spacing:.3em;text-transform:uppercase;color:var(--gold-deep);text-indent:.3em}
+.op-qr img{display:block;width:min(280px,64vw);height:auto;margin:0 auto}
+.op-title{margin:.9rem 0 .2rem;font-family:var(--f-display);font-weight:600;
+  font-size:clamp(1.3rem,4.4vw,1.8rem);color:#0A2318;line-height:1.2}
+.op-ref{margin:0;font-family:var(--f-ui);font-weight:600;
+  font-size:clamp(1rem,3.4vw,1.2rem);letter-spacing:.14em;color:#4E6555}
 .op-sub{margin:.4rem 0 0;font-family:var(--f-ui);font-size:1rem;color:var(--stone)}
 .op-acts{display:flex;gap:.6rem;justify-content:center;margin-top:1.6rem;flex-wrap:wrap}
 .op-acts .btn{border-color:var(--gold-dim);color:var(--cream)}
@@ -1410,8 +1413,10 @@ html[data-theme="dark"] .bh-row .ref{color:var(--gold-lit)}
 .pp-sheet:last-child{page-break-after:auto}
 .pp-k{font-size:9pt;letter-spacing:3px;text-transform:uppercase;color:#8A6E14;margin:0}
 .pp-name{font-size:20pt;font-weight:bold;margin:6mm 0 2mm}
-.pp-qr{border:2px solid #D0A93A;padding:5mm;display:inline-block;background:#FFF}
-.pp-qr img{display:block;width:58mm;height:58mm}
+.pp-qr{border:2.5pt solid #D0A93A;padding:7mm 6mm;display:inline-block;background:#FFF}
+.pp-qr img{display:block;width:56mm;height:56mm;margin:0 auto}
+.pp-crest{width:40mm;height:32mm;margin:0 auto 2mm;
+  background:var(--logo) center/contain no-repeat}
 .pp-ref{font-size:16pt;font-weight:bold;letter-spacing:2px;margin:4mm 0 1mm}
 .pp-meta{font-size:10pt;color:#4E6555;margin:0}
 .pp-cut{margin-top:8mm;border-top:1px dashed #B9B2A0;padding-top:3mm;
@@ -1950,11 +1955,13 @@ tr{page-break-inside:avoid}
 <div class="onepass" id="onePass" role="dialog" aria-modal="true" aria-label="Entry pass">
   <button class="mon-exit" id="opClose" aria-label="Close">&times;</button>
   <div class="op-card" id="opCard">
-    <span class="crest op-crest" role="img" aria-label="PBIS"></span>
-    <p class="op-k">Your entry pass</p>
-    <h2 class="op-title" id="opName">&mdash;</h2>
-    <div class="op-qr"><img id="opImg" alt="Entry code"></div>
-    <p class="op-ref" id="opRef">&mdash;</p>
+    <div class="op-qr">
+      <span class="crest op-crest" role="img" aria-label="PBIS"></span>
+      <p class="op-k">Entry pass</p>
+      <img id="opImg" alt="Entry code">
+      <h2 class="op-title" id="opName">&mdash;</h2>
+      <p class="op-ref" id="opRef">&mdash;</p>
+    </div>
     <p class="op-sub" id="opSub">&mdash;</p>
     <div class="op-acts">
       <button class="btn" id="opPrev">&larr; Previous</button>
@@ -2776,9 +2783,12 @@ function render(){
         (r.guest ? '<span class="with">with ' + esc(r.guest) + '</span>' : '') +
 
       '</div>' +
-      '<span class="ref">' + esc(r.ref) + '</span>' +
+      /* Received, then Reference — matching the headings above. These were
+         the wrong way round, so every row put its timestamp under
+         "Reference" and its code under "Received". */
       '<span class="when">' + (r.ts ? new Date(r.ts).toLocaleString([], {
           day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : '') + '</span>' +
+      '<span class="ref">' + esc(r.ref) + '</span>' +
       '<span class="meta">' + (r.children ? esc(r.children) : '<em>\u2014</em>') + '</span>' +
       '<span class="status"><span class="pill ' + st.toLowerCase() + '">' + esc(st) + '</span></span>' +
       '<span class="pick">' + (canEdit && !doorMode
@@ -4868,7 +4878,9 @@ var bhRows = [], bhAt = 0;
 function qrSrc(row){
   var url = row.pass || (window.location.origin + '/?ticket=1&ref=' +
             encodeURIComponent(row.ref) + '&p=1');
-  return 'https://quickchart.io/qr?size=720&margin=4&ecLevel=H' +
+  /* Level Q and no logo, matching the emailed passes exactly. The
+     branding is the frame around it, not something laid over the code. */
+  return 'https://quickchart.io/qr?size=720&margin=4&ecLevel=Q' +
          '&dark=0A2318&light=FFFFFF&text=' + encodeURIComponent(url);
 }
 
@@ -4968,10 +4980,13 @@ $('bhPrint').addEventListener('click', function(){
   if (!bhRows.length){ toast('Nothing to print.'); return; }
   $('printArea').innerHTML = bhRows.map(function(r){
     return '<div class="pp-sheet">' +
-      '<p class="pp-k">Parent Appreciation Night \u00b7 Entry pass</p>' +
-      '<div class="pp-name">' + esc(r.name) + '</div>' +
-      '<div class="pp-qr"><img src="' + qrSrc(r) + '" alt=""></div>' +
-      '<div class="pp-ref">' + esc(r.ref) + '</div>' +
+      '<div class="pp-qr">' +
+        '<div class="pp-crest"></div>' +
+        '<p class="pp-k">Entry pass</p>' +
+        '<img src="' + qrSrc(r) + '" alt="">' +
+        '<div class="pp-name">' + esc(r.name) + '</div>' +
+        '<div class="pp-ref">' + esc(r.ref) + '</div>' +
+      '</div>' +
       '<p class="pp-meta">' + (r.party || 1) +
         (r.party === 1 ? ' place' : ' places') +
         (r.guest ? ' \u00b7 with ' + esc(r.guest) : '') + '</p>' +
