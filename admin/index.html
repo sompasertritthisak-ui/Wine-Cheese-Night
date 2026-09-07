@@ -812,7 +812,10 @@ html[data-theme="dark"] .claim-stats b{color:var(--gold-lit)}
    so a phone held at arm's length has nothing else on it.
    ============================================================ */
 .scan{position:fixed;inset:0;z-index:130;display:none;flex-direction:column;
-  background:var(--forest-deep);color:var(--cream)}
+  background:var(--forest-deep);color:var(--cream);
+  /* dvh, so an address bar sliding in and out does not push the reference
+     box off the bottom of a phone */
+  height:100dvh;max-height:100dvh;overflow:hidden}
 .scan.open{display:flex}
 .scan-head{display:flex;align-items:center;gap:1rem;padding:.9rem var(--gutter);
   border-bottom:1px solid var(--gold-dim);background:rgba(4,20,12,.6);flex:none}
@@ -820,23 +823,46 @@ html[data-theme="dark"] .claim-stats b{color:var(--gold-lit)}
   letter-spacing:.24em;text-transform:uppercase;color:var(--gold-lit)}
 .scan-count{font-family:var(--f-ui);font-size:1rem;color:var(--stone);margin-left:auto}
 .scan-head .btn{border-color:var(--gold-dim);color:var(--cream)}
-.scan-stage{position:relative;flex:1;min-height:0;display:grid;place-items:center;
-  overflow:hidden;background:#04120B}
-.scan-stage video{width:100%;height:100%;object-fit:cover;display:block}
-.scan-frame{position:absolute;width:min(64vw,300px);aspect-ratio:1;pointer-events:none}
+/* The camera used to fill the whole stage, which on a laptop meant a
+   stretched close-up of whoever was holding it with a small frame floating
+   somewhere in the middle. A square box, centred and capped, reads the
+   same on a phone at a gate and on a screen at a desk. */
+.scan-stage{position:relative;flex:1;min-height:0;display:flex;
+  flex-direction:column;align-items:center;justify-content:center;
+  gap:clamp(.6rem,2vh,1.2rem);padding:clamp(.7rem,2vh,1.4rem);
+  background:#04120B;overflow:hidden}
+
+/* The box is sized against whatever the stage actually has, not against the
+   window: cqmin measures the container, so a phone held sideways gets a
+   small square rather than one that pushes the keypad off the screen. */
+.scan-stage{container-type:size}
+.scan-box{position:relative;
+  width:min(72cqw, 82cqh, 480px);
+  aspect-ratio:1;flex:none;
+  overflow:hidden;background:#020C07;border:1px solid var(--gold-dim);
+  box-shadow:0 24px 70px rgba(0,0,0,.5)}
+
+/* Browsers without container queries fall back to viewport units. */
+@supports not (container-type: size){
+  .scan-box{width:min(70vw, 46vh, 480px)}
+}
+.scan-box video{width:100%;height:100%;object-fit:cover;display:block}
+.scan-frame{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:72%;aspect-ratio:1;pointer-events:none}
 .scan-frame i{position:absolute;width:34px;height:34px;border:3px solid var(--gold)}
 .scan-frame i:nth-child(1){top:0;left:0;border-right:0;border-bottom:0}
 .scan-frame i:nth-child(2){top:0;right:0;border-left:0;border-bottom:0}
 .scan-frame i:nth-child(3){bottom:0;left:0;border-right:0;border-top:0}
 .scan-frame i:nth-child(4){bottom:0;right:0;border-left:0;border-top:0}
-.scan-hint{position:absolute;bottom:1.2rem;left:0;right:0;text-align:center;margin:0;
-  font-family:var(--f-ui);font-size:1rem;color:var(--cream);
-  text-shadow:0 1px 6px rgba(0,0,0,.8);padding:0 1rem}
-.scan-result{flex:none;min-height:104px;display:grid;place-items:center;text-align:center;
-  padding:1rem var(--gutter);border-top:1px solid var(--gold-dim);
-  transition:background var(--t-micro)}
+.scan-hint{margin:0;text-align:center;font-family:var(--f-ui);
+  font-size:clamp(.98rem,2.2vw,1.1rem);color:var(--stone);padding:0 1rem;
+  max-width:34ch}
+.scan-result{flex:none;min-height:clamp(74px,11vh,110px);display:grid;
+  place-items:center;text-align:center;
+  padding:clamp(.6rem,1.6vh,1rem) var(--gutter);
+  border-top:1px solid var(--gold-dim);transition:background var(--t-micro)}
 .scan-result b{display:block;font-family:var(--f-display);font-weight:600;
-  font-size:clamp(1.4rem,4.5vw,2rem);color:var(--cream);line-height:1.2}
+  font-size:clamp(1.15rem,3.4vw + .4vh,2rem);color:var(--cream);line-height:1.2}
 .scan-result span{display:block;font-family:var(--f-ui);font-size:1rem;color:var(--stone);
   margin-top:.35rem}
 .scan-result.good{background:rgba(26,107,65,.35)}
@@ -845,9 +871,10 @@ html[data-theme="dark"] .claim-stats b{color:var(--gold-lit)}
 .scan-result.warn b{color:var(--gold-lit)}
 .scan-result.bad{background:rgba(154,74,18,.35)}
 .scan-result.bad b{color:#F2B25C}
-.scan-manual{flex:none;display:flex;gap:.6rem;padding:.9rem var(--gutter);
-  border-top:1px solid var(--line)}
-.scan-manual input{flex:1;min-height:52px;background:rgba(244,241,232,.06);
+.scan-manual{flex:none;display:flex;gap:.6rem;
+  padding:clamp(.6rem,1.4vh,.9rem) var(--gutter);border-top:1px solid var(--line)}
+.scan-manual input{flex:1;min-width:0;min-height:clamp(46px,6.4vh,54px);
+  background:rgba(244,241,232,.06);
   border:1px solid var(--line);color:var(--cream);font-size:1.05rem;
   text-transform:uppercase;letter-spacing:.08em}
 .scan-manual input::placeholder{color:var(--stone);text-transform:none;letter-spacing:normal}
@@ -1008,7 +1035,7 @@ html[data-theme="dark"] .i-moon{display:block}
 /* ============================================================
    THE GUIDE
    ============================================================ */
-.help-card{width:min(760px,100%);max-height:88dvh}
+.help-card{width:min(760px,100%);max-height:min(88dvh,88vh)}
 .help-nav{display:flex;gap:.3rem;border-bottom:1px solid var(--rule);margin-bottom:1.4rem;
   flex-wrap:wrap}
 .help-tab{background:transparent;border:0;border-bottom:2px solid transparent;
@@ -1485,6 +1512,22 @@ tr{page-break-inside:avoid}
 #viewDoor .btn-solid svg{stroke:var(--forest-deep)}
 #viewDoor .list{background:transparent;border:1px solid var(--line)}
 #viewDoor .empty{color:var(--stone)}
+.door-sec{display:block;width:100%;text-align:left;font-family:var(--f-label);
+  font-weight:700;font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--gold-lit);text-indent:.22em;margin:0 0 .8rem;background:transparent;
+  border:0;padding:0}
+.door-sec b{color:var(--cream);font-family:var(--f-ui);font-size:.86rem;
+  letter-spacing:normal;margin-left:.5rem}
+.door-toggle{display:flex;align-items:center;gap:.5rem;cursor:pointer;
+  min-height:48px;margin-top:1.6rem}
+.door-toggle svg{width:15px;height:15px;stroke:var(--gold);fill:none;stroke-width:2;
+  transition:transform var(--t-ui)}
+.door-toggle[aria-expanded="true"] svg{transform:rotate(180deg)}
+.door-toggle:hover{color:#FFF}
+#doorInList .door-row{opacity:.75}
+#viewDoor #doorSort{background-color:rgba(244,241,232,.07);border-color:var(--line);
+  color:var(--cream)}
+#viewDoor .sortlab{color:var(--stone)}
 .door-note{color:var(--stone)!important;margin-top:1.2rem}
 
 /* one row per guest, sized for a thumb */
@@ -1514,6 +1557,113 @@ tr{page-break-inside:avoid}
   #viewDoor .door-search{width:100%;order:-1}
 }
 @media print{#viewDoor{display:none!important}}
+
+/* ============================================================
+   THE SCANNER, ON EVERY SCREEN
+   A gate might use a phone held either way, a tablet, or a
+   laptop on a desk. The camera box is measured against its own
+   container rather than the window, so it never grows past what
+   is left after the head, the result line and the reference box.
+   ============================================================ */
+
+/* Sideways on a phone: everything alongside the camera, not below it. */
+@media (max-height:520px) and (orientation:landscape){
+  .scan-head{padding:.5rem var(--gutter)}
+  .scan-stage{flex-direction:row;gap:1rem;padding:.6rem 1rem}
+  .scan-box{width:min(38cqw, 90cqh, 300px)}
+  .scan-hint{max-width:22ch;font-size:.92rem;text-align:left}
+  .scan-result{min-height:0;padding:.5rem var(--gutter)}
+  .scan-result b{font-size:1.15rem}
+  .scan-result span{font-size:.9rem}
+  .scan-manual{padding:.5rem var(--gutter)}
+  .scan-manual input{min-height:44px;font-size:.98rem}
+  .scan-note{display:none}
+}
+
+/* A very short window of any width, such as a laptop with many toolbars. */
+@media (max-height:640px) and (orientation:portrait){
+  .scan-box{width:min(64cqw, 74cqh, 340px)}
+  .scan-hint{font-size:.92rem}
+}
+
+/* Roomy screens: hold the camera at a sensible size rather than letting it
+   swell to fill a 27-inch monitor. */
+@media (min-width:1100px){
+  .scan-box{width:min(42cqw, 74cqh, 460px)}
+  .scan-hint{font-size:1.05rem}
+}
+
+/* Narrow phones: the reference box and its button stack. */
+@media (max-width:400px){
+  .scan-manual{flex-wrap:wrap}
+  .scan-manual input{flex:1 1 100%}
+  .scan-manual .btn{flex:1 1 100%}
+  .scan-head{gap:.5rem}
+  .scan-head .btn{padding:.6rem .9rem;font-size:.62rem}
+}
+
+/* ============================================================
+   THE CHECK-IN TAB, ON EVERY SCREEN
+   ============================================================ */
+@media (max-width:900px){
+  #viewDoor .door-bar{gap:.7rem}
+  #viewDoor .door-search{flex:1 1 100%;order:-1}
+  #viewDoor .lanes{flex:1 1 100%}
+  #viewDoor .lane-btn{flex:1}
+  #viewDoor .sortwrap{flex:1 1 100%}
+  #viewDoor #doorSort{flex:1;min-width:0}
+}
+@media (max-width:560px){
+  #viewDoor{padding-left:1rem;padding-right:1rem;margin-left:-1rem;margin-right:-1rem}
+  .door-row{grid-template-columns:auto 1fr;gap:.6rem .9rem;padding:.95rem 1rem}
+  .door-row .seat{width:34px;height:34px;font-size:.98rem}
+  .door-row .who b{font-size:1.12rem}
+  .door-go,.door-in,.door-undo{grid-column:2;justify-self:stretch;text-align:center}
+  .door-count{font-size:1.9rem}
+  #viewDoor .door-bar .btn{flex:1 1 auto}
+}
+/* On a wide screen two guests fit side by side, which halves the scrolling
+   when a queue builds. */
+@media (min-width:1200px){
+  #doorRows,#doorInList{display:grid;grid-template-columns:1fr 1fr}
+  #doorRows .door-row:nth-last-child(2):nth-child(odd){border-bottom:0}
+  #doorRows .door-row:nth-child(odd){border-right:1px solid rgba(244,241,232,.1)}
+}
+
+
+/* ============================================================
+   NOTHING SHOULD SCROLL SIDEWAYS
+   A single element wider than the screen makes the whole page
+   shift under a thumb, which on a phone at a gate feels broken
+   even when everything works.
+   ============================================================ */
+html,body{overflow-x:hidden;max-width:100%}
+img,svg,video,canvas{max-width:100%}
+/* Only the containers that hold long text: a blanket rule here would
+   collapse the icon buttons and the seat circles. */
+.who,.mailcell,.sv-who,.bh-row > div,.grow,.tools .grow,
+.door-row .who,.log-did{min-width:0}
+
+/* The night menu was a fixed 270px and would hang off a narrow phone. */
+.menu{min-width:min(270px, calc(100vw - 2rem));max-width:calc(100vw - 1.5rem)}
+@media (max-width:420px){
+  .menu{position:fixed;left:.75rem;right:.75rem;top:auto;min-width:0}
+}
+
+/* Bulk action buttons wrap rather than squeeze. */
+.bulk-acts{flex-wrap:wrap}
+.bulk-acts .btn{min-width:0;flex:1 1 auto}
+
+/* Long email addresses and references break rather than push the row wide. */
+.who span,.mailcell,.sv-row,.bh-row span{overflow-wrap:anywhere}
+.ref,.sv-ref,.bh-row .ref{overflow-wrap:anywhere;white-space:normal}
+
+/* Modal cards never exceed the screen. */
+.sheet-card,.detail-card,.won-card,.op-card{max-width:calc(100vw - 1.5rem)}
+
+/* Full-height panels use dvh so a phone's address bar cannot clip them. */
+.monitor,.kiosk,.onepass{height:100dvh}
+
 </style>
 </head>
 <body>
@@ -1762,14 +1912,33 @@ tr{page-break-inside:avoid}
       <button class="btn" id="doorAdd">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-4A3.5 3.5 0 0 0 5 18.5V20"/><circle cx="10.5" cy="8" r="3.5"/><path d="M18 7v6M15 10h6"/></svg>
         Not on the list?</button>
+      <span class="sortwrap">
+        <label class="sortlab" for="doorSort">Sort</label>
+        <select id="doorSort" aria-label="Sort the guest list">
+          <option value="name">Name A &ndash; Z</option>
+          <option value="surname">By surname</option>
+          <option value="ts">Newest RSVP first</option>
+          <option value="party">Largest party first</option>
+        </select>
+      </span>
       <button class="btn" id="doorExit">Leave</button>
     </div>
+      <p class="door-sec" id="doorToComeHead">Still to arrive <b id="doorToComeN">0</b></p>
       <div class="list" id="doorList">
         <div id="doorRows"></div>
         <div class="empty hidden" id="doorEmpty">Nobody matches that name.</div>
       </div>
+
       <p class="note door-note">Tap <b>Check in</b> beside a guest as they arrive. Their
         name appears on the welcome screen for whichever lane this device is set to.</p>
+
+      <div id="doorInWrap" class="hidden">
+        <button class="door-sec door-toggle" id="doorInHead" aria-expanded="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          Already checked in <b id="doorInN">0</b>
+        </button>
+        <div class="list hidden" id="doorInList"></div>
+      </div>
     </div>
 
     <div class="panel-view" id="viewPasses">
@@ -2112,9 +2281,11 @@ tr{page-break-inside:avoid}
     <button class="btn" id="scanClose">Close</button>
   </div>
   <div class="scan-stage">
-    <video id="scanVideo" playsinline muted></video>
-    <canvas id="scanCanvas" hidden></canvas>
-    <div class="scan-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <div class="scan-box">
+      <video id="scanVideo" playsinline muted></video>
+      <canvas id="scanCanvas" hidden></canvas>
+      <div class="scan-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    </div>
     <p class="scan-hint" id="scanHint">Hold the guest&rsquo;s QR code inside the frame</p>
   </div>
   <div class="scan-result" id="scanResult" aria-live="assertive"></div>
@@ -3072,31 +3243,61 @@ $('dedupe').addEventListener('click', function(){
    ============================================================ */
 function renderDoor(){
   var q = ($('doorQ').value || '').trim().toLowerCase();
-  var rows = data.filter(function(r){
+  var by = $('doorSort') ? $('doorSort').value : 'name';
+
+  function order(a, b){
+    if (by === 'ts')      return String(b.ts || '').localeCompare(String(a.ts || ''));
+    if (by === 'party')   return (b.party || 1) - (a.party || 1) ||
+                                 String(a.name).localeCompare(String(b.name));
+    if (by === 'surname'){
+      /* By last word, which is how a name is looked up on a list. */
+      var an = String(a.name).trim().split(/\s+/);
+      var bn = String(b.name).trim().split(/\s+/);
+      return ((an[an.length - 1] || '') + ' ' + an[0])
+        .localeCompare((bn[bn.length - 1] || '') + ' ' + bn[0],
+                       undefined, { sensitivity:'base' });
+    }
+    return String(a.name).localeCompare(String(b.name));
+  }
+
+  var all = data.filter(function(r){
     if (r.live === false) return false;
     if (!q) return true;
     return loose((r.name + ' ' + r.guest + ' ' + r.ref).toLowerCase(), q);
-  }).sort(function(a, b){
-    // still to arrive first; nobody searches for somebody already inside
-    var rank = function(r){ return r.status === 'Attended' ? 1 : 0; };
-    return rank(a) - rank(b) || String(a.name).localeCompare(String(b.name));
   });
 
-  $('doorEmpty').classList.toggle('hidden', rows.length > 0);
-  $('doorRows').innerHTML = rows.map(function(r){
-    var inAlready = r.status === 'Attended';
-    return '<div class="door-row' + (inAlready ? ' arrived' : '') +
+  var toCome = all.filter(function(r){ return r.status !== 'Attended'; }).sort(order);
+  var inside = all.filter(function(r){ return r.status === 'Attended'; })
+                  .sort(function(a, b){
+                    /* Most recent arrival first: if somebody was checked in by
+                       mistake it is almost always the last one. */
+                    return String(b.arrivedAt || '').localeCompare(String(a.arrivedAt || ''));
+                  });
+
+  function rowHtml(r, done){
+    return '<div class="door-row' + (done ? ' arrived' : '') +
       '" data-door="' + esc(r.ref) + '">' +
       '<span class="seat">' + (r.party || 1) + '</span>' +
       '<div class="who"><b>' + esc(r.name) + '</b>' +
         (r.guest ? '<span>with ' + esc(r.guest) + '</span>' : '') +
+        (done && r.arrivedAt
+          ? '<span>in at ' + new Date(r.arrivedAt).toLocaleTimeString([],
+              { hour:'2-digit', minute:'2-digit' }) + '</span>' : '') +
         (r.photos === 'No' ? '<span class="no-photo">Not to be photographed</span>' : '') +
         (r.note ? '<span class="note-line">' + esc(r.note) + '</span>' : '') +
       '</div>' +
-      (inAlready ? '<span class="door-in">In</span>'
-                 : '<button class="btn btn-solid door-go">Check in</button>') +
+      (done ? '<button class="btn door-undo">Undo</button>'
+            : '<button class="btn btn-solid door-go">Check in</button>') +
     '</div>';
-  }).join('');
+  }
+
+  $('doorToComeN').textContent = toCome.length;
+  $('doorEmpty').classList.toggle('hidden', toCome.length > 0);
+  $('doorRows').innerHTML = toCome.map(function(r){ return rowHtml(r, false); }).join('');
+
+  $('doorInN').textContent = inside.length;
+  $('doorInWrap').classList.toggle('hidden', inside.length === 0);
+  $('doorInList').innerHTML = inside.map(function(r){ return rowHtml(r, true); }).join('');
 
   var arrived = data.filter(function(r){ return r.status === 'Attended'; })
                     .reduce(function(n, r){ return n + (r.party || 1); }, 0);
@@ -3104,6 +3305,39 @@ function renderDoor(){
                      .reduce(function(n, r){ return n + (r.party || 1); }, 0);
   $('doorNum').textContent = arrived + ' / ' + expected;
 }
+
+$('doorSort').addEventListener('change', function(){
+  try { localStorage.setItem('pbis.doorsort', this.value); } catch (e) {}
+  renderDoor();
+});
+try {
+  var ds = localStorage.getItem('pbis.doorsort');
+  if (ds) $('doorSort').value = ds;
+} catch (e) {}
+
+$('doorInHead').addEventListener('click', function(){
+  var open = this.getAttribute('aria-expanded') === 'true';
+  this.setAttribute('aria-expanded', String(!open));
+  $('doorInList').classList.toggle('hidden', open);
+});
+
+/* Undoing an arrival, for the guest waved through by mistake. */
+$('doorInList').addEventListener('click', function(e){
+  var btn = e.target.closest('.door-undo');
+  var row = e.target.closest('[data-door]');
+  if (!btn || !row) return;
+  var ref = row.getAttribute('data-door');
+  var r = data.filter(function(x){ return x.ref === ref; })[0];
+  if (!r) return;
+  btn.disabled = true;
+  btn.textContent = '\u2026';
+  api({ action:'update', token:session, ref:ref, status:'Confirmed' })
+    .then(function(res){
+      if (res && res.ok){ toast(r.name + ' is no longer checked in'); load(true); }
+      else { btn.disabled = false; btn.textContent = 'Undo'; toast('That could not be undone.'); }
+    })
+    .catch(function(){ btn.disabled = false; btn.textContent = 'Undo'; toast('No connection.'); });
+});
 
 $('doorRows').addEventListener('click', function(e){
   var btn = e.target.closest('.door-go');
