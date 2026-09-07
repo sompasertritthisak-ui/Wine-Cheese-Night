@@ -1682,6 +1682,249 @@ img,svg,video,canvas{max-width:100%}
 /* Full-height panels use dvh so a phone's address bar cannot clip them. */
 .monitor,.kiosk,.onepass{height:100dvh}
 
+
+/* ============================================================
+   ASKING BEFORE ACTING
+   The browser's own confirm box is grey, unbrandable, and looks
+   like an error even when it is asking something ordinary. This
+   is the same question in the school's own voice — and it can
+   carry a type-to-confirm field where one is warranted.
+   ============================================================ */
+.ask-card{width:min(480px,100%);text-align:center}
+.ask-mark{display:block;width:56px;height:56px;margin:0 auto 1.3rem;
+  border-radius:50%;border:1.5px solid var(--gold);
+  background:var(--gold-bg,#FBF3DC);
+  display:grid;place-items:center}
+.ask-mark::after{content:"";width:22px;height:22px;
+  background:center/contain no-repeat;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238A6E14' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M12 8v5'/%3E%3Ccircle cx='12' cy='16.5' r='.6' fill='%238A6E14'/%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3C/svg%3E")}
+html[data-theme="dark"] .ask-mark{background:rgba(208,169,58,.14)}
+
+.ask-card.danger .ask-mark{border-color:var(--danger);background:var(--danger-bg)}
+.ask-card.danger .ask-mark::after{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239A4A12' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M4 7h16M10 11v6M14 11v6'/%3E%3Cpath d='M6 7l1 13h10l1-13M9 7V4h6v3'/%3E%3C/svg%3E")}
+.ask-card.danger #askYes{background:var(--danger);border-color:var(--danger);color:#fff}
+.ask-card.danger #askYes:hover{background:#8A4110;border-color:#8A4110}
+
+.ask-card h2{margin:0 0 .7rem;font-size:clamp(1.3rem,3.4vw,1.65rem)}
+.ask-body{margin:0 auto 1.6rem;max-width:44ch;font-size:1.02rem;line-height:1.65;
+  color:var(--ink-2)}
+.ask-body b{color:var(--ink)}
+.ask-body .quiet{display:block;margin-top:.7rem;font-size:.94rem;color:var(--ink-3)}
+.ask-type{text-align:left;margin:0 0 1.6rem}
+.ask-type.hidden{display:none}
+.ask-type input{font-size:1.08rem}
+.ask-card .sheet-actions{justify-content:center}
+.ask-card .sheet-actions .btn{min-width:132px}
+#askYes[disabled]{opacity:.4;cursor:not-allowed;border-color:var(--rule);
+  background:transparent;color:var(--ink-3)}
+
+
+/* ============================================================
+   DIALOG POLISH
+   Twelve dialogs share one shell. These are the details that make
+   them feel deliberate rather than assembled.
+   ============================================================ */
+.sheet{opacity:0;pointer-events:none;transition:opacity var(--t-ui) var(--e-out)}
+.sheet.open{opacity:1;pointer-events:auto}
+.sheet-card{transform:translateY(14px) scale(.985);
+  transition:transform var(--t-ui) var(--e-out)}
+.sheet.open .sheet-card{transform:none}
+.sheet-scrim{-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+
+/* a gold hairline along the top edge, as on the invitation's cards */
+.sheet-card{position:relative;overflow:hidden}
+.sheet-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold) 22%,
+    var(--gold) 78%,transparent)}
+.ask-card.danger::before{background:linear-gradient(90deg,transparent,
+  var(--danger) 22%,var(--danger) 78%,transparent)}
+
+/* headings in the display face, as everywhere else */
+.sheet-card h2{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
+
+/* the close cross should look intentional */
+.modal-close{width:38px;height:38px;border:1px solid transparent;border-radius:50%;
+  transition:all var(--t-micro)}
+.modal-close:hover{border-color:var(--rule);background:var(--paper-2);
+  color:var(--ink)}
+
+/* focus, in gold rather than the browser's blue */
+.sheet-card button:focus-visible,.sheet-card input:focus-visible,
+.sheet-card select:focus-visible,.sheet-card textarea:focus-visible{
+  outline:2px solid var(--gold);outline-offset:2px}
+
+@media (prefers-reduced-motion:reduce){
+  .sheet,.sheet-card{transition:none}
+  .sheet-card{transform:none}
+}
+
+
+/* ============================================================
+   LEGIBILITY
+   Fifty-two rules sat under twelve pixels, and the smallest were
+   eight — fine on a mock-up, not fine on a laptop at a desk or a
+   phone at a gate. These raise the floor without touching the
+   layout: every value below is a size, not a position.
+
+   The wide letter-spacing on the label face makes small type look
+   smaller than it is, so the labels get the biggest lift.
+   ============================================================ */
+
+/* ---- the label face: nothing below eleven pixels ---- */
+.label,
+.count,
+.stamp,
+.sortlab,
+.chip,
+.tab,
+.lane-btn,
+.help-tab,
+.door-sec,
+.live-h,
+.pass-tag,
+.pill,
+.arrive,
+.door-in,
+.log-when,
+.made .credit,
+.whoami .rl,
+.menu button b,
+.op-k,
+.detail-card .sub,
+.ro-note b,
+.dupe-body b,
+.deadline b,
+.scan-title,
+.scan-lane,
+.dupe-tag,
+.just-in,
+.log-who small,
+.door-count small,
+.bar .chev{font-size:.72rem;letter-spacing:.13em}
+
+.tab{font-size:.86rem;letter-spacing:.14em}
+.bar .btn{font-size:.74rem;letter-spacing:.13em}
+.chip{font-size:.74rem;letter-spacing:.1em}
+.lane-btn,.door-go{font-size:.76rem;letter-spacing:.12em}
+.pill,.pass-tag,.arrive,.door-in{font-size:.7rem;letter-spacing:.11em}
+.just-in,.dupe-tag{font-size:.62rem;letter-spacing:.11em}
+.label{font-size:.74rem;letter-spacing:.15em}
+.count,.stamp{font-size:.82rem;letter-spacing:.04em;text-transform:none}
+.sortlab{font-size:.72rem}
+.sync{font-size:.72rem;letter-spacing:.12em}
+
+/* ---- body copy: nothing below fourteen pixels ---- */
+.who span,
+.who .with,
+.dl dd small,
+.live-lane small,
+.sv-when,
+.when,
+.no-photo,
+.note-line,
+.log-detail,
+.bh-row span,
+.rs-row span,
+.sv-row span,
+.help{font-size:.92rem}
+
+.note,.kill-note,.sv-hint,.op-hint,.scan-hint,
+.help-body p,.help-body li,.ask-body{font-size:1.02rem;line-height:1.65}
+.help-body h3{font-size:1.22rem}
+.ref,.sv-ref,.bh-row .ref,.prow .ref{font-size:.88rem;letter-spacing:.05em}
+.row .who b,.door-row .who b{font-size:1.12rem}
+.door-row .who b{font-size:1.24rem}
+.log-did em{font-size:1rem}
+.empty{font-size:1.05rem}
+
+/* ---- buttons: heavier, and large enough to hit ---- */
+.btn{font-weight:700;min-height:48px;padding:.72rem 1.25rem}
+.btn svg{width:17px;height:17px;stroke-width:2}
+.bar .btn{min-height:46px;padding:.66rem 1.1rem}
+.btn-solid{font-weight:700;letter-spacing:.14em}
+.chip{font-weight:700;min-height:44px;padding:.55rem 1.05rem}
+.chip svg{width:15px;height:15px}
+.icon-btn{width:42px;height:42px}
+.icon-btn svg{width:17px;height:17px;stroke-width:2}
+.tab{font-weight:700}
+.tab svg{width:20px;height:20px}
+.door-go,.door-in,.door-undo{font-weight:700}
+.opt-b,.fld .opt-b{font-size:1.05rem;font-weight:600}
+.sheet-actions .btn{min-height:50px;font-size:.76rem}
+
+/* selects and inputs, which were a size below their labels */
+input,select,textarea{font-size:1.05rem}
+#sortBy,#pSort,#svSort,#doorSort{font-size:1rem;min-height:48px}
+.tools input[type="search"]{min-height:50px;font-size:1.05rem}
+
+/* the figures, which are the point of the stat cards */
+.stat b{font-size:clamp(1.9rem,4vw,2.6rem)}
+.hero-stat b{font-size:clamp(2.4rem,5.4vw,3.4rem)}
+.yr b{font-size:clamp(1.5rem,3vw,1.9rem)}
+
+/* on a phone the labels may wrap, which is better than shrinking */
+@media (max-width:560px){
+  .label,.count,.stamp,.chip,.tab{letter-spacing:.08em}
+  .tab{font-size:.78rem}
+  .btn{font-size:.72rem}
+}
+
+
+/* the ones the first pass missed: column headings, the sign-in card, the
+   detail labels, and the smaller buttons */
+.row.head span,
+.sortable,
+.dl dt,
+.live-lane b,
+.pstate,
+.whoami,
+.made .who,
+.made .cr,
+.gate-card .sub,
+.scan-note,
+.prow .ref,
+.bh-tools .count,
+.claim-said span,
+.ready-row span,
+.sum-bar,
+.live-feed small,
+.log-who small{font-size:.72rem;letter-spacing:.12em}
+
+.row.head span,.sortable{font-size:.74rem;font-weight:700;letter-spacing:.14em}
+.dl dt{font-size:.74rem;letter-spacing:.14em}
+.live-lane b{font-size:.72rem}
+.live-lane span{font-size:1.05rem}
+.live-feed div{font-size:1.02rem}
+.claim-said span,.ready-row span{font-size:1rem;letter-spacing:normal}
+.sum-bar{font-size:1rem;letter-spacing:normal}
+.sum-note,.kbd-hint{font-size:.95rem}
+.gate-card .sub{font-size:1rem;letter-spacing:normal;text-transform:none}
+.gate-card h1{font-size:clamp(1.6rem,4.4vw,2.1rem)}
+.whoami{font-size:.78rem}
+.whoami .rl{font-size:.68rem}
+.made .who,.made .cr{font-size:.8rem;letter-spacing:.04em;text-transform:none}
+.scan-note{font-size:.74rem}
+.pstate{font-size:.66rem}
+
+.prow .btn,.bulk-acts .btn{font-size:.74rem;font-weight:700;min-height:46px}
+.help-tab{font-size:.76rem;font-weight:700;min-height:52px}
+.log-did em{font-style:normal;font-weight:600}
+.log-ref{font-size:.9rem}
+
+/* the door list is read at arm's length */
+.door-row .who span{font-size:1rem}
+.door-row .seat{font-size:1.1rem;width:42px;height:42px}
+.door-count{font-size:clamp(2rem,5vw,2.8rem)}
+
+
+/* the last six, and the monitor, which is read from across a room */
+.bar-id b{font-size:.76rem;letter-spacing:.16em}
+.noshow{font-size:.7rem;letter-spacing:.11em}
+.dupe-tag,.just-in{font-size:.66rem;letter-spacing:.1em}
+.scan-head .btn{font-size:.72rem;min-height:46px}
+.mon-tally{font-size:clamp(.8rem,1.8vmin,1.6rem);letter-spacing:.2em}
+
 </style>
 </head>
 <body>
@@ -2269,6 +2512,27 @@ img,svg,video,canvas{max-width:100%}
     <div class="sheet-actions">
       <button class="btn" data-sp-close>Cancel</button>
       <button class="btn btn-solid" id="spGo">Send the pass</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ one dialog for every confirmation ============ -->
+<div class="sheet" id="askBox" role="dialog" aria-modal="true" aria-labelledby="askTitle">
+  <div class="sheet-scrim" data-ask-no></div>
+  <div class="sheet-card ask-card">
+    <span class="ask-mark" id="askMark" aria-hidden="true"></span>
+    <h2 id="askTitle">&mdash;</h2>
+    <p class="ask-body" id="askBody">&mdash;</p>
+
+    <div class="ask-type hidden" id="askTypeWrap">
+      <label class="label" for="askType" id="askTypeLabel">Type to confirm</label>
+      <input type="text" id="askType" autocomplete="off" spellcheck="false">
+      <p class="help" id="askTypeHint"></p>
+    </div>
+
+    <div class="sheet-actions">
+      <button class="btn" id="askNo" data-ask-no>Cancel</button>
+      <button class="btn btn-solid" id="askYes">Confirm</button>
     </div>
   </div>
 </div>
@@ -3277,13 +3541,18 @@ $('dedupe').addEventListener('click', function(){
         return '  \u2022 ' + f.name + ' (' + f.copies + ' copies)';
       }).join('\n');
 
-      if (!confirm('Remove ' + res.duplicates + ' duplicate RSVP' +
-          (res.duplicates === 1 ? '' : 's') + '?\n\n' + names +
-          '\n\nThe most recent RSVP from each family is kept. The older copies ' +
-          'are deleted from the spreadsheet and cannot be undone here.')){
-        b.disabled = false;
-        return;
-      }
+      ask({
+        danger: true,
+        title: 'Remove ' + res.duplicates + ' duplicate ' +
+               (res.duplicates === 1 ? 'reply' : 'replies') + '?',
+        body: 'The most recent reply from each family is kept; the older copies ' +
+              'are deleted from the spreadsheet.' +
+              '<span class="quiet">' + esc(names.replace(/\n/g, ' \u00b7 ')) +
+              '</span><span class="quiet">This cannot be undone from here.</span>',
+        yes: 'Remove them',
+        no: 'Leave them'
+      }, function(){
+        b.disabled = true;
 
       api({ action:'dedupe', token:session })
         .then(function(r2){
@@ -3293,6 +3562,7 @@ $('dedupe').addEventListener('click', function(){
           else toast('Could not remove the duplicates.');
         })
         .catch(function(){ b.disabled = false; toast('No connection.'); });
+      });
     })
     .catch(function(){ b.disabled = false; toast('No connection.'); });
 });
@@ -3689,9 +3959,26 @@ document.querySelectorAll('[data-bulk]').forEach(function(b){
     var status = b.getAttribute('data-bulk');
     var refs = pickedRefs();
     if (!refs.length) return;
-    if (status === 'Cancelled' &&
-        !confirm('Cancel ' + refs.length + ' RSVP' + (refs.length === 1 ? '' : 's') +
-                 '?\n\nThey keep their place on record but stop counting towards the room.')) return;
+
+    /* Cancelling is the only one of these worth pausing over; the rest are
+       everyday changes and asking every time would train people to tap
+       through without reading. */
+    if (status === 'Cancelled'){
+      ask({
+        danger: true,
+        title: 'Cancel ' + refs.length + ' ' +
+               (refs.length === 1 ? 'reply' : 'replies') + '?',
+        body: 'They stay on record but stop counting towards the room.' +
+              '<span class="quiet">An Undo appears afterwards.</span>',
+        yes: 'Cancel ' + (refs.length === 1 ? 'it' : 'them'),
+        no: 'Leave them'
+      }, function(){ runBulk(b, refs, status); });
+      return;
+    }
+    runBulk(b, refs, status);
+  });
+
+  function runBulk(b, refs, status){
     b.disabled = true;
     api({ action:'bulk', token:session, refs:refs, status:status })
       .then(function(res){
@@ -3706,7 +3993,7 @@ document.querySelectorAll('[data-bulk]').forEach(function(b){
           ? 'Your account cannot change RSVPs.' : 'That could not be applied.');
       })
       .catch(function(){ b.disabled = false; toast('No connection.'); });
-  });
+  }
 });
 
 /* ============================================================
@@ -4302,11 +4589,23 @@ function doApprove(send){
     return r && r.email;
   }).length;
 
-  if (send && !confirm('Approve ' + refs.length + ' guest' + (refs.length === 1 ? '' : 's') +
-      ' and send ' + withMail + ' entry pass' + (withMail === 1 ? '' : 'es') + ' by email?' +
-      (withMail < refs.length ? '\n\n' + (refs.length - withMail) +
-       ' have no email address and will need their pass another way.' : ''))) return;
+  if (send){
+    ask({
+      title: 'Send ' + withMail + ' entry ' +
+             (withMail === 1 ? 'pass' : 'passes') + '?',
+      body: 'This approves <b>' + refs.length + '</b> ' +
+            (refs.length === 1 ? 'guest' : 'guests') + ' and emails their codes.' +
+            (withMail < refs.length
+              ? '<span class="quiet">' + (refs.length - withMail) + ' have no email ' +
+                'address and will need their pass another way.</span>' : ''),
+      yes: 'Approve and send'
+    }, function(){ sendApprove(refs, true); });
+    return;
+  }
+  sendApprove(refs, false);
+}
 
+function sendApprove(refs, send){
   $('approveSend').disabled = true; $('approveOnly').disabled = true;
   api({ action:'approve', token:session, refs:refs, send:!!send })
     .then(function(res){
@@ -5206,10 +5505,17 @@ $('svEditBtn').addEventListener('click', function(){
 $('svDelBtn').addEventListener('click', function(){
   var r = svData.filter(function(x){ return x.c2 === svOpenRef; })[0];
   var who = r ? (r.c4 + ' ' + r.c5).trim() : svOpenRef;
-  if (!confirm('Delete the response from ' + who + '?\n\n' +
-               'An Undo appears afterwards for twenty seconds.')) return;
-
   var btn = this;
+  ask({
+    danger: true,
+    title: 'Delete this response?',
+    body: 'The survey from <b>' + esc(who) + '</b> will be removed.' +
+          '<span class="quiet">An Undo appears for twenty seconds afterwards.</span>',
+    yes: 'Delete it'
+  }, function(){ doSurveyDelete(btn, who); });
+});
+
+function doSurveyDelete(btn, who){
   btn.disabled = true;
   api({ action:'surveydelete', token:session, ref:svOpenRef })
     .then(function(res){
@@ -5221,7 +5527,7 @@ $('svDelBtn').addEventListener('click', function(){
       } else toast('That could not be deleted.');
     })
     .catch(function(){ btn.disabled = false; toast('No connection.'); });
-});
+}
 
 function svUndo(who, rowData){
   var t = $('toast');
@@ -5246,19 +5552,23 @@ function svUndo(who, rowData){
 }
 
 $('svClear').addEventListener('click', function(){
-  var typed = prompt('This deletes EVERY survey response and cannot be undone.\n\n' +
-                     'Type CLEAR THE SURVEY to confirm:');
-  if (typed === null) return;
-  if (typed.trim().toUpperCase() !== 'CLEAR THE SURVEY'){
-    toast('Not cleared \u2014 the words did not match.');
-    return;
-  }
+  ask({
+    danger: true,
+    title: 'Clear every survey response?',
+    body: 'This deletes all of them and cannot be undone. It is meant for ' +
+          'clearing a test run before the evening.',
+    type: 'CLEAR THE SURVEY',
+    typeLabel: 'Type CLEAR THE SURVEY to confirm',
+    typeHint: 'Exactly as written above.',
+    yes: 'Clear everything'
+  }, function(){
   api({ action:'surveyclear', token:session, confirm:'CLEAR THE SURVEY' })
     .then(function(res){
       if (res && res.ok){ toast(res.cleared + ' response(s) cleared'); loadSurvey(); }
       else toast('That could not be cleared.');
     })
     .catch(function(){ toast('No connection.'); });
+  });
 });
 
 $('svExport').addEventListener('click', function(){
@@ -5450,12 +5760,20 @@ $('approveAll').addEventListener('click', function(){
     return r.live !== false && r.approved !== 'Yes' && !r.email;
   }).length;
 
-  if (!confirm('Approve ' + waiting.length + ' guest' +
-      (waiting.length === 1 ? '' : 's') + ' and email their passes?' +
-      (noMail ? '\n\n' + noMail + ' more have no email address and are not ' +
-                'included \u2014 use Passes to give by hand for those.' : ''))) return;
-
   var btn = this;
+  ask({
+    title: 'Approve everyone waiting?',
+    body: '<b>' + waiting.length + '</b> ' +
+          (waiting.length === 1 ? 'guest' : 'guests') + ' will be approved and ' +
+          'emailed their entry ' + (waiting.length === 1 ? 'pass' : 'passes') + '.' +
+          (noMail ? '<span class="quiet">' + noMail + ' more have no email address ' +
+                    'and are not included \u2014 use <b>Passes to give by hand</b> ' +
+                    'for those.</span>' : ''),
+    yes: 'Approve all ' + waiting.length
+  }, function(){ runApproveAll(btn, waiting); });
+});
+
+function runApproveAll(btn, waiting){
   btn.disabled = true;
   $('approveAllLabel').textContent = 'Sending\u2026';
 
@@ -5486,7 +5804,7 @@ $('approveAll').addEventListener('click', function(){
         load(true);
       });
   })();
-});
+}
 
 /* ============================================================
    A GUEST WHO IS NOT ON THE LIST
@@ -5643,12 +5961,19 @@ $('rsGo').addEventListener('click', function(){
   var refs = Object.keys(rsPicked).filter(function(k){ return rsPicked[k]; });
   if (!refs.length) return;
 
-  if (!confirm('Send the confirmation again to ' + refs.length + ' guest' +
-      (refs.length === 1 ? '' : 's') + '?\n\n' +
-      'They will receive the current wording, which mentions that their pass ' +
-      'follows separately. The office is not notified again.')) return;
-
   var btn = this;
+  ask({
+    title: 'Re-send to ' + refs.length + ' ' +
+           (refs.length === 1 ? 'guest' : 'guests') + '?',
+    body: 'They will receive the current confirmation, which mentions that ' +
+          'their entry pass follows separately.' +
+          '<span class="quiet">No passes are sent, and the office is not ' +
+          'notified again.</span>',
+    yes: 'Send ' + refs.length
+  }, function(){ runResend(btn, refs); });
+});
+
+function runResend(btn, refs){
   btn.disabled = true;
   btn.textContent = 'Sending\u2026';
 
@@ -5684,7 +6009,64 @@ $('rsGo').addEventListener('click', function(){
           : 'No connection.';
       });
   })();
-});
+}
+
+
+/* ============================================================
+   ASK
+   One dialog, used everywhere something needs confirming. Takes
+   the same shape as confirm() but returns through a callback, and
+   can require a phrase to be typed for the destructive ones.
+   ============================================================ */
+function ask(opts, onYes){
+  var card = document.querySelector('#askBox .ask-card');
+  card.classList.toggle('danger', !!opts.danger);
+
+  $('askTitle').textContent = opts.title || 'Are you sure?';
+  $('askBody').innerHTML = opts.body || '';
+  $('askYes').textContent = opts.yes || 'Confirm';
+  $('askNo').textContent = opts.no || 'Cancel';
+
+  var needs = opts.type || '';
+  $('askTypeWrap').classList.toggle('hidden', !needs);
+  $('askType').value = '';
+  if (needs){
+    $('askTypeLabel').textContent = opts.typeLabel || 'Type to confirm';
+    $('askTypeHint').textContent = opts.typeHint || '';
+    $('askYes').disabled = true;
+  } else {
+    $('askYes').disabled = false;
+  }
+
+  function matches(){
+    if (!needs) return true;
+    return $('askType').value.trim().toLowerCase().replace(/\s+/g, ' ') ===
+           String(needs).trim().toLowerCase().replace(/\s+/g, ' ');
+  }
+
+  function close(){
+    $('askBox').classList.remove('open');
+    $('askType').removeEventListener('input', check);
+    $('askType').removeEventListener('keydown', onKey);
+    $('askYes').removeEventListener('click', yes);
+    document.removeEventListener('keydown', esc);
+  }
+  function check(){ $('askYes').disabled = !matches(); }
+  function yes(){ if (!matches()) return; close(); onYes(); }
+  function onKey(e){ if (e.key === 'Enter' && matches()){ e.preventDefault(); yes(); } }
+  function esc(e){ if (e.key === 'Escape') close(); }
+
+  $('askType').addEventListener('input', check);
+  $('askType').addEventListener('keydown', onKey);
+  $('askYes').addEventListener('click', yes);
+  document.addEventListener('keydown', esc);
+  document.querySelectorAll('[data-ask-no]').forEach(function(el){
+    el.addEventListener('click', close, { once:true });
+  });
+
+  $('askBox').classList.add('open');
+  setTimeout(function(){ (needs ? $('askType') : $('askYes')).focus(); }, 60);
+}
 
 /* ---------------- tabs ---------------- */
 /* One function, so anything can switch tabs — the buttons, and Door mode
