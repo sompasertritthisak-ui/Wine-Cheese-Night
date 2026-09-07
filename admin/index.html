@@ -241,19 +241,13 @@ input:-webkit-autofill,input:-webkit-autofill:focus{
 .yr span{display:block;margin-top:.35rem}
 
 /* ---------------- door mode ---------------- */
-.door-on .stats,.door-on .years,.door-on .cap,.door-on .tools,
-.door-on .note,.door-on .dupe-note,.door-on .deadline{display:none}
-.door-bar{display:none;gap:1rem;align-items:center;flex-wrap:wrap;margin-bottom:1.2rem}
-.door-on .door-bar{display:flex}
+.door-bar{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;margin-bottom:1.2rem}
 .door-count{font-family:var(--f-display);font-weight:600;font-size:clamp(1.6rem,4vw,2.4rem);
   color:var(--gold-lit);line-height:1;font-variant-numeric:tabular-nums}
 .door-count small{display:block;font-family:var(--f-label);font-size:.54rem;
   letter-spacing:.24em;text-transform:uppercase;color:var(--stone);margin-top:.4rem}
 .door-search{flex:1;min-width:240px}
 .door-search input{min-height:58px;font-size:1.15rem}
-.door-on .row{grid-template-columns:auto 1fr auto;padding:1.15rem 1rem}
-.door-on .row .ref,.door-on .row .meta,.door-on .row .status{display:none}
-.door-on .who b{font-size:1.3rem}
 .arrive{min-height:56px;padding:.8rem 1.4rem;white-space:nowrap;
   background:transparent;border:1px solid var(--gold-dim);color:var(--gold-lit);
   font-family:var(--f-label);font-weight:600;font-size:.6rem;letter-spacing:.2em;
@@ -613,22 +607,6 @@ html{scrollbar-color:var(--gold) var(--paper-3)}
    DOOR MODE stays dark. It is used at night, outdoors, on a phone,
    where a bright screen is the wrong tool.
    ============================================================ */
-.door-on{background:var(--forest-deep)}
-.door-on .list{background:transparent;border-color:var(--line)}
-.door-on .row{border-bottom-color:rgba(244,241,232,.1);background:transparent}
-.door-on .row:hover{background:rgba(244,241,232,.04)}
-.door-on .row:hover::before{display:none}
-.door-on .who b{color:var(--cream)}
-.door-on .who span{color:var(--stone)}
-.door-on .seat{background:transparent;border-color:var(--gold-dim);color:var(--gold-lit)}
-.door-on .row.arrived{background:rgba(26,107,65,.22)}
-.door-on .row.noshown{background:rgba(242,178,92,.1)}
-.door-on .door-count{color:var(--gold-lit)}
-.door-on .door-count small,.door-on .stamp{color:var(--stone)}
-.door-on input{background:rgba(244,241,232,.06);border-color:var(--line);color:var(--cream)}
-.door-on input::placeholder{color:var(--stone)}
-.door-on .btn{border-color:var(--gold-dim);color:var(--cream)}
-.door-on .made{display:none}
 
 
 /* ============================================================
@@ -687,12 +665,10 @@ html{scrollbar-color:var(--gold) var(--paper-3)}
   font-size:.9rem;color:var(--forest)}
 .msg-line svg{width:13px;height:13px;flex:none;margin-top:.22rem;
   stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round}
-.door-on .msg-line{color:var(--gold-lit)}
 .no-photo{display:flex;align-items:center;gap:.45rem;margin-top:.4rem;
   font-size:.88rem;color:var(--danger)}
 .no-photo svg{width:13px;height:13px;flex:none;stroke:currentColor;fill:none;
   stroke-width:1.7;stroke-linecap:round}
-.door-on .no-photo{color:#F2B25C}
 .note-line{display:flex;align-items:flex-start;gap:.45rem;margin-top:.4rem;
   font-size:.88rem;color:var(--gold-deep);font-style:italic}
 .note-line svg{width:13px;height:13px;flex:none;margin-top:.22rem;
@@ -707,7 +683,6 @@ html{scrollbar-color:var(--gold) var(--paper-3)}
 #killGo[disabled]:hover{background:transparent;border-color:var(--rule);color:var(--ink-3)}
 .fld .opt{font-family:var(--f-ui);text-transform:none;letter-spacing:normal;
   font-size:.82rem;color:var(--ink-3);margin-left:.2rem}
-.door-on .note-line{color:var(--gold-lit)}
 
 @media (max-width:920px){
   .row.head{display:none!important}
@@ -811,7 +786,6 @@ html[data-theme="dark"] .claim-stats b{color:var(--gold-lit)}
 #passList .row{grid-template-columns:26px 1.6fr .8fr 1.4fr auto auto}
 .row{grid-template-columns:26px auto 1.6fr .7fr .8fr 1fr auto auto}
 .when{font-family:var(--f-ui);font-size:.86rem;color:var(--ink-3);white-space:nowrap}
-.door-on .when{display:none}
 @media (max-width:920px){.when{display:none}}
 .just-in{display:inline-block;margin-left:.55rem;padding:.12rem .5rem;
   font-family:var(--f-label);font-size:.48rem;letter-spacing:.16em;text-transform:uppercase;
@@ -1240,7 +1214,6 @@ html[data-theme="dark"] .tab[aria-selected="true"]{color:var(--gold-lit);
 .tools{position:sticky;top:var(--bar-h);z-index:6;background:var(--paper);
   padding-top:.8rem;padding-bottom:.8rem;margin-bottom:0}
 html[data-theme="dark"] .tools{background:var(--paper)}
-.door-on .tools{position:static}
 @media (max-width:920px){
   .tools{position:static}
   .sortwrap{width:100%}
@@ -1481,6 +1454,66 @@ tr{page-break-inside:avoid}
 .dp-count{margin:0 0 4mm;font-size:9pt;color:#0A2318}
 .dp-count b{font-size:11pt}
 
+
+/* ============================================================
+   THE CHECK-IN TAB
+   Dark, because it is used at a gate at night, and self-
+   contained. The old version toggled a class on the body and
+   recoloured everything, which left whatever tab was already
+   open sitting underneath in its light-mode colours — invisible
+   against the new background. This panel styles only itself.
+   ============================================================ */
+#viewDoor{background:var(--forest-deep);color:var(--cream);
+  margin:0 calc(var(--gutter) * -1);padding:1.6rem var(--gutter) 2rem;
+  border-top:1px solid var(--gold-dim);border-bottom:1px solid var(--gold-dim)}
+
+#viewDoor .door-bar{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;
+  margin-bottom:1.4rem}
+#viewDoor .door-count{color:var(--gold-lit)}
+#viewDoor .door-count small,#viewDoor .stamp{color:var(--stone)}
+#viewDoor input{background:rgba(244,241,232,.07);border:1px solid var(--line);
+  color:var(--cream);min-height:58px;font-size:1.15rem}
+#viewDoor input::placeholder{color:var(--stone)}
+#viewDoor input:focus{border-color:var(--gold);
+  box-shadow:0 0 0 3px rgba(208,169,58,.18);outline:none}
+#viewDoor .btn{border-color:var(--gold-dim);color:var(--cream)}
+#viewDoor .btn:hover{border-color:var(--gold);background:rgba(208,169,58,.14);
+  color:var(--gold-lit)}
+#viewDoor .btn-solid{background:var(--gold);border-color:var(--gold);
+  color:var(--forest-deep)}
+#viewDoor .btn svg{stroke:var(--gold)}
+#viewDoor .btn-solid svg{stroke:var(--forest-deep)}
+#viewDoor .list{background:transparent;border:1px solid var(--line)}
+#viewDoor .empty{color:var(--stone)}
+.door-note{color:var(--stone)!important;margin-top:1.2rem}
+
+/* one row per guest, sized for a thumb */
+.door-row{display:grid;grid-template-columns:auto 1fr auto;gap:1rem;
+  align-items:center;padding:1.1rem 1.2rem;
+  border-bottom:1px solid rgba(244,241,232,.1)}
+.door-row:last-child{border-bottom:0}
+.door-row .seat{width:38px;height:38px;display:grid;place-items:center;
+  border:1px solid var(--gold-dim);border-radius:50%;color:var(--gold-lit);
+  font-family:var(--f-display);font-weight:600;font-size:1.05rem;flex:none}
+.door-row .who b{display:block;font-family:var(--f-ui);font-weight:600;
+  font-size:1.25rem;color:var(--cream);line-height:1.25}
+.door-row .who span{display:block;font-size:.95rem;color:var(--stone);margin-top:.2rem}
+.door-row .who .no-photo{color:#F2B25C}
+.door-row .who .note-line{color:var(--gold-lit)}
+.door-go{min-height:52px;padding:.75rem 1.5rem;white-space:nowrap;
+  font-size:.7rem;letter-spacing:.16em}
+.door-row.arrived{background:rgba(26,107,65,.26)}
+.door-row.arrived .who b{color:#9FE6BC}
+.door-in{font-family:var(--f-label);font-weight:700;font-size:.62rem;
+  letter-spacing:.22em;text-transform:uppercase;color:#8FF0B8;
+  border:1px solid rgba(61,240,138,.45);padding:.55rem 1.1rem;white-space:nowrap}
+
+@media (max-width:560px){
+  .door-row{grid-template-columns:auto 1fr;gap:.7rem 1rem}
+  .door-go,.door-in{grid-column:2;justify-self:start}
+  #viewDoor .door-search{width:100%;order:-1}
+}
+@media print{#viewDoor{display:none!important}}
 </style>
 </head>
 <body>
@@ -1586,30 +1619,14 @@ tr{page-break-inside:avoid}
       <p>Friday 11 September 2026 &middot; PBIS Secondary Campus, canteen area</p>
     </div>
 
-    <div class="door-bar">
-      <span class="door-count"><span id="doorNum">0 / 0</span><small>Arrived</small></span>
-      <span class="stamp" id="doorMiss"></span>
-      <span class="door-search">
-        <input type="search" id="doorQ" placeholder="Type a name" aria-label="Find a guest">
-      </span>
-      <span class="lanes" role="group" aria-label="Which lane">
-        <button class="lane-btn" data-lane="1" aria-pressed="true">Lane 1</button>
-        <button class="lane-btn" data-lane="2" aria-pressed="false">Lane 2</button>
-        <button class="lane-btn" data-lane="3" aria-pressed="false">Lane 3</button>
-      </span>
-      <button class="btn btn-solid" id="doorScan">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16"/><path d="M4 12h16"/></svg>
-        Scan a pass</button>
-      <button class="btn" id="doorAdd">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-4A3.5 3.5 0 0 0 5 18.5V20"/><circle cx="10.5" cy="8" r="3.5"/><path d="M18 7v6M15 10h6"/></svg>
-        Not on the list?</button>
-      <button class="btn" id="doorExit">Leave</button>
-    </div>
 
     <nav class="tabs" role="tablist">
       <button class="tab" role="tab" data-tab="list" aria-selected="true">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg>
         RSVPs</button>
+      <button class="tab" role="tab" data-tab="door" aria-selected="false" id="tabDoor" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V5a1 1 0 0 1 1.3-1l9 2.6a1 1 0 0 1 .7 1V20"/><path d="M3 20h13M18 20h3"/><circle cx="11.5" cy="12.5" r=".9"/></svg>
+        Check in</button>
       <button class="tab" role="tab" data-tab="passes" aria-selected="false" id="tabPasses" hidden>
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h4v4H7z"/><path d="M15 9h2M15 12h2M15 15h2"/></svg>
         Passes</button>
@@ -1725,6 +1742,34 @@ tr{page-break-inside:avoid}
       </div>
     </div>
 
+    </div>
+
+    <div class="panel-view" id="viewDoor">
+    <div class="door-bar" id="doorBar">
+      <span class="door-count"><span id="doorNum">0 / 0</span><small>Arrived</small></span>
+      <span class="stamp" id="doorMiss"></span>
+      <span class="door-search">
+        <input type="search" id="doorQ" placeholder="Type a name" aria-label="Find a guest">
+      </span>
+      <span class="lanes" role="group" aria-label="Which lane">
+        <button class="lane-btn" data-lane="1" aria-pressed="true">Lane 1</button>
+        <button class="lane-btn" data-lane="2" aria-pressed="false">Lane 2</button>
+        <button class="lane-btn" data-lane="3" aria-pressed="false">Lane 3</button>
+      </span>
+      <button class="btn btn-solid" id="doorScan">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16"/><path d="M4 12h16"/></svg>
+        Scan a pass</button>
+      <button class="btn" id="doorAdd">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-4A3.5 3.5 0 0 0 5 18.5V20"/><circle cx="10.5" cy="8" r="3.5"/><path d="M18 7v6M15 10h6"/></svg>
+        Not on the list?</button>
+      <button class="btn" id="doorExit">Leave</button>
+    </div>
+      <div class="list" id="doorList">
+        <div id="doorRows"></div>
+        <div class="empty hidden" id="doorEmpty">Nobody matches that name.</div>
+      </div>
+      <p class="note door-note">Tap <b>Check in</b> beside a guest as they arrive. Their
+        name appears on the welcome screen for whichever lane this device is set to.</p>
     </div>
 
     <div class="panel-view" id="viewPasses">
@@ -2447,6 +2492,7 @@ function enter(v){
     var el = $(id); if (el) el.hidden = !rights.edit;
   });
   $('tabPasses').hidden = !rights.edit;
+  $('tabDoor').hidden = !rights.edit;
   $('tabSurvey').hidden = false;   // everyone who can sign in may read it
   $('emails').hidden = !rights.contacts;
   $('csv').hidden = !rights.export;
@@ -2644,18 +2690,13 @@ document.querySelectorAll('.sortable').forEach(function(h){
 });
 
 function visible(){
-  var q = (doorMode ? $('doorQ').value : $('q').value || '').toLowerCase();
+  var q = ($('q').value || '').toLowerCase();
   return data.filter(function(r){
     /* The server says whether a row is live. We do not second-guess it:
        holding a second copy of that rule here is exactly how a guest once
        ended up in the sheet but not on this screen. */
     var live = (r.live !== undefined) ? r.live : true;
     if (!live && filter !== 'removed' && filter !== 'cancelled') return false;
-    if (doorMode){
-      if (r.live === false) return false;
-      if (!q) return true;
-      return loose((r.name + ' ' + r.guest).toLowerCase(), q);
-    }
     if (filter === 'notes' && !(r.children || '').trim()) return false;
     if (filter === 'flagged' && !(r.note || '').trim()) return false;
     if (filter === 'msg' && !(r.message || '').trim()) return false;
@@ -2767,6 +2808,7 @@ function render(){
 
   var admin = !!rights.contacts;      // may see full contact details
   var canEdit = !!rights.edit;
+  var canRemove = !!rights.remove;
   if ($('viewPasses').classList.contains('on')) renderPasses();
 
   $('rows').innerHTML = list.map(function(r){
@@ -2801,29 +2843,25 @@ function render(){
       '<span class="ref">' + esc(r.ref) + '</span>' +
       '<span class="meta">' + (r.children ? esc(r.children) : '<em>\u2014</em>') + '</span>' +
       '<span class="status"><span class="pill ' + st.toLowerCase() + '">' + esc(st) + '</span></span>' +
-      '<span class="pick">' + (canEdit && !doorMode
+      '<span class="pick">' + (canEdit
         ? '<input type="checkbox" data-pick="' + esc(r.ref) + '"' +
           (picked[r.ref] ? ' checked' : '') +
           ' aria-label="Select ' + esc(r.name) + '">'
         : '') + '</span>' +
-      '<span class="act">' + (
-        doorMode
-          ? '<span class="door-actions">' +
-              '<button class="arrive" data-arrive="' + esc(r.ref) + '">' +
-                (r.status === 'Attended' ? '\u2713 Arrived' : 'Check in') + '</button>' +
-              '<button class="noshow" data-noshow="' + esc(r.ref) + '">' +
-                (r.status === 'No show' ? 'No show' : 'Did not come') + '</button>' +
-            '</span>'
-          : (canEdit
-            ? '<button class="icon-btn edit" data-edit="' + esc(r.ref) + '" ' +
-              'aria-label="Edit the RSVP from ' + esc(r.name) + '">' +
-              '<svg viewBox="0 0 24 24"><path d="M4 20h4l10-10-4-4L4 16z"/>' +
-              '<path d="M14 6l4 4"/></svg></button>' +
-              '<button class="icon-btn" data-del="' + esc(r.ref) + '" ' +
-              'aria-label="Remove the RSVP from ' + esc(r.name) + '">' +
+      '<span class="act">' +
+        (canEdit
+          ? '<button class="icon-btn edit" data-edit="' + esc(r.ref) + '" ' +
+              'aria-label="Edit ' + esc(r.name) + '">' +
+              '<svg viewBox="0 0 24 24"><path d="M4 20h4L18 10l-4-4L4 16z"/>' +
+              '<path d="M14 6l4 4"/></svg></button>'
+          : '') +
+        (canRemove
+          ? '<button class="icon-btn" data-del="' + esc(r.ref) + '" ' +
+              'aria-label="Remove ' + esc(r.name) + '">' +
               '<svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6"/>' +
               '<path d="M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>'
-            : '')) + '</span>' +
+          : '') +
+      '</span>' +
     '</div>';
   }).join('');
 }
@@ -2870,6 +2908,7 @@ $('refresh').addEventListener('click', function(){
       lastLoad = Date.now();
       render();
       if ($('viewPasses').classList.contains('on')) renderPasses();
+    if ($('viewDoor').classList.contains('on')) renderDoor();
     syncApproveAll();
       settle(true);
     })
@@ -3025,22 +3064,92 @@ $('dedupe').addEventListener('click', function(){
 });
 
 /* ---------------- door mode ---------------- */
+
+/* ============================================================
+   THE CHECK-IN LIST
+   Drawn separately from the office list: three columns and a
+   large tap target, not eight columns and a pencil.
+   ============================================================ */
+function renderDoor(){
+  var q = ($('doorQ').value || '').trim().toLowerCase();
+  var rows = data.filter(function(r){
+    if (r.live === false) return false;
+    if (!q) return true;
+    return loose((r.name + ' ' + r.guest + ' ' + r.ref).toLowerCase(), q);
+  }).sort(function(a, b){
+    // still to arrive first; nobody searches for somebody already inside
+    var rank = function(r){ return r.status === 'Attended' ? 1 : 0; };
+    return rank(a) - rank(b) || String(a.name).localeCompare(String(b.name));
+  });
+
+  $('doorEmpty').classList.toggle('hidden', rows.length > 0);
+  $('doorRows').innerHTML = rows.map(function(r){
+    var inAlready = r.status === 'Attended';
+    return '<div class="door-row' + (inAlready ? ' arrived' : '') +
+      '" data-door="' + esc(r.ref) + '">' +
+      '<span class="seat">' + (r.party || 1) + '</span>' +
+      '<div class="who"><b>' + esc(r.name) + '</b>' +
+        (r.guest ? '<span>with ' + esc(r.guest) + '</span>' : '') +
+        (r.photos === 'No' ? '<span class="no-photo">Not to be photographed</span>' : '') +
+        (r.note ? '<span class="note-line">' + esc(r.note) + '</span>' : '') +
+      '</div>' +
+      (inAlready ? '<span class="door-in">In</span>'
+                 : '<button class="btn btn-solid door-go">Check in</button>') +
+    '</div>';
+  }).join('');
+
+  var arrived = data.filter(function(r){ return r.status === 'Attended'; })
+                    .reduce(function(n, r){ return n + (r.party || 1); }, 0);
+  var expected = data.filter(function(r){ return r.live !== false; })
+                     .reduce(function(n, r){ return n + (r.party || 1); }, 0);
+  $('doorNum').textContent = arrived + ' / ' + expected;
+}
+
+$('doorRows').addEventListener('click', function(e){
+  var btn = e.target.closest('.door-go');
+  var row = e.target.closest('[data-door]');
+  if (!btn || !row) return;
+  var ref = row.getAttribute('data-door');
+  var r = data.filter(function(x){ return x.ref === ref; })[0];
+  if (!r) return;
+  btn.disabled = true;
+  btn.textContent = '\u2026';
+  api({ action:'checkin', token:session, ref:ref, lane:myLane })
+    .then(function(res){
+      if (res && res.error === 'expired'){ expire(); return; }
+      if (res && res.ok){
+        toast(res.already ? r.name + ' was already in' : r.name + ' checked in');
+        monitorShow(res);
+        announce(res);
+        load(true);
+      } else {
+        btn.disabled = false; btn.textContent = 'Check in';
+        toast('That could not be recorded.');
+      }
+    })
+    .catch(function(){
+      /* No signal: hold it on the device and let them through. */
+      queueAdd({ ref: ref, s: '', lane: myLane, at: Date.now() });
+      btn.textContent = 'Saved';
+      toast(r.name + ' saved on this device');
+    });
+});
+
 function setDoor(on){
-  doorMode = on;
-  /* At a gate, ten seconds. Everywhere else, twenty. */
-  if (pollTimer) clearInterval(pollTimer);
-  pollTimer = setInterval(function(){ load(true); }, on ? 10000 : 20000);
-  document.body.classList.toggle('door-on', on);
-  if (on){ filter = 'all'; setTimeout(function(){ $('doorQ').focus(); }, 60); }
-  else { $('doorQ').value = ''; }
-  render();
+  if (on){
+    showTab('door');
+    setTimeout(function(){ $('doorQ').focus(); }, 80);
+  } else {
+    $('doorQ').value = '';
+    showTab('list');
+  }
 }
 $('doorBtn').addEventListener('click', function(){ setDoor(true); });
 var sb = $('scanBtn'); if (sb) sb.addEventListener('click', openScanner);
 $('doorScan').addEventListener('click', openScanner);
 /* The old direct buttons now live in the night menu. */
 $('doorExit').addEventListener('click', function(){ setDoor(false); });
-$('doorQ').addEventListener('input', render);
+$('doorQ').addEventListener('input', renderDoor);
 
 $('rows').addEventListener('click', function(e){
   var b = e.target.closest('[data-arrive],[data-noshow]');
@@ -5157,20 +5266,33 @@ $('wiName').addEventListener('keydown', function(e){
 });
 
 /* ---------------- tabs ---------------- */
+/* One function, so anything can switch tabs — the buttons, and Door mode
+   from the On the night menu. */
+function showTab(which){
+  document.querySelectorAll('.tab').forEach(function(x){
+    x.setAttribute('aria-selected', x.getAttribute('data-tab') === which ? 'true' : 'false');
+  });
+  $('viewList').classList.toggle('on', which === 'list');
+  $('viewPasses').classList.toggle('on', which === 'passes');
+  $('viewSurvey').classList.toggle('on', which === 'survey');
+  $('viewDoor').classList.toggle('on', which === 'door');
+  $('viewLog').classList.toggle('on', which === 'log');
+  $('listNote').style.display = which === 'list' ? '' : 'none';
+
+  if (which === 'log') loadLog();
+  if (which === 'passes') renderPasses();
+  if (which === 'survey') loadSurvey();
+  if (which === 'door') renderDoor();
+
+  /* Leaving the gate should stop the ten-second polling. */
+  doorMode = (which === 'door');
+  if (pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(function(){ load(true); }, doorMode ? 10000 : 20000);
+}
+
 document.querySelectorAll('.tab').forEach(function(t){
   t.addEventListener('click', function(){
-    var which = t.getAttribute('data-tab');
-    document.querySelectorAll('.tab').forEach(function(x){
-      x.setAttribute('aria-selected', x === t ? 'true' : 'false');
-    });
-    $('viewList').classList.toggle('on', which === 'list');
-    $('viewPasses').classList.toggle('on', which === 'passes');
-    $('viewSurvey').classList.toggle('on', which === 'survey');
-    $('viewLog').classList.toggle('on', which === 'log');
-    $('listNote').style.display = which === 'list' ? '' : 'none';
-    if (which === 'log') loadLog();
-    if (which === 'passes') renderPasses();
-    if (which === 'survey') loadSurvey();
+    showTab(t.getAttribute('data-tab'));
   });
 });
 
