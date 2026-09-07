@@ -306,30 +306,10 @@ select option{background:var(--forest);color:var(--cream)}
 .made a{color:var(--gold-lit);text-decoration:none;border-bottom:1px solid var(--gold-dim)}
 .made .cr{width:100%;font-family:var(--f-label);font-size:.52rem;letter-spacing:.2em;
   text-transform:uppercase;color:var(--stone);opacity:.7;margin-top:.4rem}
-@media print{.made{display:none!important}}
 .stamp{font-family:var(--f-label);font-size:.52rem;letter-spacing:.2em;
   text-transform:uppercase;color:var(--stone);white-space:nowrap}
 
 /* ---------------- print: the door list ---------------- */
-@media print{
-  body{background:#fff;color:#000;font-size:11pt}
-  .grain,.bar,.tools,.stats,.years,.cap,.note,.dupe-note,.viewer-note,
-  .toast,.sheet,.gate,.door-bar,.icon-btn,.act,.deadline{display:none!important}
-  main{padding:0;max-width:none}
-  .print-head{display:block!important;margin-bottom:14pt;border-bottom:1pt solid #000;
-    padding-bottom:8pt}
-  .print-head h1{font-size:16pt;margin:0}
-  .print-head p{margin:4pt 0 0;font-size:10pt}
-  .list{border:0;background:none}
-  .row{display:grid!important;grid-template-columns:26pt 1fr 40pt 34pt;
-    gap:8pt;padding:5pt 0;border-bottom:.5pt solid #999;break-inside:avoid;background:none!important}
-  .row.head{display:none!important}
-  .seat{border:0;color:#000;width:auto;height:auto;font-size:11pt}
-  .who b{color:#000;font-size:11pt}
-  .who span{color:#333;font-size:9pt}
-  .row::after{content:"";display:block;width:20pt;height:20pt;border:1pt solid #000}
-  .pill{border-color:#999;color:#333}
-}
 .print-head{display:none}
 
 
@@ -956,7 +936,6 @@ html[data-theme="dark"] .claim-stats b{color:var(--gold-lit)}
 .kiosk-answer span{display:block;font-family:var(--f-ui);
   font-size:clamp(1.05rem,2.4vw,1.5rem);color:var(--cream);margin-top:.8rem}
 
-@media print{.scan,.monitor,.kiosk{display:none!important}}
 
 
 /* ============================================================
@@ -1354,6 +1333,143 @@ html[data-theme="dark"] .yr-i svg{stroke:var(--gold-lit)}
 html[data-theme="dark"] .chip[aria-pressed="true"] svg{stroke:var(--gold-lit)}
 @media (max-width:560px){.chip svg{display:none}}
 
+
+/* ============================================================
+   PASSES BY HAND
+   Email is optional on the form; a phone number is not. So some
+   families will have no pass at all unless somebody puts one in
+   their hand. This is that.
+   ============================================================ */
+.fld .req{color:var(--gold-deep)}
+html[data-theme="dark"] .fld .req{color:var(--gold-lit)}
+.fld .opts{display:flex;gap:.6rem}
+.fld .opt-b{flex:1;min-height:54px;padding:.7rem 1rem;background:transparent;
+  border:1px solid var(--rule);color:var(--ink);font-family:var(--f-ui);
+  font-size:1.02rem;cursor:pointer}
+.fld .opt-b[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);
+  color:var(--forest-deep);font-weight:600}
+.bh-tools{display:flex;align-items:center;gap:1rem;margin-bottom:1.2rem;flex-wrap:wrap}
+.bh-tools .count{margin-right:auto}
+.bh-list{display:grid;gap:1px;background:var(--rule);border:1px solid var(--rule);
+  max-height:52vh;overflow-y:auto}
+.bh-row{display:grid;grid-template-columns:1fr auto auto;gap:1rem;align-items:center;
+  background:var(--paper-2);padding:.9rem 1.1rem}
+.bh-row b{display:block;font-size:1.05rem;color:var(--ink)}
+.bh-row span{display:block;font-size:.9rem;color:var(--ink-2);margin-top:.15rem}
+.bh-row .ref{font-family:var(--f-ui);font-weight:600;color:var(--gold-deep);
+  white-space:nowrap}
+html[data-theme="dark"] .bh-row .ref{color:var(--gold-lit)}
+.bh-row.given{opacity:.55}
+@media (max-width:640px){
+  .bh-row{grid-template-columns:1fr auto}
+  .bh-row .ref{grid-column:1}
+}
+
+/* ============================================================
+   ONE PASS, FULL SCREEN
+   Held up for a parent to photograph, so it is large, high
+   contrast, and carries everything the gate needs.
+   ============================================================ */
+.onepass{position:fixed;inset:0;z-index:140;display:none;place-items:center;
+  padding:1.2rem;background:var(--forest-deep);
+  background-image:radial-gradient(70% 50% at 50% 25%,rgba(208,169,58,.14),transparent 65%)}
+.onepass.open{display:grid}
+.op-card{text-align:center;width:min(460px,100%);max-height:94dvh;overflow-y:auto}
+.op-crest{display:block;width:min(96px,20vw);margin:0 auto .8rem;
+  background:var(--logo) center/contain no-repeat;aspect-ratio:900/728;
+  min-height:calc(min(96px,20vw) * 0.808)}
+.op-k{margin:0;font-family:var(--f-label);font-weight:700;font-size:.62rem;
+  letter-spacing:.3em;text-transform:uppercase;color:var(--gold-lit);text-indent:.3em}
+.op-title{margin:.5rem 0 1.1rem;font-family:var(--f-display);font-weight:600;
+  font-size:clamp(1.5rem,5vw,2.1rem);color:#FFF;line-height:1.15}
+/* white, always: a dark code on a dark panel cannot be scanned */
+.op-qr{background:#FFF;padding:14px;display:inline-block;border:2px solid var(--gold)}
+.op-qr img{display:block;width:min(280px,64vw);height:auto}
+.op-ref{margin:1rem 0 0;font-family:var(--f-display);font-weight:700;
+  font-size:clamp(1.3rem,5vw,1.9rem);letter-spacing:.1em;color:var(--gold-lit)}
+.op-sub{margin:.4rem 0 0;font-family:var(--f-ui);font-size:1rem;color:var(--stone)}
+.op-acts{display:flex;gap:.6rem;justify-content:center;margin-top:1.6rem;flex-wrap:wrap}
+.op-acts .btn{border-color:var(--gold-dim);color:var(--cream)}
+.op-acts .btn:hover{border-color:var(--gold);background:rgba(208,169,58,.14)}
+.op-hint{margin:1.1rem auto 0;max-width:36ch;font-size:.92rem;color:var(--stone);
+  line-height:1.6}
+
+/* what actually comes out of the printer */
+/* One print rule for the whole application.
+   Everything on screen is hidden, and whichever sheet was asked for is
+   shown. The old rules tried to print the live table, which is why its
+   columns collapsed: they were sized for a browser window, not a page. */
+@media print{
+  body > *{display:none!important}
+  #printArea.on{display:block!important}
+  #doorPrint.on{display:block!important}
+}
+#printArea{display:none}
+.pp-sheet{page-break-after:always;padding:14mm;text-align:center;
+  font-family:Georgia,'Times New Roman',serif;color:#0A2318}
+.pp-sheet:last-child{page-break-after:auto}
+.pp-k{font-size:9pt;letter-spacing:3px;text-transform:uppercase;color:#8A6E14;margin:0}
+.pp-name{font-size:20pt;font-weight:bold;margin:6mm 0 2mm}
+.pp-qr{border:2px solid #D0A93A;padding:5mm;display:inline-block;background:#FFF}
+.pp-qr img{display:block;width:58mm;height:58mm}
+.pp-ref{font-size:16pt;font-weight:bold;letter-spacing:2px;margin:4mm 0 1mm}
+.pp-meta{font-size:10pt;color:#4E6555;margin:0}
+.pp-cut{margin-top:8mm;border-top:1px dashed #B9B2A0;padding-top:3mm;
+  font-size:8pt;color:#7C8B80}
+
+
+/* ============================================================
+   THE PRINTED DOOR LIST
+   Built from scratch rather than printed from the screen. The
+   old version inherited the table's grid columns, which collapse
+   on paper because they were sized for a browser window — and it
+   left out the reference, which is the one thing a paper list
+   needs now that guests arrive holding codes.
+
+   This is the fallback if the wifi fails entirely, so it has to
+   stand on its own.
+   ============================================================ */
+#doorPrint{display:none}
+
+@page{size:A4 portrait;margin:12mm 10mm 14mm}
+@media print{ html,body{background:#FFF!important} }
+
+.dp-head{display:flex;justify-content:space-between;align-items:flex-end;
+  border-bottom:2pt solid #0D4128;padding-bottom:3mm;margin-bottom:5mm}
+.dp-head h1{margin:0;font-family:Georgia,'Times New Roman',serif;font-size:15pt;
+  color:#0A2318;font-weight:bold}
+.dp-head p{margin:1mm 0 0;font-size:8.5pt;color:#4E6555}
+.dp-head .when{text-align:right;font-size:8pt;color:#7C8B80}
+
+/* A fixed table, so a long name wraps instead of squeezing the
+   reference column into nothing. */
+.dp-table{width:100%;border-collapse:collapse;table-layout:fixed;
+  font-family:Georgia,'Times New Roman',serif}
+.dp-table th{font-size:7.5pt;letter-spacing:1.2pt;text-transform:uppercase;
+  text-align:left;color:#FFF;background:#0D4128;padding:2.2mm 2mm;
+  border:0.4pt solid #0D4128}
+.dp-table td{font-size:9pt;padding:2.2mm 2mm;border:0.4pt solid #C9C3B2;
+  vertical-align:top;word-wrap:break-word;overflow-wrap:break-word}
+.dp-table tr:nth-child(even) td{background:#F7F5EF}
+
+.dp-tick{width:9mm;text-align:center}
+.dp-tick div{width:4.5mm;height:4.5mm;border:0.8pt solid #4E6555;margin:0 auto}
+.dp-name{width:34%}
+.dp-name b{font-size:9.5pt;color:#0A2318}
+.dp-name span{display:block;font-size:7.5pt;color:#4E6555;margin-top:.6mm}
+.dp-ref{width:22mm;font-family:'Courier New',monospace;font-size:8.5pt;
+  letter-spacing:.3pt;white-space:nowrap}
+.dp-party{width:11mm;text-align:center;font-size:10pt;font-weight:bold}
+.dp-kids{font-size:7.5pt;color:#4E6555;line-height:1.35}
+
+thead{display:table-header-group}   /* repeat the header on every page */
+tr{page-break-inside:avoid}
+
+.dp-foot{margin-top:6mm;padding-top:3mm;border-top:0.4pt solid #C9C3B2;
+  font-size:7.5pt;color:#7C8B80;line-height:1.5}
+.dp-count{margin:0 0 4mm;font-size:9pt;color:#0A2318}
+.dp-count b{font-size:11pt}
+
 </style>
 </head>
 <body>
@@ -1456,7 +1572,7 @@ html[data-theme="dark"] .chip[aria-pressed="true"] svg{stroke:var(--gold-lit)}
   <main>
     <div class="print-head">
       <h1>Parent Appreciation Night &mdash; door list</h1>
-      <p>Friday 11 September 2026 &middot; PBIS Secondary Campus, football field area</p>
+      <p>Friday 11 September 2026 &middot; PBIS Secondary Campus, canteen area</p>
     </div>
 
     <div class="door-bar">
@@ -1473,6 +1589,9 @@ html[data-theme="dark"] .chip[aria-pressed="true"] svg{stroke:var(--gold-lit)}
       <button class="btn btn-solid" id="doorScan">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16"/><path d="M4 12h16"/></svg>
         Scan a pass</button>
+      <button class="btn" id="doorAdd">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-4A3.5 3.5 0 0 0 5 18.5V20"/><circle cx="10.5" cy="8" r="3.5"/><path d="M18 7v6M15 10h6"/></svg>
+        Not on the list?</button>
       <button class="btn" id="doorExit">Leave</button>
     </div>
 
@@ -1617,6 +1736,21 @@ html[data-theme="dark"] .chip[aria-pressed="true"] svg{stroke:var(--gold-lit)}
           <button class="chip" data-pf="waiting" aria-pressed="true">Awaiting</button>
           <button class="chip" data-pf="approved" aria-pressed="false">Approved</button>
           <button class="chip" data-pf="noemail" aria-pressed="false">No email</button>
+        <button class="btn btn-solid hidden" id="approveAll">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/><path d="M14 6 9 11"/></svg>
+          <span id="approveAllLabel">Approve everyone waiting</span></button>
+        <button class="btn btn-solid" id="byHandAll" style="margin-left:auto">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg>
+          Passes to give by hand</button>
+        </span>
+        <span class="sortwrap">
+          <label class="sortlab" for="pSort">Sort</label>
+          <select id="pSort" aria-label="Sort the passes">
+            <option value="wait">Awaiting first</option>
+            <option value="ts">Newest first</option>
+            <option value="old">Oldest first</option>
+            <option value="name">Name A &ndash; Z</option>
+          </select>
         </span>
         <span class="count" id="pCount"></span>
       </div>
@@ -1662,6 +1796,15 @@ html[data-theme="dark"] .chip[aria-pressed="true"] svg{stroke:var(--gold-lit)}
         <button class="btn" id="svExport">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11"/><path d="m8 10 4 4 4-4"/><path d="M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17"/></svg>
           Export</button>
+        <span class="sortwrap">
+          <label class="sortlab" for="svSort">Sort</label>
+          <select id="svSort" aria-label="Sort the responses">
+            <option value="ts">Newest first</option>
+            <option value="old">Oldest first</option>
+            <option value="slot">Respondent number</option>
+            <option value="name">Name A &ndash; Z</option>
+          </select>
+        </span>
         <span class="count" id="svCount"></span>
       </div>
 
@@ -1747,6 +1890,79 @@ html[data-theme="dark"] .chip[aria-pressed="true"] svg{stroke:var(--gold-lit)}
       <button class="btn" data-cl-close>Close</button>
       <button class="btn btn-solid" id="clGo">Check the code</button>
     </div>
+  </div>
+</div>
+
+<!-- ============ passes for guests with no email ============ -->
+<div class="sheet" id="walkIn" role="dialog" aria-modal="true" aria-labelledby="wiTitle">
+  <div class="sheet-scrim" data-wi-close></div>
+  <div class="sheet-card">
+    <button class="modal-close" data-wi-close aria-label="Close">&times;</button>
+    <h2 id="wiTitle">Not on the list</h2>
+    <p class="kill-note">Add them and check them in at the same time. You can tidy up
+      the details afterwards &mdash; the queue matters more right now.</p>
+
+    <div class="fld">
+      <label class="label" for="wiName">Name <span class="req">*</span></label>
+      <input type="text" id="wiName" autocomplete="off" style="font-size:1.15rem">
+    </div>
+    <div class="fld">
+      <label class="label" for="wiPhone">Phone</label>
+      <input type="tel" id="wiPhone" autocomplete="off" style="font-size:1.15rem">
+    </div>
+    <div class="fld">
+      <span class="label">How many are with them?</span>
+      <span class="opts" role="group" aria-label="Party size">
+        <button type="button" class="opt-b" data-wiparty="1" aria-pressed="true">Just them</button>
+        <button type="button" class="opt-b" data-wiparty="2" aria-pressed="false">Two of them</button>
+      </span>
+    </div>
+    <p class="err" id="wiErr" role="alert"></p>
+    <div class="sheet-actions">
+      <button class="btn" data-wi-close>Cancel</button>
+      <button class="btn btn-solid" id="wiGo">Add and check in</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="byHand" role="dialog" aria-modal="true" aria-labelledby="bhTitle">
+  <div class="sheet-scrim" data-bh-close></div>
+  <div class="sheet-card help-card">
+    <button class="modal-close" data-bh-close aria-label="Close">&times;</button>
+    <h2 id="bhTitle">Passes to give by hand</h2>
+    <p class="kill-note">These families gave us a phone number but no email address, so
+      no pass has been sent to them. Show a code for them to photograph, save it to send
+      on WhatsApp, or print the lot and hand them out at the door.</p>
+
+    <div class="bh-tools">
+      <span class="count" id="bhCount"></span>
+      <button class="btn" id="bhPrint">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6"/><rect x="4" y="9" width="16" height="7" rx="1.5"/><path d="M7 16h10v5H7z"/></svg>
+        Print them all</button>
+    </div>
+
+    <div class="bh-list" id="bhList"></div>
+    <div class="empty hidden" id="bhEmpty">Everyone on the list has an email address.</div>
+  </div>
+</div>
+
+<!-- ============ one pass, full screen ============ -->
+<div class="onepass" id="onePass" role="dialog" aria-modal="true" aria-label="Entry pass">
+  <button class="mon-exit" id="opClose" aria-label="Close">&times;</button>
+  <div class="op-card" id="opCard">
+    <span class="crest op-crest" role="img" aria-label="PBIS"></span>
+    <p class="op-k">Your entry pass</p>
+    <h2 class="op-title" id="opName">&mdash;</h2>
+    <div class="op-qr"><img id="opImg" alt="Entry code"></div>
+    <p class="op-ref" id="opRef">&mdash;</p>
+    <p class="op-sub" id="opSub">&mdash;</p>
+    <div class="op-acts">
+      <button class="btn" id="opPrev">&larr; Previous</button>
+      <button class="btn" id="opSave">Save image</button>
+      <button class="btn" id="opNext">Next &rarr;</button>
+    </div>
+    <p class="op-hint">Ask the parent to photograph this screen, or save the image
+      and send it to them on WhatsApp.</p>
   </div>
 </div>
 
@@ -2029,6 +2245,9 @@ html[data-theme="dark"] .chip[aria-pressed="true"] svg{stroke:var(--gold-lit)}
   </div>
 </div>
 
+<div id="printArea" aria-hidden="true"></div>
+<div id="doorPrint" aria-hidden="true"></div>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -2143,24 +2362,42 @@ $('enter').addEventListener('click', signIn);
 /* Staying signed in across a refresh.
    Held in sessionStorage, not localStorage: closing the tab ends it, which
    is the right default for a guest list on a shared office machine. */
+/* ============================================================
+   STAYING SIGNED IN
+   The session used to live in sessionStorage, which iOS Safari
+   discards when it reclaims a background tab. A member of staff
+   who opened WhatsApp for a minute could come back signed out,
+   in the middle of a queue. localStorage survives that, and the
+   fourteen-hour expiry below still ends it on its own.
+   ============================================================ */
+function store(){
+  try { return window.localStorage; } catch (err) { return null; }
+}
+
 function remember(res){
   try {
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+    store().setItem(SESSION_KEY, JSON.stringify({
       token: res.token, role: res.role, can: res.can,
       name: res.name || res.user, title: res.title || '',
-      at: Date.now(), hours: res.hours || 6
+      at: Date.now(), hours: res.hours || 14
     }));
   } catch (err) { /* private browsing refuses storage; sign-in still works */ }
 }
 function forget(){
   try {
-    sessionStorage.removeItem(SESSION_KEY);
+    store().removeItem(SESSION_KEY);
+    store().removeItem(CACHE_KEY);
+    sessionStorage.removeItem(SESSION_KEY);   // clear the old home too
     sessionStorage.removeItem(CACHE_KEY);
   } catch (err) {}
 }
 function resume(){
   var raw;
-  try { raw = sessionStorage.getItem(SESSION_KEY); } catch (err) { return false; }
+  try {
+    raw = store().getItem(SESSION_KEY);
+    // anyone signed in before this change still has a session next door
+    if (!raw) raw = sessionStorage.getItem(SESSION_KEY);
+  } catch (err) { return false; }
   if (!raw) return false;
   var v;
   try { v = JSON.parse(raw); } catch (err) { forget(); return false; }
@@ -2613,6 +2850,7 @@ $('refresh').addEventListener('click', function(){
       lastLoad = Date.now();
       render();
       if ($('viewPasses').classList.contains('on')) renderPasses();
+    syncApproveAll();
       settle(true);
     })
     .catch(function(){ syncFailed(); fail(); settle(false); });
@@ -2890,17 +3128,86 @@ $('sheetSave').addEventListener('click', function(){
 });
 
 /* ---------------- print ---------------- */
+/* ============================================================
+   THE DOOR LIST ON PAPER
+   Written out as its own table rather than printed from the
+   screen. If the connection fails on the night this sheet is
+   everything the gate has, so it carries the reference too.
+   ============================================================ */
 $('printBtn').addEventListener('click', function(){
-  // Print everything, alphabetically, whatever the screen is filtered to.
-  var wasFilter = filter, wasQ = $('q').value, wasDoor = doorMode;
-  filter = 'all'; $('q').value = ''; doorMode = false;
-  data.sort(function(a,b){ return a.name.localeCompare(b.name); });
-  render();
-  setTimeout(function(){
-    window.print();
-    filter = wasFilter; $('q').value = wasQ; doorMode = wasDoor;
-    render();
-  }, 120);
+  var rows = data.filter(function(r){ return r.live !== false; })
+    .sort(function(a, b){
+      /* By surname, which is how somebody looks a family up on paper. */
+      var an = String(a.name).trim().split(/\s+/);
+      var bn = String(b.name).trim().split(/\s+/);
+      var al = (an[an.length - 1] || '') + ' ' + an[0];
+      var bl = (bn[bn.length - 1] || '') + ' ' + bn[0];
+      return al.localeCompare(bl, undefined, { sensitivity: 'base' });
+    });
+
+  if (!rows.length){ toast('Nothing to print.'); return; }
+
+  var heads = rows.reduce(function(n, r){ return n + (r.party || 1); }, 0);
+  var now = new Date();
+
+  function bands(kids){
+    if (!kids) return '';
+    /* Year groups only: the whole list of children's names would not fit,
+       and the year group is what tells staff which table to point at. */
+    var out = [];
+    ['Early Years', 'Lower Primary', 'Upper Primary', 'Secondary'].forEach(function(b){
+      if (kids.indexOf(b) > -1) out.push(b);
+    });
+    return out.join(', ');
+  }
+
+  $('doorPrint').innerHTML =
+    '<div class="dp-head">' +
+      '<div>' +
+        '<h1>Parent Appreciation Night &mdash; door list</h1>' +
+        '<p>Friday 11 September 2026 &middot; 5:30 &ndash; 8:30 PM &middot; ' +
+          'Secondary Campus, canteen area</p>' +
+      '</div>' +
+      '<div class="when">Printed ' +
+        esc(now.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' })) +
+        '<br>at ' + esc(now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' })) +
+      '</div>' +
+    '</div>' +
+
+    '<p class="dp-count"><b>' + rows.length + '</b> families &middot; <b>' + heads +
+      '</b> people expected</p>' +
+
+    '<table class="dp-table"><thead><tr>' +
+      '<th class="dp-tick">In</th>' +
+      '<th class="dp-name">Guest</th>' +
+      '<th class="dp-ref">Reference</th>' +
+      '<th class="dp-party">No.</th>' +
+      '<th>Children at PBIS</th>' +
+    '</tr></thead><tbody>' +
+
+    rows.map(function(r){
+      return '<tr>' +
+        '<td class="dp-tick"><div></div></td>' +
+        '<td class="dp-name"><b>' + esc(r.name) + '</b>' +
+          (r.guest ? '<span>with ' + esc(r.guest) + '</span>' : '') +
+          (r.photos === 'No' ? '<span>&#9888; not to be photographed</span>' : '') +
+        '</td>' +
+        '<td class="dp-ref">' + esc(r.ref) + '</td>' +
+        '<td class="dp-party">' + (r.party || 1) + '</td>' +
+        '<td class="dp-kids">' + esc(bands(r.children)) + '</td>' +
+      '</tr>';
+    }).join('') +
+
+    '</tbody></table>' +
+
+    '<p class="dp-foot">Tick a family in as they arrive. If a guest is not listed, ' +
+      'take their name and number and add them to the dashboard afterwards.<br>' +
+      'This sheet holds parents&rsquo; details &mdash; please do not leave it ' +
+      'unattended, and dispose of it after the evening.</p>';
+
+  $('doorPrint').classList.add('on');
+  window.print();
+  $('doorPrint').classList.remove('on');
 });
 
 /* ---------------- bulk actions ---------------- */
@@ -3013,9 +3320,9 @@ function withQR(done, fail){
 
 /* ============================================================
    THE CHECK-IN QUEUE
-   Wifi at a football field is not something to depend on. Every
-   check-in is written to the device first and sent afterwards, so
-   a dropped connection at the gate delays a record rather than
+   Wifi across a canteen full of people is not something to depend
+   on. Every check-in is written to the device first and sent after,
+   so a dropped connection at the gate delays a record rather than
    losing one.
    ============================================================ */
 var QKEY = 'pbis.checkin.queue';
@@ -3456,7 +3763,16 @@ function passList(){
     if (passFilter === 'noemail'  && r.email) return false;
     if (!q) return true;
     return (r.name + ' ' + r.ref + ' ' + r.email).toLowerCase().indexOf(q) > -1;
-  }).sort(function(a, b){ return String(a.name).localeCompare(String(b.name)); });
+  }).sort(function(a, b){
+    var by = $('pSort') ? $('pSort').value : 'wait';
+    if (by === 'name') return String(a.name).localeCompare(String(b.name));
+    if (by === 'ts')   return String(b.ts || '').localeCompare(String(a.ts || ''));
+    if (by === 'old')  return String(a.ts || '').localeCompare(String(b.ts || ''));
+    /* Awaiting first, because that is the list somebody is working
+       through. Sent passes are the ones already dealt with. */
+    var rank = function(r){ return r.qrSent ? 2 : (r.approved === 'Yes' ? 1 : 0); };
+    return rank(a) - rank(b) || String(a.name).localeCompare(String(b.name));
+  });
 }
 
 function renderPasses(){
@@ -3516,6 +3832,14 @@ function syncPassBulk(){
 }
 
 $('pq').addEventListener('input', renderPasses);
+$('pSort').addEventListener('change', function(){
+  try { localStorage.setItem('pbis.psort', this.value); } catch (e) {}
+  renderPasses();
+});
+try {
+  var ps = localStorage.getItem('pbis.psort');
+  if (ps) $('pSort').value = ps;
+} catch (e) {}
 document.querySelectorAll('[data-pf]').forEach(function(c){
   c.addEventListener('click', function(){
     passFilter = c.getAttribute('data-pf');
@@ -4171,7 +4495,7 @@ function rememberList(res){
 
 function paintFromCache(){
   var raw;
-  try { raw = sessionStorage.getItem(CACHE_KEY); } catch (err) { return false; }
+  try { raw = store().getItem(CACHE_KEY); } catch (err) { return false; }
   if (!raw) return false;
   var v;
   try { v = JSON.parse(raw); } catch (err) { return false; }
@@ -4306,11 +4630,23 @@ function loadSurvey(){
 
 function svVisible(){
   var q = ($('svq').value || '').toLowerCase();
-  if (!q) return svData;
-  return svData.filter(function(r){
+  var rows = !q ? svData.slice() : svData.filter(function(r){
     var hay = Object.keys(r).map(function(k){ return r[k]; }).join(' ').toLowerCase();
     return loose(hay, q);
   });
+
+  var by = $('svSort') ? $('svSort').value : 'ts';
+  rows.sort(function(a, b){
+    if (by === 'name'){
+      return (a.c4 + ' ' + a.c5).localeCompare(b.c4 + ' ' + b.c5);
+    }
+    if (by === 'slot'){
+      return (Number(a.c1) || 999) - (Number(b.c1) || 999);
+    }
+    if (by === 'old') return String(a.c0 || '').localeCompare(String(b.c0 || ''));
+    return String(b.c0 || '').localeCompare(String(a.c0 || ''));
+  });
+  return rows;
 }
 
 function renderSurvey(){
@@ -4333,6 +4669,14 @@ function renderSurvey(){
 }
 
 $('svq').addEventListener('input', renderSurvey);
+$('svSort').addEventListener('change', function(){
+  try { localStorage.setItem('pbis.svsort', this.value); } catch (e) {}
+  renderSurvey();
+});
+try {
+  var ss2 = localStorage.getItem('pbis.svsort');
+  if (ss2) $('svSort').value = ss2;
+} catch (e) {}
 
 $('svRows').addEventListener('click', function(e){
   var row = e.target.closest('[data-sv]');
@@ -4507,6 +4851,282 @@ $('svExport').addEventListener('click', function(){
   a.download = 'PBIS-parent-survey.csv';
   a.click();
   toast(rows.length + ' response' + (rows.length === 1 ? '' : 's') + ' exported');
+});
+
+
+/* ============================================================
+   PASSES FOR GUESTS WITH NO EMAIL
+   The QR image comes from the same service the emails use, with
+   the same reference, so a code shown here and a code emailed to
+   somebody else scan identically at the gate.
+   ============================================================ */
+var bhRows = [], bhAt = 0;
+
+/* The signed link comes from the server with the rest of the row. Building
+   one here would produce an unsigned code: the gate would still take it,
+   but so would one somebody invented. */
+function qrSrc(row){
+  var url = row.pass || (window.location.origin + '/?ticket=1&ref=' +
+            encodeURIComponent(row.ref) + '&p=1');
+  return 'https://quickchart.io/qr?size=720&margin=4&ecLevel=H' +
+         '&dark=0A2318&light=FFFFFF&text=' + encodeURIComponent(url);
+}
+
+function openByHand(){
+  bhRows = data.filter(function(r){
+    return r.live !== false && !r.email;
+  }).sort(function(a, b){ return String(a.name).localeCompare(String(b.name)); });
+
+  $('bhCount').textContent = bhRows.length +
+    (bhRows.length === 1 ? ' family with no email' : ' families with no email');
+  $('bhEmpty').classList.toggle('hidden', bhRows.length > 0);
+
+  $('bhList').innerHTML = bhRows.map(function(r, i){
+    return '<div class="bh-row' + (r.qrSent ? ' given' : '') + '">' +
+      '<div><b>' + esc(r.name) + '</b><span>' + esc(r.phone || 'no phone') +
+        ' \u00b7 ' + (r.party || 1) + (r.party === 1 ? ' place' : ' places') +
+        (r.qrSent ? ' \u00b7 already given' : '') + '</span></div>' +
+      '<span class="ref">' + esc(r.ref) + '</span>' +
+      '<button class="btn" data-bh="' + i + '">Show the pass</button>' +
+    '</div>';
+  }).join('');
+  $('byHand').classList.add('open');
+}
+
+$('byHandAll').addEventListener('click', openByHand);
+document.querySelectorAll('[data-bh-close]').forEach(function(el){
+  el.addEventListener('click', function(){ $('byHand').classList.remove('open'); });
+});
+$('bhList').addEventListener('click', function(e){
+  var b = e.target.closest('[data-bh]');
+  if (b) showPass(parseInt(b.getAttribute('data-bh'), 10));
+});
+
+function showPass(i){
+  if (i < 0 || i >= bhRows.length) return;
+  bhAt = i;
+  var r = bhRows[i];
+  $('opName').textContent = r.name;
+  $('opRef').textContent = r.ref;
+  $('opSub').textContent = (r.party || 1) + (r.party === 1 ? ' place' : ' places') +
+    (r.guest ? ' \u00b7 with ' + r.guest : '') +
+    '   \u00b7   ' + (i + 1) + ' of ' + bhRows.length;
+  $('opImg').src = qrSrc(r);
+  $('opPrev').disabled = i === 0;
+  $('opNext').disabled = i === bhRows.length - 1;
+  $('onePass').classList.add('open');
+
+  /* Showing it counts as giving it, so the office is not left wondering
+     later whether this family was ever dealt with. */
+  if (!r.qrSent){
+    api({ action:'marksent', token:session, ref:r.ref })
+      .then(function(res){ if (res && res.ok) load(true); })
+      .catch(function(){});
+  }
+}
+
+$('opPrev').addEventListener('click', function(){ showPass(bhAt - 1); });
+$('opNext').addEventListener('click', function(){ showPass(bhAt + 1); });
+$('opClose').addEventListener('click', function(){
+  $('onePass').classList.remove('open');
+  openByHand();
+});
+document.addEventListener('keydown', function(e){
+  if (!$('onePass').classList.contains('open')) return;
+  if (e.key === 'ArrowLeft') showPass(bhAt - 1);
+  if (e.key === 'ArrowRight') showPass(bhAt + 1);
+  if (e.key === 'Escape') $('opClose').click();
+});
+
+/* Saving lets somebody send the pass on WhatsApp, which is how most of
+   these families will actually be reached. */
+$('opSave').addEventListener('click', function(){
+  var r = bhRows[bhAt];
+  var btn = this;
+  btn.disabled = true;
+  btn.textContent = 'Saving\u2026';
+  fetch($('opImg').src)
+    .then(function(res){ return res.blob(); })
+    .then(function(blob){
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'pass-' + r.ref + '-' + String(r.name).replace(/\W+/g, '-') + '.png';
+      a.click();
+      setTimeout(function(){ URL.revokeObjectURL(a.href); }, 4000);
+      btn.disabled = false;
+      btn.textContent = 'Save image';
+      toast('Saved \u2014 send it to ' + r.name + ' on WhatsApp');
+    })
+    .catch(function(){
+      btn.disabled = false;
+      btn.textContent = 'Save image';
+      toast('Could not save that image.');
+    });
+});
+
+$('bhPrint').addEventListener('click', function(){
+  if (!bhRows.length){ toast('Nothing to print.'); return; }
+  $('printArea').innerHTML = bhRows.map(function(r){
+    return '<div class="pp-sheet">' +
+      '<p class="pp-k">Parent Appreciation Night \u00b7 Entry pass</p>' +
+      '<div class="pp-name">' + esc(r.name) + '</div>' +
+      '<div class="pp-qr"><img src="' + qrSrc(r) + '" alt=""></div>' +
+      '<div class="pp-ref">' + esc(r.ref) + '</div>' +
+      '<p class="pp-meta">' + (r.party || 1) +
+        (r.party === 1 ? ' place' : ' places') +
+        (r.guest ? ' \u00b7 with ' + esc(r.guest) : '') + '</p>' +
+      '<p class="pp-meta">Friday 11 September 2026 \u00b7 5:30 \u2013 8:30 PM \u00b7 ' +
+        'Secondary Campus, canteen area</p>' +
+      '<p class="pp-cut">Show this at the gate. If the code will not scan, ' +
+        'the reference above works on its own.</p>' +
+    '</div>';
+  }).join('');
+
+  /* Give the browser a moment to fetch every code before the print
+     dialogue opens, or the sheets come out with empty boxes. */
+  toast('Preparing ' + bhRows.length + ' pass' + (bhRows.length === 1 ? '' : 'es') + '\u2026');
+  setTimeout(function(){
+    $('printArea').classList.add('on');
+    window.print();
+    $('printArea').classList.remove('on');
+  }, 1400);
+});
+
+/* ============================================================
+   APPROVING EVERYONE AT ONCE
+   Forty families ticked one at a time is forty chances to miss
+   one. This is the same action, applied to whoever is waiting.
+   ============================================================ */
+function syncApproveAll(){
+  var waiting = data.filter(function(r){
+    return r.live !== false && r.approved !== 'Yes' && r.email;
+  });
+  var btn = $('approveAll');
+  btn.classList.toggle('hidden', waiting.length === 0 || !rights.edit);
+  $('approveAllLabel').textContent = 'Approve all ' + waiting.length + ' waiting';
+  return waiting;
+}
+
+$('approveAll').addEventListener('click', function(){
+  var waiting = data.filter(function(r){
+    return r.live !== false && r.approved !== 'Yes' && r.email;
+  });
+  if (!waiting.length){ toast('Nobody is waiting.'); return; }
+
+  var noMail = data.filter(function(r){
+    return r.live !== false && r.approved !== 'Yes' && !r.email;
+  }).length;
+
+  if (!confirm('Approve ' + waiting.length + ' guest' +
+      (waiting.length === 1 ? '' : 's') + ' and email their passes?' +
+      (noMail ? '\n\n' + noMail + ' more have no email address and are not ' +
+                'included \u2014 use Passes to give by hand for those.' : ''))) return;
+
+  var btn = this;
+  btn.disabled = true;
+  $('approveAllLabel').textContent = 'Sending\u2026';
+
+  /* In batches, because approving forty at once means forty emails queued
+     in one request and a server that may not finish in time. */
+  var refs = waiting.map(function(r){ return r.ref; });
+  var sent = 0;
+
+  (function batch(){
+    var slice = refs.slice(sent, sent + 25);
+    if (!slice.length){
+      btn.disabled = false;
+      toast(sent + ' approved \u2014 passes are on their way');
+      load(true);
+      return;
+    }
+    api({ action:'approve', token:session, refs:slice, send:true })
+      .then(function(res){
+        if (res && res.error === 'expired'){ expire(); return; }
+        sent += slice.length;
+        $('approveAllLabel').textContent = 'Sending\u2026 ' + sent + ' of ' + refs.length;
+        batch();
+      })
+      .catch(function(){
+        btn.disabled = false;
+        $('approveAllLabel').textContent = 'Approve everyone waiting';
+        toast('Stopped after ' + sent + '. Try again for the rest.');
+        load(true);
+      });
+  })();
+});
+
+/* ============================================================
+   A GUEST WHO IS NOT ON THE LIST
+   It happens at every gate. Leaving door mode, adding them,
+   then finding them again is three steps too many with people
+   waiting behind.
+   ============================================================ */
+var wiParty = 1;
+
+$('doorAdd').addEventListener('click', function(){
+  $('wiName').value = '';
+  $('wiPhone').value = '';
+  $('wiErr').textContent = '';
+  wiParty = 1;
+  document.querySelectorAll('[data-wiparty]').forEach(function(x){
+    x.setAttribute('aria-pressed', String(x.getAttribute('data-wiparty') === '1'));
+  });
+  $('walkIn').classList.add('open');
+  setTimeout(function(){ $('wiName').focus(); }, 60);
+});
+
+document.querySelectorAll('[data-wiparty]').forEach(function(x){
+  x.addEventListener('click', function(){
+    wiParty = parseInt(x.getAttribute('data-wiparty'), 10) || 1;
+    document.querySelectorAll('[data-wiparty]').forEach(function(y){
+      y.setAttribute('aria-pressed', String(y === x));
+    });
+  });
+});
+document.querySelectorAll('[data-wi-close]').forEach(function(el){
+  el.addEventListener('click', function(){ $('walkIn').classList.remove('open'); });
+});
+
+$('wiGo').addEventListener('click', function(){
+  var name = $('wiName').value.trim();
+  if (name.length < 2){
+    $('wiErr').textContent = 'Please enter their name.';
+    $('wiName').focus();
+    return;
+  }
+  var btn = this;
+  btn.disabled = true;
+  btn.textContent = 'Adding\u2026';
+
+  api({ action:'add', token:session, name:name, phone:$('wiPhone').value.trim(),
+        party:wiParty, note:'Added at the gate' })
+    .then(function(res){
+      if (res && res.error === 'expired'){ expire(); return; }
+      if (!res || !res.ok || !res.ref){
+        btn.disabled = false;
+        btn.textContent = 'Add and check in';
+        $('wiErr').textContent = 'That could not be added.';
+        return;
+      }
+      /* Added; now walk them straight through the gate. */
+      return api({ action:'checkin', token:session, ref:res.ref, lane:myLane })
+        .then(function(ci){
+          btn.disabled = false;
+          btn.textContent = 'Add and check in';
+          $('walkIn').classList.remove('open');
+          toast(name + ' added and checked in');
+          if (ci && ci.ok){ monitorShow(ci); announce(ci); }
+          load(true);
+        });
+    })
+    .catch(function(){
+      btn.disabled = false;
+      btn.textContent = 'Add and check in';
+      $('wiErr').textContent = 'No connection.';
+    });
+});
+$('wiName').addEventListener('keydown', function(e){
+  if (e.key === 'Enter'){ e.preventDefault(); $('wiGo').click(); }
 });
 
 /* ---------------- tabs ---------------- */
