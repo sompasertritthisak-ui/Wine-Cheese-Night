@@ -1804,6 +1804,9 @@ img,svg,video,canvas{max-width:100%}
       <button class="tab" role="tab" data-tab="log" aria-selected="false" id="tabLog" hidden>
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
         Activity log</button>
+      <button class="tab" role="tab" data-tab="resend" aria-selected="false" id="tabResend" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H4z"/><path d="m4 7 8 6 8-6"/><path d="M15 19.5a4 4 0 1 0-3.4-6"/><path d="M11 14.5v3h3"/></svg>
+        Re-send confirmation</button>
     </nav>
 
     <div class="panel-view on" id="viewList">
@@ -1999,9 +2002,6 @@ img,svg,video,canvas{max-width:100%}
         <button class="btn btn-solid hidden" id="approveAll">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/><path d="M14 6 9 11"/></svg>
           <span id="approveAllLabel">Approve everyone waiting</span></button>
-        <button class="btn" id="resendBtn">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v13H4z"/><path d="m4 6 8 6 8-6"/><path d="M17 19a4 4 0 1 0-4-4"/><path d="M13 12v3h3"/></svg>
-          Re-send confirmation to guests</button>
         <button class="btn" id="byHandAll">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg>
           Passes to give by hand</button>
@@ -2063,6 +2063,41 @@ img,svg,video,canvas{max-width:100%}
       <div class="list" id="svList">
         <div id="svRows"></div>
         <div class="empty hidden" id="svEmpty">Nobody has completed the survey yet.</div>
+      </div>
+    </div>
+
+    <div class="panel-view" id="viewResend">
+      <p class="note" style="margin-top:0">Everyone who replied before the wording
+        changed received a confirmation that never mentioned a QR pass would follow.
+        This sends them the current one, so nobody is puzzled when their pass
+        arrives. <b>Only the confirmation is sent</b> &mdash; no passes, and the
+        office is not notified again.</p>
+
+      <div class="pass-stats">
+        <div class="stat"><b id="rsTotal">&mdash;</b><span class="label">On the guest list</span></div>
+        <div class="stat"><b id="rsWith">&mdash;</b><span class="label">Can be emailed</span></div>
+        <div class="stat"><b id="rsNo">&mdash;</b><span class="label">No email address</span></div>
+        <div class="stat hero-stat"><b id="rsPicked">0</b><span class="label">Selected</span></div>
+      </div>
+
+      <div class="tools">
+        <span class="grow">
+          <input type="search" id="rsq" placeholder="Search a name or email address" aria-label="Search">
+        </span>
+        <span class="count" id="rsCount"></span>
+      </div>
+
+      <div class="pass-acts">
+        <button class="btn" id="rsAll">Select everyone</button>
+        <button class="btn" id="rsNone">Clear</button>
+        <button class="btn btn-solid" id="rsGo" disabled>Send</button>
+      </div>
+
+      <p class="err" id="rsErr" role="alert"></p>
+
+      <div class="list" id="rsList">
+        <div id="rsRows"></div>
+        <div class="empty hidden" id="rsEmpty">Nobody matches that.</div>
       </div>
     </div>
 
@@ -2173,45 +2208,6 @@ img,svg,video,canvas{max-width:100%}
     <div class="sheet-actions">
       <button class="btn" data-wi-close>Cancel</button>
       <button class="btn btn-solid" id="wiGo">Add and check in</button>
-    </div>
-  </div>
-</div>
-
-<div class="sheet" id="resend" role="dialog" aria-modal="true" aria-labelledby="rsTitle">
-  <div class="sheet-scrim" data-rs-close></div>
-  <div class="sheet-card help-card">
-    <button class="modal-close" data-rs-close aria-label="Close">&times;</button>
-    <h2 id="rsTitle">Re-send the confirmation</h2>
-    <p class="kill-note">The confirmation wording changed after most families had
-      already replied &mdash; the earlier version never mentioned that a QR pass
-      would follow. This sends the current one again, so nobody is puzzled when
-      their pass arrives. <b>Only the confirmation is sent.</b> Passes still go
-      through approval, and the office receives no second notification.</p>
-
-    <div class="pass-stats">
-      <div class="stat"><b id="rsTotal">&mdash;</b><span class="label">On the list</span></div>
-      <div class="stat"><b id="rsWith">&mdash;</b><span class="label">Can be emailed</span></div>
-      <div class="stat"><b id="rsPicked">0</b><span class="label">Selected</span></div>
-    </div>
-
-    <div class="tools">
-      <span class="grow">
-        <input type="search" id="rsq" placeholder="Search a name or email" aria-label="Search">
-      </span>
-      <button class="btn" id="rsAll">Select everyone</button>
-      <button class="btn" id="rsNone">Clear</button>
-      <span class="count" id="rsCount"></span>
-    </div>
-
-    <div class="list" id="rsList">
-      <div id="rsRows"></div>
-      <div class="empty hidden" id="rsEmpty">Nobody matches that.</div>
-    </div>
-
-    <p class="err" id="rsErr" role="alert"></p>
-    <div class="sheet-actions">
-      <button class="btn" data-rs-close>Close</button>
-      <button class="btn btn-solid" id="rsGo" disabled>Send</button>
     </div>
   </div>
 </div>
@@ -2731,6 +2727,7 @@ function enter(v){
   $('tabPasses').hidden = !rights.edit;
   $('tabDoor').hidden = !rights.edit;
   $('tabSurvey').hidden = false;   // everyone who can sign in may read it
+  $('tabResend').hidden = !rights.edit;
   $('emails').hidden = !rights.contacts;
   $('csv').hidden = !rights.export;
 
@@ -5579,7 +5576,6 @@ function openResend(){
   $('rsq').value = '';
   $('rsErr').textContent = '';
   renderResend();
-  $('resend').classList.add('open');
 }
 
 function rsRows(){
@@ -5595,6 +5591,7 @@ function renderResend(){
   var live = data.filter(function(r){ return r.live !== false; });
   $('rsTotal').textContent = live.length;
   $('rsWith').textContent = live.filter(function(r){ return !!r.email; }).length;
+  $('rsNo').textContent = live.filter(function(r){ return !r.email; }).length;
 
   var rows = rsRows();
   $('rsCount').textContent = rows.length + (rows.length === 1 ? ' guest' : ' guests');
@@ -5623,10 +5620,6 @@ function syncResend(){
   $('rsGo').textContent = n ? 'Send to ' + n + (n === 1 ? ' guest' : ' guests') : 'Send';
 }
 
-$('resendBtn').addEventListener('click', openResend);
-document.querySelectorAll('[data-rs-close]').forEach(function(el){
-  el.addEventListener('click', function(){ $('resend').classList.remove('open'); });
-});
 $('rsq').addEventListener('input', renderResend);
 
 $('rsRows').addEventListener('click', function(e){
@@ -5665,7 +5658,8 @@ $('rsGo').addEventListener('click', function(){
   (function batch(){
     var slice = refs.slice(sent, sent + 40);
     if (!slice.length){
-      $('resend').classList.remove('open');
+      rsPicked = {};
+      renderResend();
       btn.disabled = false;
       toast(sent + ' confirmation' + (sent === 1 ? '' : 's') +
             ' queued \u2014 they will go out within a minute');
@@ -5702,6 +5696,7 @@ function showTab(which){
   $('viewList').classList.toggle('on', which === 'list');
   $('viewPasses').classList.toggle('on', which === 'passes');
   $('viewSurvey').classList.toggle('on', which === 'survey');
+  $('viewResend').classList.toggle('on', which === 'resend');
   $('viewDoor').classList.toggle('on', which === 'door');
   $('viewLog').classList.toggle('on', which === 'log');
   $('listNote').style.display = which === 'list' ? '' : 'none';
@@ -5710,6 +5705,7 @@ function showTab(which){
   if (which === 'passes') renderPasses();
   if (which === 'survey') loadSurvey();
   if (which === 'door') renderDoor();
+  if (which === 'resend') openResend();
 
   /* Leaving the gate should stop the ten-second polling. */
   doorMode = (which === 'door');
