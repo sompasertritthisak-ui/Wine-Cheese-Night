@@ -1348,6 +1348,18 @@ html[data-theme="dark"] .fld .req{color:var(--gold-lit)}
   font-size:1.02rem;cursor:pointer}
 .fld .opt-b[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);
   color:var(--forest-deep);font-weight:600}
+#rsList{max-height:44vh;overflow-y:auto}
+.rs-row{display:grid;grid-template-columns:26px 1fr auto;gap:1rem;align-items:center;
+  padding:.85rem 1rem;border-bottom:1px solid var(--rule-2);cursor:pointer}
+.rs-row:last-child{border-bottom:0}
+.rs-row:hover{background:#FBF9F3}
+html[data-theme="dark"] .rs-row:hover{background:rgba(244,241,232,.045)}
+.rs-row.picked{background:#FBF3DC}
+html[data-theme="dark"] .rs-row.picked{background:rgba(208,169,58,.14)}
+.rs-row b{display:block;font-size:1.02rem;color:var(--ink)}
+.rs-row span{display:block;font-size:.9rem;color:var(--ink-2);margin-top:.12rem}
+.rs-row .no-mail{color:var(--danger);font-style:italic}
+.rs-row.off{opacity:.45;cursor:not-allowed}
 .bh-tools{display:flex;align-items:center;gap:1rem;margin-bottom:1.2rem;flex-wrap:wrap}
 .bh-tools .count{margin-right:auto}
 .bh-list{display:grid;gap:1px;background:var(--rule);border:1px solid var(--rule);
@@ -1964,6 +1976,9 @@ img,svg,video,canvas{max-width:100%}
         <button class="btn btn-solid hidden" id="approveAll">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/><path d="M14 6 9 11"/></svg>
           <span id="approveAllLabel">Approve everyone waiting</span></button>
+        <button class="btn" id="resendBtn">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v13H4z"/><path d="m4 6 8 6 8-6"/><path d="M17 19a4 4 0 1 0-4-4"/><path d="M13 12v3h3"/></svg>
+          Re-send confirmation</button>
         <button class="btn btn-solid" id="byHandAll" style="margin-left:auto">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg>
           Passes to give by hand</button>
@@ -2146,6 +2161,45 @@ img,svg,video,canvas{max-width:100%}
     <div class="sheet-actions">
       <button class="btn" data-wi-close>Cancel</button>
       <button class="btn btn-solid" id="wiGo">Add and check in</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="resend" role="dialog" aria-modal="true" aria-labelledby="rsTitle">
+  <div class="sheet-scrim" data-rs-close></div>
+  <div class="sheet-card help-card">
+    <button class="modal-close" data-rs-close aria-label="Close">&times;</button>
+    <h2 id="rsTitle">Re-send the confirmation</h2>
+    <p class="kill-note">The confirmation wording changed after most families had
+      already replied &mdash; the earlier version never mentioned that a QR pass
+      would follow. This sends the current one again, so nobody is puzzled when
+      their pass arrives. <b>Only the confirmation is sent.</b> Passes still go
+      through approval, and the office receives no second notification.</p>
+
+    <div class="pass-stats">
+      <div class="stat"><b id="rsTotal">&mdash;</b><span class="label">On the list</span></div>
+      <div class="stat"><b id="rsWith">&mdash;</b><span class="label">Can be emailed</span></div>
+      <div class="stat"><b id="rsPicked">0</b><span class="label">Selected</span></div>
+    </div>
+
+    <div class="tools">
+      <span class="grow">
+        <input type="search" id="rsq" placeholder="Search a name or email" aria-label="Search">
+      </span>
+      <button class="btn" id="rsAll">Select everyone</button>
+      <button class="btn" id="rsNone">Clear</button>
+      <span class="count" id="rsCount"></span>
+    </div>
+
+    <div class="list" id="rsList">
+      <div id="rsRows"></div>
+      <div class="empty hidden" id="rsEmpty">Nobody matches that.</div>
+    </div>
+
+    <p class="err" id="rsErr" role="alert"></p>
+    <div class="sheet-actions">
+      <button class="btn" data-rs-close>Close</button>
+      <button class="btn btn-solid" id="rsGo" disabled>Send</button>
     </div>
   </div>
 </div>
@@ -5497,6 +5551,133 @@ $('wiGo').addEventListener('click', function(){
 });
 $('wiName').addEventListener('keydown', function(e){
   if (e.key === 'Enter'){ e.preventDefault(); $('wiGo').click(); }
+});
+
+/* ============================================================
+   RE-SENDING THE CONFIRMATION
+   The wording changed after most families had replied, and the
+   earlier version never said a pass would follow. This sends the
+   current confirmation again — the guest's copy only, since the
+   office already had its notification the first time.
+   ============================================================ */
+var rsPicked = {};
+
+function openResend(){
+  rsPicked = {};
+  $('rsq').value = '';
+  $('rsErr').textContent = '';
+  renderResend();
+  $('resend').classList.add('open');
+}
+
+function rsRows(){
+  var q = ($('rsq').value || '').toLowerCase();
+  return data.filter(function(r){
+    if (r.live === false) return false;
+    if (!q) return true;
+    return loose((r.name + ' ' + (r.email || '')).toLowerCase(), q);
+  }).sort(function(a, b){ return String(a.name).localeCompare(String(b.name)); });
+}
+
+function renderResend(){
+  var live = data.filter(function(r){ return r.live !== false; });
+  $('rsTotal').textContent = live.length;
+  $('rsWith').textContent = live.filter(function(r){ return !!r.email; }).length;
+
+  var rows = rsRows();
+  $('rsCount').textContent = rows.length + (rows.length === 1 ? ' guest' : ' guests');
+  $('rsEmpty').classList.toggle('hidden', rows.length > 0);
+
+  $('rsRows').innerHTML = rows.map(function(r){
+    var can = !!r.email;
+    return '<div class="rs-row' + (rsPicked[r.ref] ? ' picked' : '') +
+      (can ? '' : ' off') + '" data-rs="' + esc(r.ref) + '">' +
+      '<span class="pick"><input type="checkbox"' +
+        (rsPicked[r.ref] ? ' checked' : '') + (can ? '' : ' disabled') +
+        ' aria-label="' + esc(r.name) + '"></span>' +
+      '<div><b>' + esc(r.name) + '</b>' +
+        '<span>' + (can ? esc(r.email)
+          : '<span class="no-mail">no email address</span>') + '</span></div>' +
+      '<span class="ref">' + esc(r.ref) + '</span>' +
+    '</div>';
+  }).join('');
+  syncResend();
+}
+
+function syncResend(){
+  var n = Object.keys(rsPicked).filter(function(k){ return rsPicked[k]; }).length;
+  $('rsPicked').textContent = n;
+  $('rsGo').disabled = n === 0;
+  $('rsGo').textContent = n ? 'Send to ' + n + (n === 1 ? ' guest' : ' guests') : 'Send';
+}
+
+$('resendBtn').addEventListener('click', openResend);
+document.querySelectorAll('[data-rs-close]').forEach(function(el){
+  el.addEventListener('click', function(){ $('resend').classList.remove('open'); });
+});
+$('rsq').addEventListener('input', renderResend);
+
+$('rsRows').addEventListener('click', function(e){
+  var row = e.target.closest('[data-rs]');
+  if (!row || row.classList.contains('off')) return;
+  var ref = row.getAttribute('data-rs');
+  if (rsPicked[ref]) delete rsPicked[ref]; else rsPicked[ref] = true;
+  row.classList.toggle('picked', !!rsPicked[ref]);
+  var box = row.querySelector('input');
+  if (box) box.checked = !!rsPicked[ref];
+  syncResend();
+});
+
+$('rsAll').addEventListener('click', function(){
+  rsRows().forEach(function(r){ if (r.email) rsPicked[r.ref] = true; });
+  renderResend();
+});
+$('rsNone').addEventListener('click', function(){ rsPicked = {}; renderResend(); });
+
+$('rsGo').addEventListener('click', function(){
+  var refs = Object.keys(rsPicked).filter(function(k){ return rsPicked[k]; });
+  if (!refs.length) return;
+
+  if (!confirm('Send the confirmation again to ' + refs.length + ' guest' +
+      (refs.length === 1 ? '' : 's') + '?\n\n' +
+      'They will receive the current wording, which mentions that their pass ' +
+      'follows separately. The office is not notified again.')) return;
+
+  var btn = this;
+  btn.disabled = true;
+  btn.textContent = 'Sending\u2026';
+
+  /* In batches, because two hundred queued in one request is more than a
+     single execution should carry. */
+  var sent = 0;
+  (function batch(){
+    var slice = refs.slice(sent, sent + 40);
+    if (!slice.length){
+      $('resend').classList.remove('open');
+      btn.disabled = false;
+      toast(sent + ' confirmation' + (sent === 1 ? '' : 's') +
+            ' queued \u2014 they will go out within a minute');
+      return;
+    }
+    api({ action:'resend', token:session, refs:slice })
+      .then(function(res){
+        if (res && res.error === 'expired'){ expire(); return; }
+        if (!res || !res.ok){
+          btn.disabled = false; btn.textContent = 'Send';
+          $('rsErr').textContent = 'That could not be sent.';
+          return;
+        }
+        sent += slice.length;
+        btn.textContent = 'Sending\u2026 ' + sent + ' of ' + refs.length;
+        batch();
+      })
+      .catch(function(){
+        btn.disabled = false; btn.textContent = 'Send';
+        $('rsErr').textContent = sent
+          ? 'Stopped after ' + sent + '. Try again for the rest.'
+          : 'No connection.';
+      });
+  })();
 });
 
 /* ---------------- tabs ---------------- */
