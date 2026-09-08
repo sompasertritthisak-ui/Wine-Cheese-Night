@@ -1943,7 +1943,7 @@ html{scrollbar-width:thin;scrollbar-color:var(--gold) rgba(7,37,23,.6)}
           </button>
           <div class="lang-menu" id="langMenu2" role="listbox" aria-label="Language"></div>
         </span>
-        <span data-t="card.closes">Closes Tuesday 8 September</span>
+        <span class="head-shut">Online RSVP has closed</span>
       </div>
       <div class="rsvp-card-body">
 
@@ -3699,6 +3699,218 @@ function init(){
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
 else init();
+})();
+</script>
+
+<!-- ============================================================
+     ONLINE RSVP CLOSED
+     Added after the deadline. Nothing above is altered: the form
+     markup stays exactly as it was so none of the existing script
+     loses the elements it expects. It is shielded, not removed.
+     ============================================================ -->
+<style>
+.head-shut{color:var(--accent);letter-spacing:.16em;text-transform:uppercase;
+  font-size:.6rem;font-family:var(--f-label)}
+
+/* The form is left in place, dimmed, with a shield over it. */
+.rsvp-card.is-shut{position:relative}
+.rsvp-card.is-shut .rsvp-card-body{opacity:.34;filter:grayscale(.45);user-select:none}
+.rsvp-shield{position:absolute;inset:0;z-index:6;cursor:pointer;
+  background:transparent;border:0;width:100%;padding:0;display:block}
+.rsvp-shield:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+
+.shut-note{position:relative;z-index:7;margin:0;padding:1.15rem 1.3rem;
+  text-align:center;border-bottom:1px solid rgba(208,169,58,.28);
+  background:rgba(13,65,40,.55)}
+.shut-note b{display:block;font-family:var(--f-display);font-weight:600;
+  font-size:1.05rem;color:var(--accent);margin-bottom:.3rem}
+.shut-note span{font-family:var(--f-body);font-size:.9rem;color:var(--cream);opacity:.86}
+
+/* ---- the modal ---- */
+#closedModal .modal-card{text-align:center}
+
+.shut-kicker{font-family:var(--f-display);font-weight:700;
+  font-size:clamp(1.45rem,4vw,1.95rem);line-height:1.15;letter-spacing:.07em;
+  text-indent:.07em;text-transform:uppercase;color:var(--accent);
+  margin:0 auto .9rem;max-width:18ch}
+
+.shut-body{font-family:var(--f-body);font-size:1rem;line-height:1.65;
+  color:var(--cream);opacity:.9;margin:0 auto;max-width:44ch}
+
+/* Two ways to reach us, given equal weight. */
+.shut-ways{display:grid;gap:.7rem;margin:1.6rem auto 0;max-width:23rem}
+.shut-way{display:flex;align-items:center;gap:.9rem;padding:.95rem 1.1rem;
+  border:1px solid rgba(208,169,58,.42);background:rgba(4,20,12,.35);
+  text-decoration:none;text-align:left;
+  transition:border-color var(--t-micro) var(--e-out),
+             background var(--t-micro) var(--e-out),
+             transform var(--t-micro) var(--e-out)}
+.shut-way:hover{border-color:var(--accent-solid);background:rgba(4,20,12,.6);
+  transform:translateY(-2px)}
+.shut-way svg{width:22px;height:22px;flex:0 0 22px;stroke:var(--accent);
+  fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.shut-way .wrap{display:flex;flex-direction:column;gap:.15rem;min-width:0}
+.shut-way .lab{font-family:var(--f-label);font-size:.54rem;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--accent);opacity:.85}
+.shut-way .val{font-family:var(--f-ui);font-size:.95rem;color:var(--cream);
+  overflow-wrap:anywhere}
+
+/* What to send, so one message is enough and nobody is chased twice. */
+.shut-ask{margin:1.7rem auto 0;max-width:23rem;padding:1.15rem 1.3rem;
+  border:1px solid rgba(208,169,58,.28);text-align:left}
+.shut-ask h4{margin:0 0 .8rem;font-family:var(--f-label);font-size:.56rem;
+  letter-spacing:.24em;text-transform:uppercase;color:var(--accent);
+  text-align:center}
+.shut-ask ul{list-style:none;margin:0;padding:0;display:grid;gap:.55rem}
+.shut-ask li{font-family:var(--f-body);font-size:.92rem;line-height:1.45;
+  color:var(--cream);opacity:.9;padding-left:1.1rem;position:relative}
+.shut-ask li::before{content:"";position:absolute;left:0;top:.55em;
+  width:5px;height:5px;background:var(--accent);transform:rotate(45deg)}
+.shut-ask li b{font-weight:600;color:var(--cream);opacity:1}
+.shut-ask li em{font-style:normal;font-size:.82rem;color:var(--accent);
+  opacity:.85;display:block;margin-top:.1rem;font-family:var(--f-label);
+  letter-spacing:.1em;text-transform:uppercase}
+.shut-ask .sub{margin-top:.9rem;padding-top:.9rem;
+  border-top:1px solid rgba(208,169,58,.22)}
+
+@media (max-width:520px){
+  .shut-body{font-size:.95rem}
+  .shut-kicker{font-size:1.3rem;letter-spacing:.04em;text-indent:.04em}
+  .shut-way{padding:.85rem .95rem}
+}
+</style>
+
+<div class="modal" id="closedModal" role="dialog" aria-modal="true"
+     aria-labelledby="closedTitle">
+  <div class="modal-scrim" data-close></div>
+  <div class="modal-card">
+    <button type="button" class="modal-close" data-close aria-label="Close">&#215;</button>
+
+    <div class="crest" role="img"
+         aria-label="Panyathip British International School, 25th Anniversary"></div>
+
+    <div class="modal-rule" aria-hidden="true">
+      <i></i>
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="none"><path d="M9 11c0-4 2-7 8-9-5 0-8 2-8 5 0-3-3-5-8-5 6 2 8 5 8 9z" fill="currentColor"/></svg>
+      <i></i>
+    </div>
+
+    <h3 class="shut-kicker" id="closedTitle">Online RSVP has closed</h3>
+
+    <p class="shut-body">If you would still love to be part of the evening,
+      please get in touch and we will do what we can.</p>
+
+    <div class="shut-ways">
+      <a class="shut-way" href="mailto:parentappreciation@pbis.edu.la?subject=Parent%20Appreciation%20Night%20%E2%80%94%20late%20RSVP">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3z"/><path d="m3 7 9 6 9-6"/></svg>
+        <span class="wrap">
+          <span class="lab">Email us</span>
+          <span class="val">parentappreciation@pbis.edu.la</span>
+        </span>
+      </a>
+
+      <a class="shut-way" target="_blank" rel="noopener"
+         href="https://api.whatsapp.com/send/?phone=8562055386672&amp;text&amp;type=phone_number&amp;app_absent=0">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3.5 20.5l1.7-4.8A8.5 8.5 0 1 1 21 11.5z"/><path d="M8.8 8.4c.3-.7.6-.6.9-.6h.7c.2 0 .5 0 .7.5l.8 1.8c.1.3 0 .5-.1.7l-.4.5c-.1.2-.3.3-.1.6a6 6 0 0 0 2.9 2.4c.3.1.5.1.7-.1l.6-.7c.2-.2.4-.2.6-.1l1.7.9c.3.1.4.3.4.5 0 .5-.3 1.4-1.3 1.7-.9.3-2 .2-3.8-.7a10 10 0 0 1-4.2-4.2c-.7-1.4-.5-2.5-.1-3.2z"/></svg>
+        <span class="wrap">
+          <span class="lab">WhatsApp us</span>
+          <span class="val">+856 20 5538 6672</span>
+        </span>
+      </a>
+    </div>
+
+    <div class="shut-ask">
+      <h4>Please include</h4>
+      <ul>
+        <li><b>Your full name</b></li>
+        <li><b>Full name of the guest joining you</b><em>Optional</em></li>
+        <li><b>Phone number</b></li>
+        <li><b>Email address</b><em>Optional, but strongly recommended</em></li>
+      </ul>
+      <div class="sub">
+        <ul>
+          <li><b>Your child at PBIS</b><em>Full name and year group</em></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" data-close>Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var modal = document.getElementById('closedModal');
+  if (!modal) return;
+  var lastFocus = null;
+
+  function open(e){
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    lastFocus = document.activeElement;
+    modal.classList.add('open');
+    document.documentElement.style.overflow = 'hidden';
+    var btn = modal.querySelector('.modal-close');
+    if (btn) btn.focus();
+  }
+  function close(){
+    modal.classList.remove('open');
+    document.documentElement.style.overflow = '';
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  modal.addEventListener('click', function(e){
+    if (e.target.closest('[data-close]')) close();
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && modal.classList.contains('open')) close();
+  });
+
+  /* Every route into the form, caught on the way down so the original
+     handlers never run: the hero buttons, the bar, the skip link, and
+     anything inside the form itself. The two links out — email and
+     WhatsApp — are inside the modal, so they are never intercepted. */
+  document.addEventListener('click', function(e){
+    if (e.target.closest('#closedModal')) return;
+    if (e.target.closest('a[href="#rsvp"]')) { open(e); return; }
+    if (e.target.closest('#rsvpForm, .rsvp-shield')) open(e);
+  }, true);
+
+  var form = document.getElementById('rsvpForm');
+  if (form) {
+    form.addEventListener('submit', function(e){
+      e.preventDefault(); e.stopPropagation(); open();
+    }, true);
+    form.addEventListener('keydown', function(e){
+      if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); open(); }
+    }, true);
+  }
+
+  /* Dim the card, shield it, and say plainly why. */
+  var card = document.querySelector('.rsvp-card');
+  var body = document.querySelector('.rsvp-card-body');
+  if (card && body) {
+    card.classList.add('is-shut');
+
+    var note = document.createElement('p');
+    note.className = 'shut-note';
+    note.innerHTML = '<b>Online RSVP has closed</b><span>Please email ' +
+      'parentappreciation@pbis.edu.la or WhatsApp +856 20 5538 6672 ' +
+      'if you would still like to come.</span>';
+    card.insertBefore(note, body);
+
+    var shield = document.createElement('button');
+    shield.type = 'button';
+    shield.className = 'rsvp-shield';
+    shield.setAttribute('aria-label', 'Online RSVP has closed \u2014 how to reach us');
+    card.appendChild(shield);
+
+    /* Out of the tab order, so nobody keyboards into a dead form. */
+    body.querySelectorAll('input, select, textarea, button, [tabindex]')
+        .forEach(function(el){ el.setAttribute('tabindex', '-1'); });
+    body.setAttribute('aria-hidden', 'true');
+  }
 })();
 </script>
 </body>
