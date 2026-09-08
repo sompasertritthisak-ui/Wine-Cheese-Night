@@ -3709,8 +3709,18 @@ else init();
      loses the elements it expects. It is shielded, not removed.
      ============================================================ -->
 <style>
-.head-shut{color:var(--accent);letter-spacing:.16em;text-transform:uppercase;
-  font-size:.6rem;font-family:var(--f-label)}
+/* The gold header bar. Gold text on gold was all but invisible, so this
+   is a dark badge instead, sitting on its own centred line. */
+.rsvp-card-head .head-shut{order:3;flex:1 0 100%;display:block;
+  margin:.15rem 0 0;padding:.6rem 1rem;text-align:center;
+  background:var(--forest-deep);color:var(--gold-lit);
+  font-family:var(--f-label);font-weight:700;font-style:normal;
+  font-size:.66rem;letter-spacing:.26em;text-indent:.26em;
+  text-transform:uppercase;border:1px solid rgba(7,37,23,.35)}
+@media (max-width:620px){
+  .rsvp-card-head .head-shut{font-size:.58rem;letter-spacing:.18em;
+    text-indent:.18em}
+}
 
 /* The form is left in place, dimmed, with a shield over it. */
 .rsvp-card.is-shut{position:relative}
@@ -3719,12 +3729,43 @@ else init();
   background:transparent;border:0;width:100%;padding:0;display:block}
 .rsvp-shield:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
 
-.shut-note{position:relative;z-index:7;margin:0;padding:1.15rem 1.3rem;
-  text-align:center;border-bottom:1px solid rgba(208,169,58,.28);
-  background:rgba(13,65,40,.55)}
+/* box-sizing and a full width of its own: the notice was inheriting an
+   awkward width and sitting off-centre against the card. */
+.shut-note{position:relative;z-index:7;display:block;box-sizing:border-box;
+  width:100%;margin:0;padding:clamp(1.5rem,4vw,2.1rem) clamp(1.2rem,4vw,2.2rem);
+  text-align:center;border-bottom:1px solid rgba(208,169,58,.3);
+  background:
+    radial-gradient(120% 100% at 50% 0%, rgba(208,169,58,.1), transparent 65%),
+    rgba(13,65,40,.6)}
+
+.shut-note .rule{display:flex;align-items:center;justify-content:center;
+  gap:.8rem;margin:0 auto .9rem;max-width:190px;color:var(--gold)}
+.shut-note .rule i{flex:1;height:1px;
+  background:linear-gradient(90deg,transparent,currentColor)}
+.shut-note .rule i:last-of-type{
+  background:linear-gradient(90deg,currentColor,transparent)}
+.shut-note .rule span{width:5px;height:5px;background:currentColor;
+  transform:rotate(45deg)}
+
 .shut-note b{display:block;font-family:var(--f-display);font-weight:600;
-  font-size:1.05rem;color:var(--accent);margin-bottom:.3rem}
-.shut-note span{font-family:var(--f-body);font-size:.9rem;color:var(--cream);opacity:.86}
+  font-size:clamp(1.15rem,3.2vw,1.5rem);line-height:1.25;color:var(--accent);
+  margin:0 auto .55rem;max-width:22ch}
+.shut-note .say{display:block;font-family:var(--f-body);
+  font-size:clamp(.92rem,2.4vw,1rem);line-height:1.6;color:var(--cream);
+  opacity:.88;margin:0 auto;max-width:40ch}
+
+.shut-note .lines{display:grid;gap:.4rem;margin:1.05rem auto 0;max-width:24rem}
+.shut-note .lines a{display:block;padding:.6rem .8rem;text-decoration:none;
+  border:1px solid rgba(208,169,58,.34);background:rgba(4,20,12,.32);
+  font-family:var(--f-ui);font-size:.95rem;color:var(--cream);
+  overflow-wrap:anywhere;
+  transition:border-color var(--t-micro) var(--e-out),
+             background var(--t-micro) var(--e-out)}
+.shut-note .lines a:hover{border-color:var(--accent-solid);
+  background:rgba(4,20,12,.55);color:var(--accent)}
+.shut-note .lines .tag{display:block;font-family:var(--f-label);
+  font-size:.5rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--accent);opacity:.85;margin-bottom:.2rem}
 
 /* ---- the modal ---- */
 #closedModal .modal-card{text-align:center}
@@ -3872,7 +3913,7 @@ else init();
      anything inside the form itself. The two links out — email and
      WhatsApp — are inside the modal, so they are never intercepted. */
   document.addEventListener('click', function(e){
-    if (e.target.closest('#closedModal')) return;
+    if (e.target.closest('#closedModal, .shut-note')) return;
     if (e.target.closest('a[href="#rsvp"]')) { open(e); return; }
     if (e.target.closest('#rsvpForm, .rsvp-shield')) open(e);
   }, true);
@@ -3895,9 +3936,18 @@ else init();
 
     var note = document.createElement('p');
     note.className = 'shut-note';
-    note.innerHTML = '<b>Online RSVP has closed</b><span>Please email ' +
-      'parentappreciation@pbis.edu.la or WhatsApp +856 20 5538 6672 ' +
-      'if you would still like to come.</span>';
+    note.innerHTML =
+      '<span class="rule" aria-hidden="true"><i></i><span></span><i></i></span>' +
+      '<b>Online RSVP has closed</b>' +
+      '<span class="say">If you would still love to join us on Friday evening, ' +
+      'please reach us either way below.</span>' +
+      '<span class="lines">' +
+        '<a href="mailto:parentappreciation@pbis.edu.la?subject=Parent%20Appreciation%20Night%20%E2%80%94%20late%20RSVP">' +
+          '<span class="tag">Email</span>parentappreciation@pbis.edu.la</a>' +
+        '<a target="_blank" rel="noopener" ' +
+          'href="https://api.whatsapp.com/send/?phone=8562055386672&text&type=phone_number&app_absent=0">' +
+          '<span class="tag">WhatsApp</span>+856 20 5538 6672</a>' +
+      '</span>';
     card.insertBefore(note, body);
 
     var shield = document.createElement('button');
