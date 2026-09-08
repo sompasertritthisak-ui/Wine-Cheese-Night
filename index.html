@@ -3711,12 +3711,13 @@ else init();
 <style>
 /* The gold header bar. Gold text on gold was all but invisible, so this
    is a dark badge instead, sitting on its own centred line. */
-.rsvp-card-head .head-shut{order:3;flex:1 0 100%;display:block;
-  margin:.15rem 0 0;padding:.6rem 1rem;text-align:center;
+.rsvp-card-head .head-shut{order:3;flex:1 0 100%;
+  display:block;width:max-content;max-width:100%;
+  margin:.35rem auto 0;padding:.5rem 1.4rem;text-align:center;
   background:var(--forest-deep);color:var(--gold-lit);
   font-family:var(--f-label);font-weight:700;font-style:normal;
-  font-size:.66rem;letter-spacing:.26em;text-indent:.26em;
-  text-transform:uppercase;border:1px solid rgba(7,37,23,.35)}
+  font-size:.62rem;letter-spacing:.28em;text-indent:.28em;
+  text-transform:uppercase}
 @media (max-width:620px){
   .rsvp-card-head .head-shut{font-size:.58rem;letter-spacing:.18em;
     text-indent:.18em}
@@ -3731,15 +3732,18 @@ else init();
 
 /* box-sizing and a full width of its own: the notice was inheriting an
    awkward width and sitting off-centre against the card. */
+/* The stylesheet caps every paragraph at the reading measure, which was
+   holding this block to a column and pinning it left inside the card. */
 .shut-note{position:relative;z-index:7;display:block;box-sizing:border-box;
-  width:100%;margin:0;padding:clamp(1.5rem,4vw,2.1rem) clamp(1.2rem,4vw,2.2rem);
+  width:100%;max-width:none;margin:0;
+  padding:clamp(1.4rem,3.4vw,1.9rem) clamp(1.2rem,4vw,2.2rem);
   text-align:center;border-bottom:1px solid rgba(208,169,58,.3);
   background:
     radial-gradient(120% 100% at 50% 0%, rgba(208,169,58,.1), transparent 65%),
     rgba(13,65,40,.6)}
 
 .shut-note .rule{display:flex;align-items:center;justify-content:center;
-  gap:.8rem;margin:0 auto .9rem;max-width:190px;color:var(--gold)}
+  gap:.8rem;margin:0 auto .75rem;max-width:170px;color:var(--gold)}
 .shut-note .rule i{flex:1;height:1px;
   background:linear-gradient(90deg,transparent,currentColor)}
 .shut-note .rule i:last-of-type{
@@ -3748,24 +3752,30 @@ else init();
   transform:rotate(45deg)}
 
 .shut-note b{display:block;font-family:var(--f-display);font-weight:600;
-  font-size:clamp(1.15rem,3.2vw,1.5rem);line-height:1.25;color:var(--accent);
-  margin:0 auto .55rem;max-width:22ch}
+  font-size:clamp(1.1rem,2.8vw,1.38rem);line-height:1.25;color:var(--accent);
+  margin:0 auto .45rem;max-width:24ch}
 .shut-note .say{display:block;font-family:var(--f-body);
-  font-size:clamp(.92rem,2.4vw,1rem);line-height:1.6;color:var(--cream);
-  opacity:.88;margin:0 auto;max-width:40ch}
+  font-size:clamp(.9rem,2.2vw,.97rem);line-height:1.55;color:var(--cream);
+  opacity:.86;margin:0 auto;max-width:46ch}
 
-.shut-note .lines{display:grid;gap:.4rem;margin:1.05rem auto 0;max-width:24rem}
-.shut-note .lines a{display:block;padding:.6rem .8rem;text-decoration:none;
+.shut-note .lines{display:grid;gap:.55rem;margin:1.15rem auto 0;
+  max-width:34rem;grid-template-columns:1fr}
+@media (min-width:660px){
+  .shut-note .lines{grid-template-columns:1fr 1fr;gap:.7rem}
+}
+.shut-note .lines a{display:block;padding:.95rem 1rem;text-decoration:none;
   border:1px solid rgba(208,169,58,.34);background:rgba(4,20,12,.32);
-  font-family:var(--f-ui);font-size:.95rem;color:var(--cream);
+  font-family:var(--f-ui);font-weight:600;
+  font-size:clamp(1rem,2.4vw,1.18rem);line-height:1.35;color:var(--cream);
   overflow-wrap:anywhere;
   transition:border-color var(--t-micro) var(--e-out),
              background var(--t-micro) var(--e-out)}
 .shut-note .lines a:hover{border-color:var(--accent-solid);
   background:rgba(4,20,12,.55);color:var(--accent)}
 .shut-note .lines .tag{display:block;font-family:var(--f-label);
-  font-size:.5rem;letter-spacing:.24em;text-transform:uppercase;
-  color:var(--accent);opacity:.85;margin-bottom:.2rem}
+  font-weight:700;font-size:.56rem;letter-spacing:.26em;text-indent:.26em;
+  text-transform:uppercase;color:var(--accent);opacity:.9;
+  margin-bottom:.35rem}
 
 /* ---- the modal ---- */
 #closedModal .modal-card{text-align:center}
