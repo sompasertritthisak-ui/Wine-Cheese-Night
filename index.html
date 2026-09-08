@@ -3779,55 +3779,63 @@ else init();
 
 /* ---- the modal ---- */
 #closedModal .modal-card{text-align:center}
+#closedModal .modal-card .crest{margin-bottom:1.1rem}
 
-.shut-kicker{font-family:var(--f-display);font-weight:700;
-  font-size:clamp(1.45rem,4vw,1.95rem);line-height:1.15;letter-spacing:.07em;
-  text-indent:.07em;text-transform:uppercase;color:var(--accent);
-  margin:0 auto .9rem;max-width:18ch}
+.shut-eyebrow{font-family:var(--f-label);font-weight:600;font-size:.6rem;
+  letter-spacing:.28em;text-indent:.28em;text-transform:uppercase;
+  color:var(--accent);margin:0 auto .5rem;max-width:none}
 
-.shut-body{font-family:var(--f-body);font-size:1rem;line-height:1.65;
-  color:var(--cream);opacity:.9;margin:0 auto;max-width:44ch}
+.shut-title{font-family:var(--f-display);font-weight:600;
+  font-size:clamp(1.45rem,4.2vw,2.05rem);line-height:1.18;
+  color:var(--accent);margin:0 auto}
+
+.shut-rule{display:block;width:96px;height:1px;margin:1.15rem auto 1.4rem;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+
+.shut-body{font-family:var(--f-body);font-size:clamp(.95rem,2.4vw,1.02rem);
+  line-height:1.65;color:var(--cream);opacity:.88;margin:0 auto;max-width:42ch}
+.shut-body + .shut-body{margin-top:1rem}
 
 /* Two ways to reach us, given equal weight. */
-.shut-ways{display:grid;gap:.7rem;margin:1.6rem auto 0;max-width:23rem}
-.shut-way{display:flex;align-items:center;gap:.9rem;padding:.95rem 1.1rem;
+.shut-ways{display:grid;gap:.7rem;margin:1.7rem auto 0;max-width:26rem}
+.shut-way{display:flex;align-items:center;gap:1rem;padding:.95rem 1.1rem;
   border:1px solid rgba(208,169,58,.42);background:rgba(4,20,12,.35);
-  text-decoration:none;text-align:left;
+  border-radius:10px;text-decoration:none;text-align:left;
   transition:border-color var(--t-micro) var(--e-out),
              background var(--t-micro) var(--e-out),
              transform var(--t-micro) var(--e-out)}
-.shut-way:hover{border-color:var(--accent-solid);background:rgba(4,20,12,.6);
+.shut-way:hover{border-color:var(--accent-solid);background:rgba(4,20,12,.62);
   transform:translateY(-2px)}
-.shut-way svg{width:22px;height:22px;flex:0 0 22px;stroke:var(--accent);
-  fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-.shut-way .wrap{display:flex;flex-direction:column;gap:.15rem;min-width:0}
-.shut-way .lab{font-family:var(--f-label);font-size:.54rem;letter-spacing:.24em;
-  text-transform:uppercase;color:var(--accent);opacity:.85}
-.shut-way .val{font-family:var(--f-ui);font-size:.95rem;color:var(--cream);
+.shut-way .ico{flex:0 0 34px;display:flex;align-items:center;justify-content:center}
+.shut-way .ico svg{width:26px;height:26px;stroke:var(--gold-lit);fill:none;
+  stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.shut-way .wrap{display:flex;flex-direction:column;gap:.2rem;min-width:0}
+.shut-way .lab{font-family:var(--f-label);font-weight:700;font-size:.58rem;
+  letter-spacing:.26em;text-transform:uppercase;color:var(--accent)}
+.shut-way .val{font-family:var(--f-ui);font-weight:700;
+  font-size:clamp(1rem,2.6vw,1.16rem);line-height:1.3;color:var(--cream);
   overflow-wrap:anywhere}
 
 /* What to send, so one message is enough and nobody is chased twice. */
-.shut-ask{margin:1.7rem auto 0;max-width:23rem;padding:1.15rem 1.3rem;
-  border:1px solid rgba(208,169,58,.28);text-align:left}
-.shut-ask h4{margin:0 0 .8rem;font-family:var(--f-label);font-size:.56rem;
-  letter-spacing:.24em;text-transform:uppercase;color:var(--accent);
-  text-align:center}
-.shut-ask ul{list-style:none;margin:0;padding:0;display:grid;gap:.55rem}
-.shut-ask li{font-family:var(--f-body);font-size:.92rem;line-height:1.45;
-  color:var(--cream);opacity:.9;padding-left:1.1rem;position:relative}
-.shut-ask li::before{content:"";position:absolute;left:0;top:.55em;
-  width:5px;height:5px;background:var(--accent);transform:rotate(45deg)}
-.shut-ask li b{font-weight:600;color:var(--cream);opacity:1}
-.shut-ask li em{font-style:normal;font-size:.82rem;color:var(--accent);
-  opacity:.85;display:block;margin-top:.1rem;font-family:var(--f-label);
-  letter-spacing:.1em;text-transform:uppercase}
-.shut-ask .sub{margin-top:.9rem;padding-top:.9rem;
-  border-top:1px solid rgba(208,169,58,.22)}
+.shut-ask{margin:1.5rem auto 0;max-width:26rem;padding:1.2rem 1.35rem;
+  border:1px solid rgba(208,169,58,.3);border-radius:10px;
+  background:rgba(4,20,12,.28);text-align:left}
+.shut-ask h4{margin:0 0 .9rem;font-family:var(--f-label);font-weight:700;
+  font-style:italic;font-size:.68rem;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--accent)}
+.shut-ask ul{list-style:none;margin:0;padding:0;display:grid;gap:.65rem}
+.shut-ask li{font-family:var(--f-body);font-style:italic;
+  font-size:clamp(.92rem,2.3vw,1rem);line-height:1.45;color:var(--cream);
+  opacity:.92;padding-left:1.3rem;position:relative;max-width:none}
+.shut-ask li::before{content:"";position:absolute;left:.1rem;top:.6em;
+  width:6px;height:6px;border-radius:50%;background:var(--gold);opacity:.8}
+.shut-ask li b{font-weight:700;font-style:italic;color:var(--cream);opacity:1}
+.shut-ask li .q{color:var(--cream);opacity:.62}
 
 @media (max-width:520px){
-  .shut-body{font-size:.95rem}
-  .shut-kicker{font-size:1.3rem;letter-spacing:.04em;text-indent:.04em}
-  .shut-way{padding:.85rem .95rem}
+  .shut-eyebrow{font-size:.54rem;letter-spacing:.2em;text-indent:.2em}
+  .shut-way{padding:.85rem .95rem;gap:.8rem}
+  .shut-ask{padding:1.05rem 1.1rem}
 }
 </style>
 
@@ -3840,20 +3848,21 @@ else init();
     <div class="crest" role="img"
          aria-label="Panyathip British International School, 25th Anniversary"></div>
 
-    <div class="modal-rule" aria-hidden="true">
-      <i></i>
-      <svg width="18" height="12" viewBox="0 0 18 12" fill="none"><path d="M9 11c0-4 2-7 8-9-5 0-8 2-8 5 0-3-3-5-8-5 6 2 8 5 8 9z" fill="currentColor"/></svg>
-      <i></i>
-    </div>
+    <p class="shut-eyebrow">Parent Appreciation Night &middot; 25th Anniversary</p>
+    <h3 class="shut-title" id="closedTitle">Online RSVP Is Now Closed</h3>
+    <span class="shut-rule" aria-hidden="true"></span>
 
-    <h3 class="shut-kicker" id="closedTitle">Online RSVP has closed</h3>
-
-    <p class="shut-body">If you would still love to be part of the evening,
-      please get in touch and we will do what we can.</p>
+    <p class="shut-body">Our guest list is now being finalised by hand so that
+      every place is confirmed correctly. We would still be delighted to
+      welcome you.</p>
+    <p class="shut-body">Please contact us directly and we will add you to the
+      guest list personally.</p>
 
     <div class="shut-ways">
       <a class="shut-way" href="mailto:parentappreciation@pbis.edu.la?subject=Parent%20Appreciation%20Night%20%E2%80%94%20late%20RSVP">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3z"/><path d="m3 7 9 6 9-6"/></svg>
+        <span class="ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M3 6h18v12H3z"/><path d="m3 7 9 6 9-6"/></svg>
+        </span>
         <span class="wrap">
           <span class="lab">Email us</span>
           <span class="val">parentappreciation@pbis.edu.la</span>
@@ -3862,27 +3871,25 @@ else init();
 
       <a class="shut-way" target="_blank" rel="noopener"
          href="https://api.whatsapp.com/send/?phone=8562055386672&amp;text&amp;type=phone_number&amp;app_absent=0">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3.5 20.5l1.7-4.8A8.5 8.5 0 1 1 21 11.5z"/><path d="M8.8 8.4c.3-.7.6-.6.9-.6h.7c.2 0 .5 0 .7.5l.8 1.8c.1.3 0 .5-.1.7l-.4.5c-.1.2-.3.3-.1.6a6 6 0 0 0 2.9 2.4c.3.1.5.1.7-.1l.6-.7c.2-.2.4-.2.6-.1l1.7.9c.3.1.4.3.4.5 0 .5-.3 1.4-1.3 1.7-.9.3-2 .2-3.8-.7a10 10 0 0 1-4.2-4.2c-.7-1.4-.5-2.5-.1-3.2z"/></svg>
+        <span class="ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3.5 20.5l1.7-4.8A8.5 8.5 0 1 1 21 11.5z"/><path d="M8.8 8.4c.3-.7.6-.6.9-.6h.7c.2 0 .5 0 .7.5l.8 1.8c.1.3 0 .5-.1.7l-.4.5c-.1.2-.3.3-.1.6a6 6 0 0 0 2.9 2.4c.3.1.5.1.7-.1l.6-.7c.2-.2.4-.2.6-.1l1.7.9c.3.1.4.3.4.5 0 .5-.3 1.4-1.3 1.7-.9.3-2 .2-3.8-.7a10 10 0 0 1-4.2-4.2c-.7-1.4-.5-2.5-.1-3.2z"/></svg>
+        </span>
         <span class="wrap">
-          <span class="lab">WhatsApp us</span>
+          <span class="lab">WhatsApp</span>
           <span class="val">+856 20 5538 6672</span>
         </span>
       </a>
     </div>
 
     <div class="shut-ask">
-      <h4>Please include</h4>
+      <h4>Please include:</h4>
       <ul>
-        <li><b>Your full name</b></li>
-        <li><b>Full name of the guest joining you</b><em>Optional</em></li>
-        <li><b>Phone number</b></li>
-        <li><b>Email address</b><em>Optional, but strongly recommended</em></li>
+        <li>Your <b>full name</b></li>
+        <li>Your <b>additional guest’s full name</b> <span class="q">(optional)</span></li>
+        <li>Your <b>phone number</b></li>
+        <li>Your <b>email address</b> <span class="q">(optional, but strongly recommended)</span></li>
+        <li>Your <b>child at PBIS</b> <span class="q">&mdash; full name and year group</span></li>
       </ul>
-      <div class="sub">
-        <ul>
-          <li><b>Your child at PBIS</b><em>Full name and year group</em></li>
-        </ul>
-      </div>
     </div>
 
     <div class="modal-actions">
