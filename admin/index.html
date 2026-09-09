@@ -6333,6 +6333,22 @@ html[data-theme="dark"] .who .handed{color:var(--gold-lit)}
 
 .icon-btn.undo svg{stroke-width:1.8}
 .icon-btn.undo:hover{border-color:var(--danger);color:var(--danger)}
+
+/* The pass rows live in #passRows, but the only grid written for this
+   tab targets #passList, so they were falling back to the eight-column
+   rule meant for the RSVP list and pushing the buttons onto a line of
+   their own. Seven cells, seven tracks. */
+#passRows .row{grid-template-columns:26px minmax(0,1.7fr) .9fr .8fr 1.2fr auto auto}
+#passRows .row .act{display:flex;gap:.4rem;justify-content:flex-end}
+@media (max-width:920px){
+  #passRows .row{grid-template-columns:26px 1fr auto;
+    grid-template-areas:"pick who act" "pick mail tag";row-gap:.6rem}
+  #passRows .row .pick{grid-area:pick}
+  #passRows .row .who{grid-area:who}
+  #passRows .row .mailcell{grid-area:mail;min-width:0}
+  #passRows .row .act{grid-area:act}
+  #passRows .row .ref{display:none}
+}
 </style>
 </body>
 </html>
