@@ -6417,132 +6417,7 @@ function countdown(){
   }
   tick();
 }
-})();
-</script>
 
-<style>
-/* ---- passes given by hand ------------------------------------------
-   A hand-over is the one pass state with no proof at the guest's end,
-   so it is named on the row and can be taken back.
-   -------------------------------------------------------------------- */
-.pass-tag.hand{border-color:rgba(154,116,20,.5);color:var(--gold-deep);
-  background:rgba(208,169,58,.14)}
-html[data-theme="dark"] .pass-tag.hand{border-color:rgba(208,169,58,.45);
-  color:var(--gold-lit);background:rgba(208,169,58,.12)}
-
-.who .handed{display:block;margin-top:.18rem;font-family:var(--f-label);
-  font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--gold-deep);opacity:.9}
-html[data-theme="dark"] .who .handed{color:var(--gold-lit)}
-
-.icon-btn.undo svg{stroke-width:1.8}
-.icon-btn.undo:hover{border-color:var(--danger);color:var(--danger)}
-
-/* The pass rows live in #passRows, but the only grid written for this
-   tab targets #passList, so they were falling back to the eight-column
-   rule meant for the RSVP list and pushing the buttons onto a line of
-   their own. Seven cells, seven tracks. */
-#passRows .row{grid-template-columns:26px minmax(0,1.7fr) .9fr .8fr 1.2fr auto auto}
-#passRows .row .act{display:flex;gap:.4rem;justify-content:flex-end}
-@media (max-width:920px){
-  #passRows .row{grid-template-columns:26px 1fr auto;
-    grid-template-areas:"pick who act" "pick mail tag";row-gap:.6rem}
-  #passRows .row .pick{grid-area:pick}
-  #passRows .row .who{grid-area:who}
-  #passRows .row .mailcell{grid-area:mail;min-width:0}
-  #passRows .row .act{grid-area:act}
-  #passRows .row .ref{display:none}
-}
-</style>
-
-<style>
-/* ============================================================
-   GENERATE QR  +  ALL GUESTS
-   ============================================================ */
-.subtabs{display:flex;gap:.5rem;flex-wrap:wrap;margin:0 0 1.1rem;
-  border-bottom:1px solid var(--rule);padding-bottom:.9rem}
-.subtab{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem .9rem;
-  font-family:var(--f-label);font-size:.58rem;letter-spacing:.16em;
-  text-transform:uppercase;background:transparent;color:var(--ink-2);
-  border:1px solid var(--rule);cursor:pointer;
-  transition:background var(--t-micro),color var(--t-micro),border-color var(--t-micro)}
-.subtab:hover{border-color:var(--gold)}
-.subtab.on{background:var(--gold);border-color:var(--gold);color:var(--forest-deep)}
-.subtab .n{font-family:var(--f-ui);font-size:.72rem;letter-spacing:0;opacity:.8}
-html[data-theme="dark"] .subtab{color:var(--cream-3);border-color:var(--line)}
-html[data-theme="dark"] .subtab.on{color:var(--forest-deep)}
-
-.qr-grid{display:grid;gap:1rem;
-  grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
-.qr-card{border:1px solid var(--rule);background:var(--paper-2);padding:1rem;
-  text-align:center;cursor:pointer;
-  transition:border-color var(--t-micro),transform var(--t-micro),
-             box-shadow var(--t-micro)}
-.qr-card:hover{border-color:var(--gold);transform:translateY(-2px);
-  box-shadow:0 12px 30px rgba(0,0,0,.12)}
-html[data-theme="dark"] .qr-card{background:rgba(244,241,232,.03);border-color:var(--line)}
-.qr-card img{width:100%;max-width:150px;aspect-ratio:1;object-fit:contain;
-  background:#fff;padding:.5rem;border:1px solid var(--rule)}
-.qr-card b{display:block;margin:.6rem 0 .15rem;font-weight:600;font-size:.95rem;
-  overflow-wrap:anywhere}
-.qr-card .ref{font-family:var(--f-label);font-size:.62rem;letter-spacing:.1em}
-.qr-card .sub{display:block;margin-top:.3rem;font-family:var(--f-ui);
-  font-size:.78rem;color:var(--ink-3)}
-html[data-theme="dark"] .qr-card .sub{color:var(--cream-3)}
-.qr-card .state{display:inline-block;margin-top:.5rem;padding:.16rem .5rem;
-  font-family:var(--f-label);font-size:.48rem;letter-spacing:.14em;
-  text-transform:uppercase;border:1px solid var(--rule);color:var(--ink-2)}
-.qr-card .state.done{border-color:rgba(26,107,65,.4);color:var(--good);
-  background:var(--good-bg)}
-
-@media print{
-  body *{visibility:hidden}
-  #viewQr, #viewQr *{visibility:visible}
-  #viewQr{position:absolute;left:0;top:0;width:100%}
-  .subtabs,.tools,.pass-acts,#qrNote{display:none}
-  .qr-grid{grid-template-columns:repeat(3,1fr)}
-  .qr-card{break-inside:avoid;border:1px solid #999}
-}
-
-/* ---- all guests ---- */
-.g-head{display:grid;grid-template-columns:2fr 1.6fr .9fr auto;gap:1rem;
-  padding:.7rem 1rem;font-family:var(--f-label);font-size:.54rem;
-  letter-spacing:.2em;text-transform:uppercase;color:var(--ink-2);
-  border-bottom:1px solid var(--rule)}
-html[data-theme="dark"] .g-head{color:var(--cream-3);border-bottom-color:var(--line)}
-.g-row{display:grid;grid-template-columns:2fr 1.6fr .9fr auto;gap:1rem;
-  align-items:center;padding:.85rem 1rem;border-bottom:1px solid var(--rule-2)}
-html[data-theme="dark"] .g-row{border-bottom-color:var(--line)}
-.g-row:hover{background:var(--paper-2)}
-html[data-theme="dark"] .g-row:hover{background:rgba(244,241,232,.04)}
-.g-row .g-name{display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap}
-.g-row .g-name b{font-weight:600}
-.g-row .g-name .g-num{font-family:var(--f-label);font-size:.6rem;
-  color:var(--ink-2);min-width:2.2ch}
-html[data-theme="dark"] .g-row .g-name .g-num{color:var(--cream-3)}
-.g-row .g-anon{font-style:italic;color:var(--ink-2)}
-html[data-theme="dark"] .g-row .g-anon{color:var(--cream-3)}
-.g-row .g-with{font-size:.9rem;color:var(--ink-2)}
-html[data-theme="dark"] .g-row .g-with{color:var(--cream-3)}
-.g-row .g-with em{font-style:normal;color:var(--gold-deep)}
-html[data-theme="dark"] .g-row .g-with em{color:var(--gold-lit)}
-.g-row .ref{font-family:var(--f-label);font-size:.72rem;letter-spacing:.08em}
-.g-tag{display:inline-block;padding:.16rem .5rem;font-family:var(--f-label);
-  font-size:.5rem;letter-spacing:.14em;text-transform:uppercase;
-  border:1px solid var(--rule);color:var(--ink-2)}
-html[data-theme="dark"] .g-tag{border-color:var(--line);color:var(--cream-3)}
-@media (max-width:760px){
-  .g-head{display:none}
-  .g-row{grid-template-columns:1fr auto;gap:.35rem .8rem;
-    grid-template-areas:"name status" "with with" "ref ref";padding:.9rem}
-  .g-row .g-name{grid-area:name}
-  .g-row .g-with{grid-area:with}
-  .g-row .ref{grid-area:ref}
-  .g-row .g-status{grid-area:status}
-}
-</style>
-
-<script>
 /* ============================================================
    BULK SEND
    The single-pass dialog already asks before sending. This does
@@ -6768,6 +6643,132 @@ $('gCsv').addEventListener('click', function(){
   a.click();
   toast(rows.length + ' guest' + (rows.length === 1 ? '' : 's') + ' exported');
 });
+
+})();
 </script>
+
+<style>
+/* ---- passes given by hand ------------------------------------------
+   A hand-over is the one pass state with no proof at the guest's end,
+   so it is named on the row and can be taken back.
+   -------------------------------------------------------------------- */
+.pass-tag.hand{border-color:rgba(154,116,20,.5);color:var(--gold-deep);
+  background:rgba(208,169,58,.14)}
+html[data-theme="dark"] .pass-tag.hand{border-color:rgba(208,169,58,.45);
+  color:var(--gold-lit);background:rgba(208,169,58,.12)}
+
+.who .handed{display:block;margin-top:.18rem;font-family:var(--f-label);
+  font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gold-deep);opacity:.9}
+html[data-theme="dark"] .who .handed{color:var(--gold-lit)}
+
+.icon-btn.undo svg{stroke-width:1.8}
+.icon-btn.undo:hover{border-color:var(--danger);color:var(--danger)}
+
+/* The pass rows live in #passRows, but the only grid written for this
+   tab targets #passList, so they were falling back to the eight-column
+   rule meant for the RSVP list and pushing the buttons onto a line of
+   their own. Seven cells, seven tracks. */
+#passRows .row{grid-template-columns:26px minmax(0,1.7fr) .9fr .8fr 1.2fr auto auto}
+#passRows .row .act{display:flex;gap:.4rem;justify-content:flex-end}
+@media (max-width:920px){
+  #passRows .row{grid-template-columns:26px 1fr auto;
+    grid-template-areas:"pick who act" "pick mail tag";row-gap:.6rem}
+  #passRows .row .pick{grid-area:pick}
+  #passRows .row .who{grid-area:who}
+  #passRows .row .mailcell{grid-area:mail;min-width:0}
+  #passRows .row .act{grid-area:act}
+  #passRows .row .ref{display:none}
+}
+</style>
+
+<style>
+/* ============================================================
+   GENERATE QR  +  ALL GUESTS
+   ============================================================ */
+.subtabs{display:flex;gap:.5rem;flex-wrap:wrap;margin:0 0 1.1rem;
+  border-bottom:1px solid var(--rule);padding-bottom:.9rem}
+.subtab{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem .9rem;
+  font-family:var(--f-label);font-size:.58rem;letter-spacing:.16em;
+  text-transform:uppercase;background:transparent;color:var(--ink-2);
+  border:1px solid var(--rule);cursor:pointer;
+  transition:background var(--t-micro),color var(--t-micro),border-color var(--t-micro)}
+.subtab:hover{border-color:var(--gold)}
+.subtab.on{background:var(--gold);border-color:var(--gold);color:var(--forest-deep)}
+.subtab .n{font-family:var(--f-ui);font-size:.72rem;letter-spacing:0;opacity:.8}
+html[data-theme="dark"] .subtab{color:var(--cream-3);border-color:var(--line)}
+html[data-theme="dark"] .subtab.on{color:var(--forest-deep)}
+
+.qr-grid{display:grid;gap:1rem;
+  grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
+.qr-card{border:1px solid var(--rule);background:var(--paper-2);padding:1rem;
+  text-align:center;cursor:pointer;
+  transition:border-color var(--t-micro),transform var(--t-micro),
+             box-shadow var(--t-micro)}
+.qr-card:hover{border-color:var(--gold);transform:translateY(-2px);
+  box-shadow:0 12px 30px rgba(0,0,0,.12)}
+html[data-theme="dark"] .qr-card{background:rgba(244,241,232,.03);border-color:var(--line)}
+.qr-card img{width:100%;max-width:150px;aspect-ratio:1;object-fit:contain;
+  background:#fff;padding:.5rem;border:1px solid var(--rule)}
+.qr-card b{display:block;margin:.6rem 0 .15rem;font-weight:600;font-size:.95rem;
+  overflow-wrap:anywhere}
+.qr-card .ref{font-family:var(--f-label);font-size:.62rem;letter-spacing:.1em}
+.qr-card .sub{display:block;margin-top:.3rem;font-family:var(--f-ui);
+  font-size:.78rem;color:var(--ink-3)}
+html[data-theme="dark"] .qr-card .sub{color:var(--cream-3)}
+.qr-card .state{display:inline-block;margin-top:.5rem;padding:.16rem .5rem;
+  font-family:var(--f-label);font-size:.48rem;letter-spacing:.14em;
+  text-transform:uppercase;border:1px solid var(--rule);color:var(--ink-2)}
+.qr-card .state.done{border-color:rgba(26,107,65,.4);color:var(--good);
+  background:var(--good-bg)}
+
+@media print{
+  body *{visibility:hidden}
+  #viewQr, #viewQr *{visibility:visible}
+  #viewQr{position:absolute;left:0;top:0;width:100%}
+  .subtabs,.tools,.pass-acts,#qrNote{display:none}
+  .qr-grid{grid-template-columns:repeat(3,1fr)}
+  .qr-card{break-inside:avoid;border:1px solid #999}
+}
+
+/* ---- all guests ---- */
+.g-head{display:grid;grid-template-columns:2fr 1.6fr .9fr auto;gap:1rem;
+  padding:.7rem 1rem;font-family:var(--f-label);font-size:.54rem;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--ink-2);
+  border-bottom:1px solid var(--rule)}
+html[data-theme="dark"] .g-head{color:var(--cream-3);border-bottom-color:var(--line)}
+.g-row{display:grid;grid-template-columns:2fr 1.6fr .9fr auto;gap:1rem;
+  align-items:center;padding:.85rem 1rem;border-bottom:1px solid var(--rule-2)}
+html[data-theme="dark"] .g-row{border-bottom-color:var(--line)}
+.g-row:hover{background:var(--paper-2)}
+html[data-theme="dark"] .g-row:hover{background:rgba(244,241,232,.04)}
+.g-row .g-name{display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap}
+.g-row .g-name b{font-weight:600}
+.g-row .g-name .g-num{font-family:var(--f-label);font-size:.6rem;
+  color:var(--ink-2);min-width:2.2ch}
+html[data-theme="dark"] .g-row .g-name .g-num{color:var(--cream-3)}
+.g-row .g-anon{font-style:italic;color:var(--ink-2)}
+html[data-theme="dark"] .g-row .g-anon{color:var(--cream-3)}
+.g-row .g-with{font-size:.9rem;color:var(--ink-2)}
+html[data-theme="dark"] .g-row .g-with{color:var(--cream-3)}
+.g-row .g-with em{font-style:normal;color:var(--gold-deep)}
+html[data-theme="dark"] .g-row .g-with em{color:var(--gold-lit)}
+.g-row .ref{font-family:var(--f-label);font-size:.72rem;letter-spacing:.08em}
+.g-tag{display:inline-block;padding:.16rem .5rem;font-family:var(--f-label);
+  font-size:.5rem;letter-spacing:.14em;text-transform:uppercase;
+  border:1px solid var(--rule);color:var(--ink-2)}
+html[data-theme="dark"] .g-tag{border-color:var(--line);color:var(--cream-3)}
+@media (max-width:760px){
+  .g-head{display:none}
+  .g-row{grid-template-columns:1fr auto;gap:.35rem .8rem;
+    grid-template-areas:"name status" "with with" "ref ref";padding:.9rem}
+  .g-row .g-name{grid-area:name}
+  .g-row .g-with{grid-area:with}
+  .g-row .ref{grid-area:ref}
+  .g-row .g-status{grid-area:status}
+}
+</style>
+
+
 </body>
 </html>
