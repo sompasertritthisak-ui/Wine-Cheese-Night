@@ -5814,28 +5814,136 @@ document.addEventListener('keydown', function(e){
 });
 
 /* Saving lets somebody send the pass on WhatsApp, which is how most of
-   these families will actually be reached. */
+   these families will actually be reached.
+
+   The bare QR was being saved on its own, which arrives on a phone as an
+   anonymous black square: nothing says which school sent it, whose it is,
+   or what it opens. The whole card is drawn here instead, so a saved pass
+   and an emailed pass are the same object. */
+
+/* The crest is already in the stylesheet as a data URI. Read it back from
+   the custom property rather than carrying a second copy of it here. */
+var CREST_SRC = (function(){
+  var v = getComputedStyle(document.documentElement).getPropertyValue('--logo') || '';
+  var m = v.match(/url\((['"]?)(.*?)\1\)/);
+  return m ? m[2].trim() : '';
+})();
+
+function loadImg_(src){
+  return new Promise(function(res, rej){
+    var im = new Image();
+    im.crossOrigin = 'anonymous';   // the QR comes from another origin
+    im.onload = function(){ res(im); };
+    im.onerror = function(){ rej(new Error('image failed: ' + src)); };
+    im.src = src;
+  });
+}
+
+/* Wraps a long name onto as many lines as it needs, and returns the
+   height used so whatever follows can sit under it. */
+function wrapText_(ctx, text, x, y, maxW, lineH){
+  var words = String(text).split(/\s+/), line = '', lines = [];
+  for (var i = 0; i < words.length; i++){
+    var test = line ? line + ' ' + words[i] : words[i];
+    if (ctx.measureText(test).width > maxW && line){ lines.push(line); line = words[i]; }
+    else line = test;
+  }
+  if (line) lines.push(line);
+  lines.forEach(function(l, i){ ctx.fillText(l, x, y + i * lineH); });
+  return lines.length * lineH;
+}
+
+function passCardBlob_(r){
+  var W = 900, PAD = 34, BAND = 300;
+
+  return Promise.all([
+    loadImg_(qrSrc(r)),
+    loadImg_(CREST_SRC),
+    (document.fonts && document.fonts.ready) || Promise.resolve()
+  ]).then(function(got){
+    var qr = got[0], crest = got[1];
+
+    /* Height is worked out after the name is measured, since a long name
+       or a second line would otherwise run past the bottom edge. */
+    var probe = document.createElement('canvas').getContext('2d');
+    probe.font = '600 46px Cinzel, Georgia, serif';
+    var nameLines = 1, words = String(r.name || '').split(/\s+/), line = '';
+    for (var i = 0; i < words.length; i++){
+      var t = line ? line + ' ' + words[i] : words[i];
+      if (probe.measureText(t).width > W - PAD * 2 - 80 && line){ nameLines++; line = words[i]; }
+      else line = t;
+    }
+
+    var QRSIZE = 560;
+    var H = BAND + 70 + QRSIZE + 60 + nameLines * 58 + 54 + 70;
+
+    var c = document.createElement('canvas');
+    c.width = W; c.height = H;
+    var x = c.getContext('2d');
+
+    /* gold frame, then the ivory card inside it */
+    x.fillStyle = '#D0A93A'; x.fillRect(0, 0, W, H);
+    x.fillStyle = '#FBF9F3'; x.fillRect(3, 3, W - 6, H - 6);
+
+    /* the forest band, with the crest sitting in it */
+    x.fillStyle = '#0D2B1B'; x.fillRect(3, 3, W - 6, BAND);
+    var cw = Math.min(W - PAD * 4, 330);
+    var ch = cw * (crest.height / crest.width);
+    x.drawImage(crest, (W - cw) / 2, (BAND - ch) / 2 + 3, cw, ch);
+
+    x.textAlign = 'center';
+
+    x.fillStyle = '#7A6011';
+    x.font = '600 22px Cinzel, Georgia, serif';
+    x.fillText('E N T R Y   P A S S', W / 2, BAND + 56);
+
+    /* The code itself goes on white, whatever the card is doing around
+       it. Anything else costs scans at the gate. */
+    var qx = (W - QRSIZE) / 2, qy = BAND + 86;
+    x.fillStyle = '#FFFFFF';
+    x.fillRect(qx - 14, qy - 14, QRSIZE + 28, QRSIZE + 28);
+    x.drawImage(qr, qx, qy, QRSIZE, QRSIZE);
+
+    x.fillStyle = '#0A2318';
+    x.font = '600 46px Cinzel, Georgia, serif';
+    var used = wrapText_(x, r.name || '', W / 2, qy + QRSIZE + 74, W - PAD * 2 - 80, 58);
+
+    x.fillStyle = '#4E6555';
+    x.font = '400 27px Cinzel, Georgia, serif';
+    x.fillText(String(r.ref || ''), W / 2, qy + QRSIZE + 74 + used + 6);
+
+    x.fillStyle = '#5A6B60';
+    x.font = '400 22px Georgia, serif';
+    x.fillText((r.party || 1) + ((r.party || 1) === 1 ? ' place' : ' places') +
+               (r.guest ? '  \u00b7  with ' + r.guest : ''),
+               W / 2, qy + QRSIZE + 74 + used + 48);
+
+    return new Promise(function(res){ c.toBlob(res, 'image/png'); });
+  });
+}
+
 $('opSave').addEventListener('click', function(){
   var r = bhRows[bhAt];
   var btn = this;
   btn.disabled = true;
   btn.textContent = 'Saving\u2026';
-  fetch($('opImg').src)
-    .then(function(res){ return res.blob(); })
+  passCardBlob_(r)
     .then(function(blob){
+      if (!blob) throw new Error('no blob');
       var a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = 'pass-' + r.ref + '-' + String(r.name).replace(/\W+/g, '-') + '.png';
+      a.download = 'PBIS-pass-' + r.ref + '-' +
+                   String(r.name).replace(/\W+/g, '-') + '.png';
       a.click();
       setTimeout(function(){ URL.revokeObjectURL(a.href); }, 4000);
       btn.disabled = false;
       btn.textContent = 'Save image';
       toast('Saved \u2014 send it to ' + r.name + ' on WhatsApp');
     })
-    .catch(function(){
+    .catch(function(err){
       btn.disabled = false;
       btn.textContent = 'Save image';
-      toast('Could not save that image.');
+      toast('Could not build that image. Photograph the screen instead.');
     });
 });
 
