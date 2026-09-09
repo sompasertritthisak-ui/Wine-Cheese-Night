@@ -2041,6 +2041,12 @@ input,select,textarea{font-size:1.05rem}
       <button class="tab" role="tab" data-tab="passes" aria-selected="false" id="tabPasses" hidden>
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h4v4H7z"/><path d="M15 9h2M15 12h2M15 15h2"/></svg>
         Passes</button>
+      <button class="tab" role="tab" data-tab="qr" aria-selected="false" id="tabQr" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM19 19h2v2h-2z"/></svg>
+        Generate QR</button>
+      <button class="tab" role="tab" data-tab="guests" aria-selected="false" id="tabGuests" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.2 2.9-5.6 6.5-5.6s6.5 2.4 6.5 5.6"/><circle cx="17.5" cy="7.5" r="2.6"/><path d="M17.5 13.4c2.4 0 4 1.7 4 3.9"/></svg>
+        All guests</button>
       <button class="tab" role="tab" data-tab="survey" aria-selected="false" id="tabSurvey" hidden>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h9a2 2 0 0 1 2 2v14H8z"/><path d="M8 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h2"/><path d="M11 9h5M11 13h5M11 17h3"/></svg>
         Survey</button>
@@ -2158,6 +2164,84 @@ input,select,textarea{font-size:1.05rem}
 
     </div>
 
+    <div class="panel-view" id="viewQr">
+      <p class="note" style="margin-top:0">Every entry code, ready to show on a screen,
+        save as an image, or print. The two lists are kept apart because they are
+        used differently: one group already has their pass in an inbox, the other
+        has to be handed theirs.</p>
+
+      <div class="subtabs" role="tablist" aria-label="Which guests">
+        <button class="subtab on" role="tab" data-qt="none" aria-selected="true">
+          Guests without an email <span class="n" id="qrNoneN">0</span></button>
+        <button class="subtab" role="tab" data-qt="mail" aria-selected="false">
+          Guests with an email <span class="n" id="qrMailN">0</span></button>
+      </div>
+
+      <p class="note" id="qrNote"></p>
+
+      <div class="tools">
+        <span class="grow">
+          <input type="search" id="qrq" placeholder="Search a name or reference" aria-label="Search">
+        </span>
+        <span class="count" id="qrCount"></span>
+      </div>
+
+      <div class="pass-acts">
+        <button class="btn" id="qrPrint">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6"/><rect x="4" y="9" width="16" height="7" rx="1.5"/><path d="M7 16h10v5H7z"/></svg>
+          Print these codes</button>
+      </div>
+
+      <div class="qr-grid" id="qrGrid"></div>
+      <div class="empty hidden" id="qrEmpty">Nobody in this list.</div>
+    </div>
+
+    <div class="panel-view" id="viewGuests">
+      <p class="note" style="margin-top:0">Every person expected on the night, one line
+        each: the parent who replied, plus whoever they said they were bringing. Worked
+        out from the same rows the RSVPs tab shows, so it stays right on its own.</p>
+
+      <div class="pass-stats">
+        <div class="stat"><b id="gTotal">&mdash;</b><span class="label">People expected</span></div>
+        <div class="stat"><b id="gLead">&mdash;</b><span class="label">Replied themselves</span></div>
+        <div class="stat"><b id="gPlus">&mdash;</b><span class="label">Brought as a guest</span></div>
+        <div class="stat"><b id="gUnnamed">&mdash;</b><span class="label">Guest not named</span></div>
+      </div>
+
+      <div class="tools">
+        <span class="grow">
+          <input type="search" id="gq" placeholder="Search a guest name or reference" aria-label="Search the guest list">
+        </span>
+        <span class="chips" role="group" aria-label="Filter the guest list">
+          <button class="chip" data-gf="all" aria-pressed="true">Everyone</button>
+          <button class="chip" data-gf="lead" aria-pressed="false">Replied themselves</button>
+          <button class="chip" data-gf="plus" aria-pressed="false">Brought as a guest</button>
+          <button class="chip" data-gf="unnamed" aria-pressed="false">Not named</button>
+        </span>
+        <span class="sortwrap">
+          <label class="sortlab" for="gSort">Sort</label>
+          <select id="gSort" aria-label="Sort the guest list">
+            <option value="name">Name A &ndash; Z</option>
+            <option value="party">Keep pairs together</option>
+            <option value="ts">Newest RSVP first</option>
+          </select>
+        </span>
+        <span class="count" id="gCount"></span>
+      </div>
+
+      <div class="pass-acts">
+        <button class="btn" id="gCsv">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="m8 11 4 4 4-4"/><path d="M4 21h16"/></svg>
+          Export this list</button>
+      </div>
+
+      <div class="g-head" aria-hidden="true">
+        <span>Guest</span><span>Coming with</span><span>Reference</span><span>Status</span>
+      </div>
+      <div id="gRows"></div>
+      <p class="note hidden" id="gEmpty">Nothing matches that search.</p>
+    </div>
+
     <div class="panel-view" id="viewDoor">
     <div class="door-bar" id="doorBar">
       <span class="door-count"><span id="doorNum">0 / 0</span><small>Arrived</small></span>
@@ -2247,6 +2331,9 @@ input,select,textarea{font-size:1.05rem}
         <button class="btn btn-solid hidden" id="approveAll">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/><path d="M14 6 9 11"/></svg>
           <span id="approveAllLabel">Approve everyone waiting</span></button>
+        <button class="btn btn-solid hidden" id="sendAllApproved">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v13H4z"/><path d="m4 6 8 6 8-6"/></svg>
+          <span id="sendAllLabel">Send passes to everyone approved</span></button>
         <button class="btn" id="byHandAll">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg>
           Passes to give by hand</button>
@@ -2993,6 +3080,8 @@ function enter(v){
   $('tabPasses').hidden = !rights.edit;
   $('tabDoor').hidden = !rights.edit;
   $('tabSurvey').hidden = false;   // everyone who can sign in may read it
+  $('tabQr').hidden = false;
+  $('tabGuests').hidden = false;
   $('tabResend').hidden = !rights.edit;
   $('emails').hidden = !rights.contacts;
   $('csv').hidden = !rights.export;
@@ -3310,6 +3399,8 @@ function render(){
   var canEdit = !!rights.edit;
   var canRemove = !!rights.remove;
   if ($('viewPasses').classList.contains('on')) renderPasses();
+  if ($('viewQr').classList.contains('on')) renderQr();
+  if ($('viewGuests').classList.contains('on')) renderGuests();
 
   $('rows').innerHTML = list.map(function(r){
     var st = r.status || 'Confirmed';
@@ -4544,6 +4635,7 @@ function renderPasses(){
     '</div>';
   }).join('');
   syncPassBulk();
+  syncSendAll();
 }
 
 function passPickedRefs(){
@@ -5637,6 +5729,9 @@ var bhRows = [], bhAt = 0;
 /* The signed link comes from the server with the rest of the row. Building
    one here would produce an unsigned code: the gate would still take it,
    but so would one somebody invented. */
+/* Opening a code counts as handing it over only for the no-email list. */
+var qrMarksOnOpen = true;
+
 function qrSrc(row){
   var url = row.pass || (window.location.origin + '/?ticket=1&ref=' +
             encodeURIComponent(row.ref) + '&p=1');
@@ -5667,7 +5762,10 @@ function openByHand(){
   $('byHand').classList.add('open');
 }
 
-$('byHandAll').addEventListener('click', openByHand);
+$('byHandAll').addEventListener('click', function(){
+  qrMarksOnOpen = true;
+  openByHand();
+});
 document.querySelectorAll('[data-bh-close]').forEach(function(el){
   el.addEventListener('click', function(){ $('byHand').classList.remove('open'); });
 });
@@ -5691,8 +5789,10 @@ function showPass(i){
   $('onePass').classList.add('open');
 
   /* Showing it counts as giving it, so the office is not left wondering
-     later whether this family was ever dealt with. */
-  if (!r.qrSent){
+     later whether this family was ever dealt with. That holds only for
+     guests with no email: opening a code from the with-email list is
+     just looking, and must not mark anything. */
+  if (!r.qrSent && qrMarksOnOpen){
     api({ action:'marksent', token:session, ref:r.ref })
       .then(function(res){ if (res && res.ok) load(true); })
       .catch(function(){});
@@ -6114,6 +6214,8 @@ function showTab(which){
   $('viewList').classList.toggle('on', which === 'list');
   $('viewPasses').classList.toggle('on', which === 'passes');
   $('viewSurvey').classList.toggle('on', which === 'survey');
+  $('viewQr').classList.toggle('on', which === 'qr');
+  $('viewGuests').classList.toggle('on', which === 'guests');
   $('viewResend').classList.toggle('on', which === 'resend');
   $('viewDoor').classList.toggle('on', which === 'door');
   $('viewLog').classList.toggle('on', which === 'log');
@@ -6121,6 +6223,8 @@ function showTab(which){
 
   if (which === 'log') loadLog();
   if (which === 'passes') renderPasses();
+  if (which === 'qr') renderQr();
+  if (which === 'guests') renderGuests();
   if (which === 'survey') loadSurvey();
   if (which === 'door') renderDoor();
   if (which === 'resend') openResend();
@@ -6350,5 +6454,320 @@ html[data-theme="dark"] .who .handed{color:var(--gold-lit)}
   #passRows .row .ref{display:none}
 }
 </style>
+
+<style>
+/* ============================================================
+   GENERATE QR  +  ALL GUESTS
+   ============================================================ */
+.subtabs{display:flex;gap:.5rem;flex-wrap:wrap;margin:0 0 1.1rem;
+  border-bottom:1px solid var(--rule);padding-bottom:.9rem}
+.subtab{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem .9rem;
+  font-family:var(--f-label);font-size:.58rem;letter-spacing:.16em;
+  text-transform:uppercase;background:transparent;color:var(--ink-2);
+  border:1px solid var(--rule);cursor:pointer;
+  transition:background var(--t-micro),color var(--t-micro),border-color var(--t-micro)}
+.subtab:hover{border-color:var(--gold)}
+.subtab.on{background:var(--gold);border-color:var(--gold);color:var(--forest-deep)}
+.subtab .n{font-family:var(--f-ui);font-size:.72rem;letter-spacing:0;opacity:.8}
+html[data-theme="dark"] .subtab{color:var(--cream-3);border-color:var(--line)}
+html[data-theme="dark"] .subtab.on{color:var(--forest-deep)}
+
+.qr-grid{display:grid;gap:1rem;
+  grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
+.qr-card{border:1px solid var(--rule);background:var(--paper-2);padding:1rem;
+  text-align:center;cursor:pointer;
+  transition:border-color var(--t-micro),transform var(--t-micro),
+             box-shadow var(--t-micro)}
+.qr-card:hover{border-color:var(--gold);transform:translateY(-2px);
+  box-shadow:0 12px 30px rgba(0,0,0,.12)}
+html[data-theme="dark"] .qr-card{background:rgba(244,241,232,.03);border-color:var(--line)}
+.qr-card img{width:100%;max-width:150px;aspect-ratio:1;object-fit:contain;
+  background:#fff;padding:.5rem;border:1px solid var(--rule)}
+.qr-card b{display:block;margin:.6rem 0 .15rem;font-weight:600;font-size:.95rem;
+  overflow-wrap:anywhere}
+.qr-card .ref{font-family:var(--f-label);font-size:.62rem;letter-spacing:.1em}
+.qr-card .sub{display:block;margin-top:.3rem;font-family:var(--f-ui);
+  font-size:.78rem;color:var(--ink-3)}
+html[data-theme="dark"] .qr-card .sub{color:var(--cream-3)}
+.qr-card .state{display:inline-block;margin-top:.5rem;padding:.16rem .5rem;
+  font-family:var(--f-label);font-size:.48rem;letter-spacing:.14em;
+  text-transform:uppercase;border:1px solid var(--rule);color:var(--ink-2)}
+.qr-card .state.done{border-color:rgba(26,107,65,.4);color:var(--good);
+  background:var(--good-bg)}
+
+@media print{
+  body *{visibility:hidden}
+  #viewQr, #viewQr *{visibility:visible}
+  #viewQr{position:absolute;left:0;top:0;width:100%}
+  .subtabs,.tools,.pass-acts,#qrNote{display:none}
+  .qr-grid{grid-template-columns:repeat(3,1fr)}
+  .qr-card{break-inside:avoid;border:1px solid #999}
+}
+
+/* ---- all guests ---- */
+.g-head{display:grid;grid-template-columns:2fr 1.6fr .9fr auto;gap:1rem;
+  padding:.7rem 1rem;font-family:var(--f-label);font-size:.54rem;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--ink-2);
+  border-bottom:1px solid var(--rule)}
+html[data-theme="dark"] .g-head{color:var(--cream-3);border-bottom-color:var(--line)}
+.g-row{display:grid;grid-template-columns:2fr 1.6fr .9fr auto;gap:1rem;
+  align-items:center;padding:.85rem 1rem;border-bottom:1px solid var(--rule-2)}
+html[data-theme="dark"] .g-row{border-bottom-color:var(--line)}
+.g-row:hover{background:var(--paper-2)}
+html[data-theme="dark"] .g-row:hover{background:rgba(244,241,232,.04)}
+.g-row .g-name{display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap}
+.g-row .g-name b{font-weight:600}
+.g-row .g-name .g-num{font-family:var(--f-label);font-size:.6rem;
+  color:var(--ink-2);min-width:2.2ch}
+html[data-theme="dark"] .g-row .g-name .g-num{color:var(--cream-3)}
+.g-row .g-anon{font-style:italic;color:var(--ink-2)}
+html[data-theme="dark"] .g-row .g-anon{color:var(--cream-3)}
+.g-row .g-with{font-size:.9rem;color:var(--ink-2)}
+html[data-theme="dark"] .g-row .g-with{color:var(--cream-3)}
+.g-row .g-with em{font-style:normal;color:var(--gold-deep)}
+html[data-theme="dark"] .g-row .g-with em{color:var(--gold-lit)}
+.g-row .ref{font-family:var(--f-label);font-size:.72rem;letter-spacing:.08em}
+.g-tag{display:inline-block;padding:.16rem .5rem;font-family:var(--f-label);
+  font-size:.5rem;letter-spacing:.14em;text-transform:uppercase;
+  border:1px solid var(--rule);color:var(--ink-2)}
+html[data-theme="dark"] .g-tag{border-color:var(--line);color:var(--cream-3)}
+@media (max-width:760px){
+  .g-head{display:none}
+  .g-row{grid-template-columns:1fr auto;gap:.35rem .8rem;
+    grid-template-areas:"name status" "with with" "ref ref";padding:.9rem}
+  .g-row .g-name{grid-area:name}
+  .g-row .g-with{grid-area:with}
+  .g-row .ref{grid-area:ref}
+  .g-row .g-status{grid-area:status}
+}
+</style>
+
+<script>
+/* ============================================================
+   BULK SEND
+   The single-pass dialog already asks before sending. This does
+   the same for a whole list, because sending fifty emails is the
+   least reversible thing on this screen.
+   ============================================================ */
+function sendableApproved(){
+  return data.filter(function(r){
+    return r.live !== false && r.approved === 'Yes' && r.email && !r.qrSent;
+  });
+}
+
+function syncSendAll(){
+  var n = sendableApproved().length;
+  var btn = $('sendAllApproved');
+  if (!btn) return;
+  btn.classList.toggle('hidden', n === 0);
+  $('sendAllLabel').textContent = n === 1
+    ? 'Send the pass to 1 approved guest'
+    : 'Send passes to ' + n + ' approved guests';
+}
+
+$('sendAllApproved').addEventListener('click', function(){
+  var rows = sendableApproved();
+  if (!rows.length){ toast('Nobody is waiting for a pass.'); return; }
+  var seats = rows.reduce(function(a, r){ return a + (r.party || 1); }, 0);
+  ask({ title:'Send ' + rows.length + ' passes?',
+        body:'<b>' + rows.length + ' guest' + (rows.length === 1 ? '' : 's') +
+             '</b> will be emailed their entry pass, ' + seats +
+             ' code' + (seats === 1 ? '' : 's') + ' in total. This cannot be ' +
+             'unsent. Guests with no email address are not included \u2014 use ' +
+             '<b>Generate QR</b> for those.',
+        yes:'Send them', no:'Not yet' }, function(){
+    var refs = rows.map(function(r){ return r.ref; });
+    toast('Sending\u2026');
+    api({ action:'approve', token:session, refs:refs, send:true })
+      .then(function(res){
+        if (res && res.error === 'expired'){ expire(); return; }
+        if (res && res.ok){
+          toast((res.queued || 0) + ' pass' + (res.queued === 1 ? '' : 'es') + ' on the way');
+          load(true);
+        } else toast('That could not be sent.');
+      })
+      .catch(function(){ toast('No connection.'); });
+  });
+});
+
+/* ============================================================
+   GENERATE QR
+   ============================================================ */
+var qrTab = 'none';
+
+function qrList(){
+  var q = ($('qrq').value || '').toLowerCase();
+  return data.filter(function(r){
+    if (r.live === false) return false;
+    if (qrTab === 'none' && r.email) return false;
+    if (qrTab === 'mail' && !r.email) return false;
+    if (!q) return true;
+    return (r.name + ' ' + r.ref + ' ' + (r.email || '')).toLowerCase().indexOf(q) > -1;
+  }).sort(function(a, b){ return String(a.name).localeCompare(String(b.name)); });
+}
+
+function renderQr(){
+  var live = data.filter(function(r){ return r.live !== false; });
+  $('qrNoneN').textContent = live.filter(function(r){ return !r.email; }).length;
+  $('qrMailN').textContent = live.filter(function(r){ return !!r.email; }).length;
+
+  $('qrNote').textContent = qrTab === 'none'
+    ? 'These families gave a phone number but no email address. Opening a code ' +
+      'here records the pass as given by hand, so nobody is chased twice.'
+    : 'These guests can be emailed their pass from the Passes tab. Codes are ' +
+      'shown here only for reference \u2014 opening one changes nothing.';
+
+  var rows = qrList();
+  $('qrCount').textContent = rows.length + (rows.length === 1 ? ' guest' : ' guests');
+  $('qrEmpty').classList.toggle('hidden', rows.length > 0);
+
+  $('qrGrid').innerHTML = rows.map(function(r, i){
+    return '<div class="qr-card" data-qr="' + i + '">' +
+      '<img loading="lazy" src="' + qrSrc(r) + '" alt="Entry code for ' + esc(r.name) + '">' +
+      '<b>' + esc(r.name) + '</b>' +
+      '<span class="ref">' + esc(r.ref) + '</span>' +
+      '<span class="sub">' + (r.party || 1) + (r.party === 1 ? ' place' : ' places') +
+        (r.guest ? ' \u00b7 with ' + esc(r.guest) : '') + '</span>' +
+      (r.qrSent ? '<span class="state done">' + (r.byHand ? 'Given by hand' : 'Pass sent') +
+        '</span>' : '<span class="state">Not yet given</span>') +
+    '</div>';
+  }).join('');
+}
+
+$('qrq').addEventListener('input', renderQr);
+document.querySelectorAll('[data-qt]').forEach(function(b){
+  b.addEventListener('click', function(){
+    qrTab = b.getAttribute('data-qt');
+    document.querySelectorAll('[data-qt]').forEach(function(x){
+      x.classList.toggle('on', x === b);
+      x.setAttribute('aria-selected', x === b ? 'true' : 'false');
+    });
+    renderQr();
+  });
+});
+
+/* The full-screen viewer walks bhRows, so point it at whichever list is
+   on screen. Only the no-email list counts as handing a pass over. */
+$('qrGrid').addEventListener('click', function(e){
+  var c = e.target.closest('[data-qr]');
+  if (!c) return;
+  bhRows = qrList();
+  qrMarksOnOpen = (qrTab === 'none');
+  showPass(parseInt(c.getAttribute('data-qr'), 10));
+});
+
+$('qrPrint').addEventListener('click', function(){ window.print(); });
+
+/* ============================================================
+   ALL GUESTS — one line per person, not per reply
+   ============================================================ */
+var gFilter = 'all';
+
+function guestRoster(){
+  var out = [];
+  data.filter(function(r){ return r.live !== false; }).forEach(function(r){
+    var seats = r.party || 1;
+    out.push({ name: String(r.name || '').trim() || 'Name missing',
+               kind:'lead', with: String(r.guest || '').trim(), party: seats,
+               ref:r.ref, status:r.status || 'Confirmed', ts:r.ts, host:'' });
+    for (var i = 2; i <= seats; i++){
+      var named = (i === 2) ? String(r.guest || '').trim() : '';
+      out.push({ name: named, kind: named ? 'plus' : 'unnamed', with:'',
+                 party: seats, ref:r.ref, status:r.status || 'Confirmed',
+                 ts:r.ts, host:String(r.name || '').trim() });
+    }
+  });
+  return out;
+}
+
+function guestsVisible(){
+  var q = ($('gq').value || '').toLowerCase();
+  return guestRoster().filter(function(g){
+    if (gFilter === 'lead'    && g.kind !== 'lead') return false;
+    if (gFilter === 'plus'    && g.kind === 'lead') return false;
+    if (gFilter === 'unnamed' && g.kind !== 'unnamed') return false;
+    if (!q) return true;
+    return (g.name + ' ' + g.host + ' ' + g.with + ' ' + g.ref)
+      .toLowerCase().indexOf(q) > -1;
+  });
+}
+
+/* "No show" would become two useless class names, which is why those
+   pills come out unstyled elsewhere. */
+function pillFor(st){
+  var cls = String(st || 'Confirmed').toLowerCase().replace(/\s+/g, '');
+  if (cls === 'noshow') cls = 'noshow-pill';
+  return '<span class="pill ' + cls + '">' + esc(st) + '</span>';
+}
+
+function renderGuests(){
+  var all = guestRoster();
+  $('gTotal').textContent   = all.length;
+  $('gLead').textContent    = all.filter(function(g){ return g.kind === 'lead'; }).length;
+  $('gPlus').textContent    = all.filter(function(g){ return g.kind === 'plus'; }).length;
+  $('gUnnamed').textContent = all.filter(function(g){ return g.kind === 'unnamed'; }).length;
+
+  var list = guestsVisible();
+  var sort = $('gSort').value;
+  list.sort(function(a, b){
+    if (sort === 'ts')    return new Date(b.ts || 0) - new Date(a.ts || 0);
+    if (sort === 'party') return String(a.ref).localeCompare(String(b.ref)) ||
+                                 (a.kind === 'lead' ? -1 : 1);
+    return a.name.localeCompare(b.name, undefined, { sensitivity:'base' });
+  });
+
+  $('gCount').textContent = list.length + (list.length === 1 ? ' person' : ' people');
+  $('gEmpty').classList.toggle('hidden', list.length > 0);
+
+  $('gRows').innerHTML = list.map(function(g, i){
+    return '<div class="g-row">' +
+      '<span class="g-name"><span class="g-num">' + (i + 1) + '</span>' +
+        (g.name ? '<b>' + esc(g.name) + '</b>'
+                : '<b class="g-anon">Guest not named</b>') +
+        (g.kind === 'lead' ? '' : '<span class="g-tag">Guest</span>') + '</span>' +
+      '<span class="g-with">' +
+        (g.kind === 'lead'
+          ? (g.with ? 'bringing <em>' + esc(g.with) + '</em>'
+                    : (g.party > 1 ? 'bringing a guest' : '\u2014'))
+          : 'guest of <em>' + esc(g.host) + '</em>') + '</span>' +
+      '<span class="ref">' + esc(g.ref) + '</span>' +
+      '<span class="g-status">' + pillFor(g.status) + '</span>' +
+    '</div>';
+  }).join('');
+}
+
+$('gq').addEventListener('input', renderGuests);
+$('gSort').addEventListener('change', renderGuests);
+document.querySelectorAll('[data-gf]').forEach(function(b){
+  b.addEventListener('click', function(){
+    gFilter = b.getAttribute('data-gf');
+    document.querySelectorAll('[data-gf]').forEach(function(x){
+      x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
+    });
+    renderGuests();
+  });
+});
+
+$('gCsv').addEventListener('click', function(){
+  if (role !== 'administrator'){ toast('Only an administrator can export the list.'); return; }
+  var rows = guestsVisible();
+  if (!rows.length){ toast('Nothing to export in this view.'); return; }
+  var head = ['#','Guest','Coming as','Coming with','Reference','Status'];
+  var body = rows.map(function(g, i){
+    return [i + 1, g.name || 'Guest not named',
+            g.kind === 'lead' ? 'Replied themselves' : 'Brought as a guest',
+            g.kind === 'lead' ? g.with : g.host, g.ref, g.status]
+      .map(function(v){ return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; })
+      .join(',');
+  });
+  var blob = new Blob(['\ufeff' + [head.join(',')].concat(body).join('\r\n')],
+                      { type:'text/csv;charset=utf-8' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'PBIS-parent-appreciation-all-guests.csv';
+  a.click();
+  toast(rows.length + ' guest' + (rows.length === 1 ? '' : 's') + ' exported');
+});
+</script>
 </body>
 </html>
