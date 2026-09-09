@@ -2215,6 +2215,7 @@ input,select,textarea{font-size:1.05rem}
         <div class="stat"><b id="pWaiting">&mdash;</b><span class="label">Awaiting approval</span></div>
         <div class="stat"><b id="pSent">&mdash;</b><span class="label">Passes sent</span></div>
         <div class="stat"><b id="pNoEmail">&mdash;</b><span class="label">No email address</span></div>
+        <div class="stat"><b id="pHandStat">&mdash;</b><span class="label">Given by hand</span></div>
       </div>
 
       <div class="tools">
@@ -2225,6 +2226,7 @@ input,select,textarea{font-size:1.05rem}
           <button class="chip" data-pf="waiting" aria-pressed="true">Awaiting</button>
           <button class="chip" data-pf="approved" aria-pressed="false">Approved</button>
           <button class="chip" data-pf="noemail" aria-pressed="false">No email</button>
+          <button class="chip" data-pf="hand" aria-pressed="false">Given by hand</button>
         </span>
         <span class="sortwrap">
           <label class="sortlab" for="pSort">Sort</label>
@@ -4474,6 +4476,7 @@ function passList(){
     if (passFilter === 'waiting'  && r.approved === 'Yes') return false;
     if (passFilter === 'approved' && r.approved !== 'Yes') return false;
     if (passFilter === 'noemail'  && r.email) return false;
+    if (passFilter === 'hand'     && !r.byHand) return false;
     if (!q) return true;
     return (r.name + ' ' + r.ref + ' ' + r.email).toLowerCase().indexOf(q) > -1;
   }).sort(function(a, b){
@@ -4496,13 +4499,16 @@ function renderPasses(){
   $('pWaiting').textContent  = live.filter(function(r){ return r.approved !== 'Yes'; }).length;
   $('pSent').textContent     = live.filter(function(r){ return r.qrSent; }).length;
   $('pNoEmail').textContent  = live.filter(function(r){ return !r.email; }).length;
+  var handed = live.filter(function(r){ return r.byHand; });
+  $('pHandStat').textContent = handed.length;
 
   var rows = passList();
   $('pCount').textContent = rows.length + (rows.length === 1 ? ' guest' : ' guests');
   $('passEmpty').classList.toggle('hidden', rows.length > 0);
 
   $('passRows').innerHTML = rows.map(function(r){
-    var tag = r.qrSent ? '<span class="pass-tag sent">Pass sent</span>'
+    var tag = r.byHand ? '<span class="pass-tag hand">Given by hand</span>'
+            : r.qrSent ? '<span class="pass-tag sent">Pass sent</span>'
             : r.approved === 'Yes' ? '<span class="pass-tag ready">Approved</span>'
             : !r.email ? '<span class="pass-tag none">No email</span>'
             : '<span class="pass-tag">Awaiting</span>';
@@ -4513,7 +4519,11 @@ function renderPasses(){
         (r.ts && (Date.now() - new Date(r.ts).getTime() < 5 * 60 * 1000)
           ? '<span class="just-in">Just in</span>' : '') + '</b>' +
         '<span>' + (r.party || 1) + (r.party === 1 ? ' place' : ' places') +
-        (r.guest ? ' \u00b7 with ' + esc(r.guest) : '') + '</span></div>' +
+        (r.guest ? ' \u00b7 with ' + esc(r.guest) : '') + '</span>' +
+        (r.byHand ? '<span class="handed">Handed over by ' + esc(r.byHand) +
+          (r.qrSent ? ' \u00b7 ' + new Date(r.qrSent).toLocaleString([], {
+             day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : '') +
+          '</span>' : '') + '</div>' +
       '<span class="ref">' + esc(r.ref) + '</span>' +
       '<span class="when">' + (r.ts ? new Date(r.ts).toLocaleString([], {
           day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : '') + '</span>' +
@@ -4526,7 +4536,11 @@ function renderPasses(){
           '<svg viewBox="0 0 24 24"><path d="M4 4h16v13H4z"/><path d="m4 6 8 6 8-6"/></svg></button>'
         : '<button class="icon-btn" data-marksent="' + esc(r.ref) +
           '" aria-label="Mark the pass as given by hand">' +
-          '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></button>') + '</span>' +
+          '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></button>') +
+        (r.byHand ? '<button class="icon-btn undo" data-unmark="' + esc(r.ref) +
+          '" aria-label="Undo the pass given by hand to ' + esc(r.name) + '">' +
+          '<svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-4"/></svg>' +
+          '</button>' : '') + '</span>' +
     '</div>';
   }).join('');
   syncPassBulk();
@@ -4641,6 +4655,28 @@ $('passRows').addEventListener('click', function(e){
         if (res && res.ok){ toast('Marked as given by hand'); load(true); }
       })
       .catch(function(){ toast('No connection.'); });
+    return;
+  }
+
+  /* Undo. Worth a question first: the row goes back to awaiting approval,
+     which is a bigger step than the button suggests. */
+  var undo = e.target.closest('[data-unmark]');
+  if (undo){
+    var r3 = undo.getAttribute('data-unmark');
+    var who = (data.filter(function(x){ return x.ref === r3; })[0] || {}).name || r3;
+    ask({ title:'Undo this pass?',
+          body:'<b>' + esc(who) + '</b> goes back to awaiting approval, and the ' +
+               'record of the pass being handed over is cleared. Do this only if ' +
+               'they have not been given the code.',
+          yes:'Undo it', no:'Keep it' }, function(){
+      api({ action:'unmarksent', token:session, ref:r3 })
+        .then(function(res){
+          if (res && res.error === 'expired'){ expire(); return; }
+          if (res && res.ok){ toast('Pass taken back'); load(true); }
+          else toast((res && res.message) || 'That could not be undone.');
+        })
+        .catch(function(){ toast('No connection.'); });
+    });
   }
 });
 
@@ -6279,5 +6315,24 @@ function countdown(){
 }
 })();
 </script>
+
+<style>
+/* ---- passes given by hand ------------------------------------------
+   A hand-over is the one pass state with no proof at the guest's end,
+   so it is named on the row and can be taken back.
+   -------------------------------------------------------------------- */
+.pass-tag.hand{border-color:rgba(154,116,20,.5);color:var(--gold-deep);
+  background:rgba(208,169,58,.14)}
+html[data-theme="dark"] .pass-tag.hand{border-color:rgba(208,169,58,.45);
+  color:var(--gold-lit);background:rgba(208,169,58,.12)}
+
+.who .handed{display:block;margin-top:.18rem;font-family:var(--f-label);
+  font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gold-deep);opacity:.9}
+html[data-theme="dark"] .who .handed{color:var(--gold-lit)}
+
+.icon-btn.undo svg{stroke-width:1.8}
+.icon-btn.undo:hover{border-color:var(--danger);color:var(--danger)}
+</style>
 </body>
 </html>
