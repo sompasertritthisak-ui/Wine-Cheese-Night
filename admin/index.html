@@ -4636,6 +4636,7 @@ function renderPasses(){
   }).join('');
   syncPassBulk();
   syncSendAll();
+  syncApproveAll();   /* was only synced on one load path, so it stayed hidden */
 }
 
 function passPickedRefs(){
@@ -5882,7 +5883,8 @@ function syncApproveAll(){
   });
   var btn = $('approveAll');
   btn.classList.toggle('hidden', waiting.length === 0 || !rights.edit);
-  $('approveAllLabel').textContent = 'Approve all ' + waiting.length + ' waiting';
+  $('approveAllLabel').textContent = 'Approve & send passes to ' + waiting.length +
+    (waiting.length === 1 ? ' guest' : ' guests');
   return waiting;
 }
 
@@ -5935,7 +5937,7 @@ function runApproveAll(btn, waiting){
       })
       .catch(function(){
         btn.disabled = false;
-        $('approveAllLabel').textContent = 'Approve everyone waiting';
+        syncApproveAll();
         toast('Stopped after ' + sent + '. Try again for the rest.');
         load(true);
       });
@@ -6436,8 +6438,8 @@ function syncSendAll(){
   if (!btn) return;
   btn.classList.toggle('hidden', n === 0);
   $('sendAllLabel').textContent = n === 1
-    ? 'Send the pass to 1 approved guest'
-    : 'Send passes to ' + n + ' approved guests';
+    ? 'Send the pass to 1 approved guest waiting'
+    : 'Send passes to ' + n + ' approved guests waiting';
 }
 
 $('sendAllApproved').addEventListener('click', function(){
