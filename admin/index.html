@@ -2008,6 +2008,9 @@ input,select,textarea{font-size:1.05rem}
       <button class="btn" id="printBtn">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="7" rx="1.5"/><path d="M7 15h10v5H7z"/><circle cx="17" cy="12" r=".6"/></svg>
         Print list</button>
+      <button class="btn hidden" id="backupBtn">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v9"/><path d="m8.5 9.5 3.5 3.5 3.5-3.5"/><rect x="3.5" y="14.5" width="17" height="5.5" rx="1.4"/><circle cx="7.5" cy="17.2" r=".7"/></svg>
+        Back up</button>
       <button class="btn" id="csv">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11"/><path d="m8 10 4 4 4-4"/><path d="M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17"/></svg>
         Export</button>
@@ -3074,6 +3077,8 @@ function enter(v){
   $('viewerNote').classList.add('hidden');
   $('roNote').classList.toggle('hidden', !!rights.edit);
   $('tabLog').hidden = !rights.log;
+  /* A copy carries every guest's details, so it stays with the administrator. */
+  $('backupBtn').classList.toggle('hidden', role !== 'administrator');
   ['addBtn','nightBtn'].forEach(function(id){
     var el = $(id); if (el) el.hidden = !rights.edit;
   });
@@ -6731,6 +6736,32 @@ document.querySelectorAll('[data-gf]').forEach(function(b){
     });
     renderGuests();
   });
+});
+
+/* One button, one dated copy of the whole spreadsheet. Worth asking first
+   only because it is slow, not because it is dangerous — nothing is
+   overwritten and nothing is deleted. */
+$('backupBtn').addEventListener('click', function(){
+  var btn = this;
+  btn.disabled = true;
+  var label = btn.querySelector('svg').nextSibling;
+  toast('Making a copy\u2026 this can take a moment');
+  api({ action:'backup', token:session })
+    .then(function(res){
+      btn.disabled = false;
+      if (res && res.error === 'expired'){ expire(); return; }
+      if (res && res.ok){
+        toast('Backed up \u2014 ' + res.name);
+        /* A link is worth more than a message: it proves the copy exists. */
+        if (res.url) window.open(res.url, '_blank', 'noopener');
+      } else {
+        toast((res && res.message) || 'The backup did not complete.');
+      }
+    })
+    .catch(function(){
+      btn.disabled = false;
+      toast('No connection \u2014 the backup did not run.');
+    });
 });
 
 $('gCsv').addEventListener('click', function(){
