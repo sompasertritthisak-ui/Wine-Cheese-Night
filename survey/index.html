@@ -296,6 +296,18 @@ input::placeholder,textarea::placeholder{color:var(--fg-2)}
 .token-note{font-size:clamp(.92rem,2.1vw,1.02rem)!important;color:var(--cream)!important;
   opacity:.92;margin:0 auto .3rem!important}
 
+/* The one instruction a parent has to act on before the screen is gone.
+   It carries the weight the heading used to, because a phone going back
+   in a pocket unscreenshotted is a gift nobody can claim. */
+.token-note.shout{font-family:var(--f-display)!important;font-weight:600!important;
+  font-size:clamp(1.3rem,5vw,2.1rem)!important;line-height:1.22!important;
+  color:var(--cream)!important;opacity:1;max-width:20ch;
+  margin:.5rem auto .9rem!important}
+@media (max-height:800px){
+  .token-note.shout{font-size:clamp(1.15rem,4.4vw,1.7rem)!important;
+    margin:.35rem auto .7rem!important}
+}
+
 /* the thank-you version: no gift, and nothing shouting about one */
 .won-card.late .token{border-color:var(--hair);border-width:1px;
   background:rgba(244,241,232,.04)}
@@ -510,7 +522,7 @@ input::placeholder,textarea::placeholder{color:var(--fg-2)}
   <p>Thank you for being part of our community.</p>
 </div>
 
-<div class="won" id="won" role="dialog" aria-modal="true" aria-labelledby="wonTitle">
+<div class="won" id="won" role="dialog" aria-modal="true" aria-label="Survey complete">
   <div class="won-bg"></div>
   <div class="won-card" id="wonCard">
     <span class="crest" role="img" aria-label="Panyathip British International School"></span>
@@ -1021,11 +1033,13 @@ function finish(res){
   $('wonCard').classList.toggle('late', !won);
   $('wonKick').textContent = won ? 'Congratulations' : 'Thank you';
 
-  /* No counting out loud. A gift reads as a thank-you; a number reads as
-     a race, and the parent who missed it by one place feels it. */
-  $('wonTitle').textContent = won
-    ? 'A gift from us'
-    : 'Thank you for your time';
+  /* A winner gets no heading at all: the one thing that matters is that
+     they screenshot the screen before it is gone, so that line is made
+     the headline instead of sitting under one. The thank-you version
+     keeps its heading, having nothing to act on. */
+  $('wonTitle').textContent = won ? '' : 'Thank you for your time';
+  $('wonTitle').style.display = won ? 'none' : '';
+  $('tokenNote').classList.toggle('shout', won);
 
   $('wonText').textContent = won
     ? 'Thank you for completing the survey. There is a gift waiting for you at ' +
