@@ -299,13 +299,19 @@ input::placeholder,textarea::placeholder{color:var(--fg-2)}
 /* The one instruction a parent has to act on before the screen is gone.
    It carries the weight the heading used to, because a phone going back
    in a pocket unscreenshotted is a gift nobody can claim. */
-.token-note.shout{font-family:var(--f-display)!important;font-weight:600!important;
-  font-size:clamp(1.3rem,5vw,2.1rem)!important;line-height:1.22!important;
-  color:var(--cream)!important;opacity:1;max-width:20ch;
-  margin:.5rem auto .9rem!important}
+/* Set in Garamond rather than the Cinzel used by every heading around
+   it: a change of face is what makes a line read as a different voice,
+   and this one is an instruction, not a title. Gold, because it is the
+   thing to look at. */
+.token-note.shout{font-family:var(--f-ui)!important;font-style:italic;
+  font-weight:600!important;
+  font-size:clamp(1.35rem,5.4vw,2.15rem)!important;line-height:1.3!important;
+  letter-spacing:.005em;color:var(--gold-lit)!important;opacity:1;
+  max-width:22ch;margin:.55rem auto .9rem!important;
+  text-shadow:0 1px 10px rgba(208,169,58,.18)}
 @media (max-height:800px){
-  .token-note.shout{font-size:clamp(1.15rem,4.4vw,1.7rem)!important;
-    margin:.35rem auto .7rem!important}
+  .token-note.shout{font-size:clamp(1.2rem,4.6vw,1.75rem)!important;
+    margin:.4rem auto .7rem!important}
 }
 
 /* the thank-you version: no gift, and nothing shouting about one */
