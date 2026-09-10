@@ -324,8 +324,7 @@ input::placeholder,textarea::placeholder{color:var(--fg-2)}
         <!-- 1 -->
         <section class="sec on" data-sec="0">
           <h2>Who you are</h2>
-          <p class="lede">So we know whose thoughts these are, and can find you if
-            you win one of the prizes.</p>
+          <p class="lede">Your name only, so the desk knows whose answers these are.</p>
           <div class="pair">
             <div class="f" id="f-first">
               <label for="first">First name <span class="req">*</span></label>
@@ -336,18 +335,6 @@ input::placeholder,textarea::placeholder{color:var(--fg-2)}
               <label for="last">Last name <span class="req">*</span></label>
               <input type="text" id="last" autocomplete="family-name">
               <div class="err" id="e-last"></div>
-            </div>
-          </div>
-          <div class="pair">
-            <div class="f" id="f-email">
-              <label for="email">Email <span class="opt">(optional)</span></label>
-              <input type="email" id="email" autocomplete="email">
-              <div class="err" id="e-email"></div>
-            </div>
-            <div class="f" id="f-phone">
-              <label for="phone">Phone <span class="req">*</span></label>
-              <input type="tel" id="phone" autocomplete="tel">
-              <div class="err" id="e-phone"></div>
             </div>
           </div>
         </section>
@@ -389,9 +376,8 @@ input::placeholder,textarea::placeholder{color:var(--fg-2)}
           <div class="f">
             <span class="lab">What were the most important reasons your family
               originally chose PBIS? <span class="req">*</span>
-              <span class="opt">up to three</span></span>
+              <span class="opt">choose any that apply</span></span>
             <div class="opts grid" id="chose" role="group" aria-label="Reasons for choosing PBIS"></div>
-            <p class="cap-note" id="choseNote">Choose up to three</p>
           </div>
         </section>
 
@@ -402,21 +388,25 @@ input::placeholder,textarea::placeholder{color:var(--fg-2)}
           <div class="f">
             <span class="lab">What do you value most about PBIS?
               <span class="req">*</span>
-              <span class="opt">up to three</span></span>
+              <span class="opt">choose any that apply</span></span>
             <div class="opts grid" id="value" role="group" aria-label="What you value"></div>
-            <p class="cap-note" id="valueNote">Choose up to three</p>
           </div>
           <div class="f">
-            <span class="lab">How connected do you feel to the PBIS parent community?
+            <span class="lab">How do you plan for your child&rsquo;s future academic journey?
               <span class="req">*</span></span>
-            <div class="opts grid" id="connected" role="group" aria-label="How connected you feel"></div>
+            <div class="opts grid" id="plan" role="group" aria-label="Planning ahead"></div>
           </div>
         </section>
 
         <!-- 5 -->
         <section class="sec" data-sec="4">
           <h2>Your PBIS community</h2>
-          <p class="lede">What would bring families closer together.</p>
+          <p class="lede">How close you feel, and how we reach you.</p>
+          <div class="f">
+            <span class="lab">How connected do you feel to the PBIS parent community?
+              <span class="req">*</span></span>
+            <div class="opts grid" id="connected" role="group" aria-label="How connected you feel"></div>
+          </div>
           <div class="f">
             <span class="lab">What would help you feel more connected?
               <span class="req">*</span>
@@ -424,24 +414,23 @@ input::placeholder,textarea::placeholder{color:var(--fg-2)}
             <div class="opts grid" id="helps" role="group" aria-label="What would help"></div>
           </div>
           <div class="f">
-            <span class="lab">What would you be most interested in hearing more about?
+            <span class="lab">Which channels do you most often use to keep up with the school?
               <span class="req">*</span>
-              <span class="opt">up to three</span></span>
-            <div class="opts grid" id="hearMore" role="group" aria-label="What you want to hear about"></div>
-            <p class="cap-note" id="hearMoreNote">Choose up to three</p>
+              <span class="opt">choose any that apply</span></span>
+            <div class="opts grid" id="channels" role="group" aria-label="Channels you use"></div>
           </div>
         </section>
 
         <!-- 6 -->
         <section class="sec" data-sec="5">
-          <h2>Recommendation &amp; future</h2>
+          <h2>Looking ahead</h2>
           <p class="lede">The last few, and then you are done.</p>
 
           <div class="f">
-            <span class="lab">How likely are you to recommend PBIS to another family?
-              <span class="req">*</span></span>
-            <div class="opts nps" id="nps" role="group" aria-label="How likely you are to recommend PBIS"></div>
-            <p class="nps-ends"><span>0 &middot; not at all likely</span><span>10 &middot; extremely likely</span></p>
+            <span class="lab">What would you be most interested in hearing more about?
+              <span class="req">*</span>
+              <span class="opt">choose any that apply</span></span>
+            <div class="opts grid" id="hearMore" role="group" aria-label="What you want to hear about"></div>
           </div>
 
           <div class="f">
@@ -465,10 +454,9 @@ input::placeholder,textarea::placeholder{color:var(--fg-2)}
           </div>
 
           <div class="f">
-            <span class="lab">Would you be interested in becoming more involved?
-              <span class="req">*</span>
-              <span class="opt">choose any that apply</span></span>
-            <div class="opts grid" id="involve" role="group" aria-label="Getting involved"></div>
+            <span class="lab">Would you be interested in becoming more involved in the
+              PBIS parent community? <span class="req">*</span></span>
+            <div class="opts" id="involve" role="group" aria-label="Getting involved"></div>
           </div>
 
           <div class="f">
@@ -563,43 +551,34 @@ var CHOICES = {
               'PBIS website','School event or Open Day','Employer, company or organisation',
               'Embassy or international community','Saw the school or signage'] },
 
-  chose:    { many:true, cap:3, other:true, items:['British/international curriculum',
-              'Academic quality','English-speaking learning environment','School reputation',
-              'Quality of teachers','Safe and supportive environment',
-              'International and diverse community','Future education and university pathways',
-              'Lao and international learning opportunities','Extracurricular activities',
-              'School facilities','Location and convenience',
-              'Recommendation from another family','Fees and value for education',
-              'Sibling or family connection with PBIS'] },
+  chose:    { many:true, other:true, items:['British/international curriculum',
+              'Safe and supportive environment','School facilities',
+              'Location and convenience','School reputation',
+              'Fees and value for education'] },
 
-  value:    { many:true, cap:3, other:true, items:['Quality of teaching and learning',
-              'British/international curriculum','English-speaking learning environment',
-              'Safe and supportive environment','Teachers and staff',
-              'Communication with families','International and diverse community',
-              'Student wellbeing and support','Extracurricular activities and opportunities',
-              'School facilities','Academic progress',
-              'Preparation for future education','Sense of community and belonging'] },
+  value:    { many:true, other:true, items:['Quality of teaching and learning',
+              'International and diverse community','Student wellbeing and support',
+              'Academic progress','Sense of community and belonging',
+              'School reputation'] },
+
+  plan:     { many:false, other:true, items:['I have a clear academic plan for my child',
+              'I have some ideas but am still exploring options',
+              'I plan around my child\u2019s interests and strengths',
+              'I have not made a specific plan yet'] },
 
   connected:{ many:false, items:['Very connected','Somewhat connected','Neutral',
               'Not very connected','Not connected yet'] },
 
   helps:    { many:true, other:true, items:['More parent social and community events',
-              'More opportunities to meet other PBIS families',
-              'Cultural and international community activities',
               'Parent workshops and information sessions',
               'More opportunities to join school activities',
-              'Chances to contribute professional skills or experience',
-              'Support and information for families new to PBIS',
               'I already feel well connected'] },
 
-  hearMore: { many:true, cap:3, other:true, items:['Student learning and achievements',
-              'Curriculum and academic programmes','University and future pathways',
-              'Extracurricular activities and opportunities',
-              'School events and community activities','Parenting workshops and resources',
-              'Student wellbeing','School developments and future plans',
-              'Ways for parents to take part'] },
+  channels: { many:true, other:true, items:['Facebook','Instagram',
+              'WhatsApp or Messenger','Email','School website','School newsletter'] },
 
-  nps:      { many:false, items:['0','1','2','3','4','5','6','7','8','9','10'] },
+  hearMore: { many:true, other:true, items:['Student learning and achievements',
+              'School developments and future plans'] },
 
   another:  { many:false, items:['Yes','No','Not sure yet'] },
   childAge: { many:false, items:['0\u20132 years','3\u20135 years','6\u20138 years',
@@ -607,13 +586,7 @@ var CHOICES = {
   timing:   { many:false, items:['Within the next 12 months','Within 1\u20132 years',
               '3+ years from now','Not sure yet'] },
 
-  involve:  { many:true, items:['Joining parent social and community activities',
-              'Welcoming new PBIS families','Taking part in school events',
-              'Supporting Open Days or new-family activities',
-              'Sharing my experience as a PBIS parent',
-              'Sharing professional skills or expertise',
-              'Connecting PBIS with my company or organisation',
-              'Maybe \u2014 I would like to know more','Not at this time'] }
+  involve:  { many:false, items:['Yes','No'] }
 };
 
 /* The nationalities offered as suggestions. Anything may be typed: the
@@ -645,8 +618,7 @@ Object.keys(CHOICES).forEach(function(key){
   spec.items.forEach(function(label){
     var b = document.createElement('button');
     b.type = 'button';
-    b.className = 'opt-b' + (key === 'nps' ? ' pip'
-                          : spec.items.length > 6 ? ' full' : '');
+    b.className = 'opt-b' + (spec.items.length > 6 ? ' full' : '');
     b.textContent = label;
     b.setAttribute('aria-pressed', 'false');
     b.addEventListener('click', function(){
@@ -823,24 +795,17 @@ function stepGap(i){
     if (picked[key].indexOf('Other') === -1) return true;
     return String(($('otherv-' + key) || {}).value || '').trim().length > 1;
   }
+  function needOther(keys){
+    for (var k = 0; k < keys.length; k++){
+      if (!otherFilled(keys[k])) return 'Please fill in the Other box, or unpick it.';
+    }
+    return '';
+  }
 
   if (i === 0){
+    /* A name is all that is asked for now, so it is the only thing that
+       can be missing. */
     if (!nameOk()) miss++;
-    /* A phone number is how a gift gets chased down, so it is required.
-       Email is offered but not insisted on — though if one is given it
-       has to be usable, or it is worse than none. */
-    var ph = $('phone').value.trim();
-    if (ph.replace(/[^0-9]/g, '').length < 8){
-      bad('phone', 'Please give a phone number with at least eight digits.');
-      miss++;
-    } else clear('phone');
-
-    var em = $('email').value.trim();
-    if (em && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)){
-      bad('email', 'That email will not reach you \u2014 check for a typo, or leave it blank.');
-      miss++;
-    } else clear('email');
-
     return miss ? 'Please complete the fields marked above.' : '';
   }
 
@@ -858,50 +823,40 @@ function stepGap(i){
   if (i === 2){
     var n2 = [];
     if (!picked.heard.length) n2.push('how you first heard about PBIS');
-    if (!picked.chose.length){
-      $('choseNote').textContent = 'Please choose at least one';
-      n2.push('why you chose PBIS');
-    } else $('choseNote').textContent = 'Choose up to three';
+    if (!picked.chose.length) n2.push('why you chose PBIS');
     if (n2.length) return 'Please tell us ' + n2.join(' and ') + '.';
-    if (!otherFilled('heard') || !otherFilled('chose')) return 'Please fill in the Other box.';
-    return '';
+    return needOther(['heard', 'chose']);
   }
 
   if (i === 3){
     var n3 = [];
-    if (!picked.value.length){
-      $('valueNote').textContent = 'Please choose at least one';
-      n3.push('what you value most');
-    } else $('valueNote').textContent = 'Choose up to three';
-    if (!picked.connected.length) n3.push('how connected you feel');
+    if (!picked.value.length) n3.push('what you value most');
+    if (!picked.plan.length)  n3.push('how you plan ahead');
     if (n3.length) return 'Please tell us ' + n3.join(' and ') + '.';
-    if (!otherFilled('value')) return 'Please fill in the Other box.';
-    return '';
+    return needOther(['value', 'plan']);
   }
 
   if (i === 4){
     var n4 = [];
-    if (!picked.helps.length) n4.push('what would help you feel more connected');
-    if (!picked.hearMore.length){
-      $('hearMoreNote').textContent = 'Please choose at least one';
-      n4.push('what you would like to hear about');
-    } else $('hearMoreNote').textContent = 'Choose up to three';
-    if (n4.length) return 'Please tell us ' + n4.join(' and ') + '.';
-    if (!otherFilled('helps') || !otherFilled('hearMore')) return 'Please fill in the Other box.';
-    return '';
+    if (!picked.connected.length) n4.push('how connected you feel');
+    if (!picked.helps.length)     n4.push('what would help');
+    if (!picked.channels.length)  n4.push('which channels you use');
+    if (n4.length) return 'Please tell us ' + n4.join(', ') + '.';
+    return needOther(['helps', 'channels']);
   }
 
   if (i === 5){
     var n5 = [];
-    if (!picked.nps.length) n5.push('how likely you are to recommend us');
-    if (!picked.another.length) n5.push('whether another child may join');
+    if (!picked.hearMore.length) n5.push('what you would like to hear about');
+    if (!picked.another.length)  n5.push('whether another child may join');
     /* Only asked of families who said Yes, so only required of them. */
     if (picked.another[0] === 'Yes'){
       if (!picked.childAge.length) n5.push('that child\u2019s age group');
-      if (!picked.timing.length) n5.push('when they might join');
+      if (!picked.timing.length)   n5.push('when they might join');
     }
     if (!picked.involve.length) n5.push('whether you would like to be more involved');
-    return n5.length ? 'Please tell us ' + n5.join(', ') + '.' : '';
+    if (n5.length) return 'Please tell us ' + n5.join(', ') + '.';
+    return needOther(['hearMore']);
   }
 
   return '';
@@ -931,7 +886,7 @@ $('next').addEventListener('click', function(){
 /* Once a step has complained, stop complaining as soon as it is satisfied. */
 /* Only the free-text fields that remain. A stale id here would be null,
    and one null would take the whole form down. */
-['nats','email','phone','comments'].forEach(function(id){
+['nats','comments'].forEach(function(id){
   var el = $(id);
   if (!el) return;
   el.addEventListener('input', function(){
@@ -981,21 +936,21 @@ function send(){
     action:'survey', rid:rid,
     website: $('website').value, elapsed: Date.now() - opened,
     first: $('first').value.trim(), last: $('last').value.trim(),
-    email: $('email').value.trim(), phone: $('phone').value.trim(),
     sections: picked.sections,
     years: picked.years[0] || '',
     nats: $('nats').value.trim(),
     heard: withOther('heard'),
     chose: withOther('chose'),
     value: withOther('value'),
+    plan: withOther('plan'),
     connected: picked.connected[0] || '',
     helps: withOther('helps'),
+    channels: withOther('channels'),
     hearMore: withOther('hearMore'),
-    nps: picked.nps[0] || '',
     another: picked.another[0] || '',
     childAge: picked.another[0] === 'Yes' ? (picked.childAge[0] || '') : '',
     timing:   picked.another[0] === 'Yes' ? (picked.timing[0] || '') : '',
-    involve: picked.involve,
+    involve: picked.involve[0] || '',
     comments: $('comments').value.trim()
   };
 
@@ -1042,28 +997,29 @@ function finish(res){
   $('wonCard').classList.toggle('late', !won);
   $('wonKick').textContent = won ? 'Congratulations' : 'Thank you';
 
+  /* No counting out loud. A gift reads as a thank-you; a number reads as
+     a race, and the parent who missed it by one place feels it. */
   $('wonTitle').textContent = won
-    ? 'You are one of the first fifty'
+    ? 'A gift from us'
     : 'Thank you for your time';
 
   $('wonText').textContent = won
-    ? 'You are one of the first fifty parents to complete the survey, and you have ' +
-      'won a gift from us.'
-    : 'All fifty gifts have already been claimed \u2014 there were fifty responses ' +
-      'before yours. Your answers have reached us all the same, and they are the ' +
-      'part that lasts. Thank you for taking the time.';
+    ? 'Thank you for completing the survey. There is a gift waiting for you at ' +
+      'the registration desk.'
+    : 'The gifts have all been claimed, but your answers have reached us and they ' +
+      'are the part that lasts. Thank you for taking the time.';
 
-  $('tokenSlot').textContent = won
-    ? 'Respondent number ' + res.slot + ' of 50'
-    : 'Your reference';
+  $('tokenSlot').textContent = 'Your reference';
   $('tokenCode').textContent = res.code || '\u2014';
   $('tokenWho').innerHTML = esc(who) +
     '<small>' + new Date().toLocaleDateString('en-GB',
       { weekday:'long', day:'numeric', month:'long', year:'numeric' }) + '</small>';
 
+  /* No email is collected any more, so the screenshot is the only copy a
+     parent leaves with. The desk can still find anyone by name. */
   $('tokenNote').textContent = won
-    ? 'Please take a screenshot of this screen, or use the email we have just sent ' +
-      'you, and show it at the registration desk to collect your gift.'
+    ? 'Please take a screenshot of this screen and show it at the registration ' +
+      'desk to collect your gift.'
     : 'Please keep this reference. It is how we can find your answers again if we ' +
       'need to.';
 
@@ -1083,17 +1039,7 @@ $('wonDone').addEventListener('click', function(){
 .other-wrap{margin-top:.6rem}
 .other-wrap input{width:100%}
 
-/* The 0–10 scale reads as a row of pips rather than eleven buttons. */
-.opts.nps{display:grid;grid-template-columns:repeat(11,1fr);gap:.35rem}
-.opts.nps .opt-b.pip{padding:.55rem .2rem;text-align:center;font-size:.95rem;
-  min-width:0}
-.nps-ends{display:flex;justify-content:space-between;margin:.5rem 0 0;
-  font-family:var(--f-label);font-size:.52rem;letter-spacing:.14em;
-  text-transform:uppercase;opacity:.7}
-@media (max-width:560px){
-  .opts.nps{grid-template-columns:repeat(6,1fr)}
-  .nps-ends{font-size:.48rem}
-}
+
 </style>
 
 <style>
