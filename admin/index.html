@@ -6751,7 +6751,8 @@ $('backupBtn').addEventListener('click', function(){
       btn.disabled = false;
       if (res && res.error === 'expired'){ expire(); return; }
       if (res && res.ok){
-        toast('Backed up \u2014 ' + res.name);
+        toast('Backed up \u2014 ' + (res.rows || 0) + ' replies saved to the ' +
+              (res.tab || 'snapshot') + ' tab, and a full copy made in Drive');
         /* A link is worth more than a message: it proves the copy exists. */
         if (res.url) window.open(res.url, '_blank', 'noopener');
       } else {
