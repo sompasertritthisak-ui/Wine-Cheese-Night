@@ -3704,5 +3704,39 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 else init();
 })();
 </script>
+
+<style>
+/* ---- centring, added after seeing it on the page ------------------- */
+
+/* The RSVP section heading and its rule. */
+#rsvp .section-head{justify-content:center;text-align:center}
+#rsvp .section-head h2{text-align:center}
+
+/* The gold card header. The label and the closing line centre as a
+   block; the language picker keeps to the right on wide screens and
+   drops underneath, still centred, on a phone. */
+.rsvp-card-head{position:relative;justify-content:center;text-align:center}
+/* :not(.card-lang) matters — the language picker is a span in here too,
+   and stretching it to full width would break the header. */
+.rsvp-card-head > b,
+.rsvp-card-head > span:not(.card-lang){flex:1 0 100%;text-align:center}
+@media (min-width:721px){
+  .rsvp-card .card-lang{position:absolute;right:clamp(1.2rem,3vw,2.2rem);
+    top:50%;transform:translateY(-50%);margin-left:0}
+  .rsvp-card-head{padding-right:clamp(9rem,18vw,13rem);
+    padding-left:clamp(9rem,18vw,13rem)}
+}
+@media (max-width:720px){
+  .rsvp-card .card-lang{margin:.6rem auto 0;width:auto}
+}
+
+/* The stylesheet caps every paragraph at the reading measure, which
+   leaves a centred line sitting left of centre inside a wider card.
+   These two are the ones that showed it. */
+.confirm .said{max-width:42ch;margin-left:auto;margin-right:auto;
+  text-align:center}
+.pass-note{max-width:46ch;margin-left:auto;margin-right:auto;
+  text-align:center}
+</style>
 </body>
 </html>
