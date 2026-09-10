@@ -2050,6 +2050,9 @@ input,select,textarea{font-size:1.05rem}
       <button class="tab" role="tab" data-tab="guests" aria-selected="false" id="tabGuests" hidden>
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.2 2.9-5.6 6.5-5.6s6.5 2.4 6.5 5.6"/><circle cx="17.5" cy="7.5" r="2.6"/><path d="M17.5 13.4c2.4 0 4 1.7 4 3.9"/></svg>
         All guests</button>
+      <button class="tab" role="tab" data-tab="mix" aria-selected="false" id="tabMix" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M21 20H3"/></svg>
+        Guest summary</button>
       <button class="tab" role="tab" data-tab="survey" aria-selected="false" id="tabSurvey" hidden>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h9a2 2 0 0 1 2 2v14H8z"/><path d="M8 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h2"/><path d="M11 9h5M11 13h5M11 17h3"/></svg>
         Survey</button>
@@ -2243,6 +2246,49 @@ input,select,textarea{font-size:1.05rem}
       </div>
       <div id="gRows"></div>
       <p class="note hidden" id="gEmpty">Nothing matches that search.</p>
+    </div>
+
+    <div class="panel-view" id="viewMix">
+      <p class="note" style="margin-top:0">A reading of the guest list by name, to give a
+        rough sense of who is coming. Nobody was ever asked their nationality, so this is
+        worked out from spelling alone: Lao script is certain, and transliterated names
+        carry strong hints. Treat it as an estimate, not a record.</p>
+
+      <div class="pass-stats">
+        <div class="stat"><b id="mxLao">&mdash;</b><span class="label">Likely Lao</span></div>
+        <div class="stat"><b id="mxIntl">&mdash;</b><span class="label">Likely international</span></div>
+        <div class="stat"><b id="mxUnsure">&mdash;</b><span class="label">Not clear</span></div>
+        <div class="stat"><b id="mxShare">&mdash;</b><span class="label">Lao share</span></div>
+      </div>
+
+      <div class="mx-bar" id="mxBar" role="img" aria-label="Share of guests by likely background"></div>
+      <p class="note" id="mxRead"></p>
+
+      <div class="mx-groups" id="mxGroups"></div>
+
+      <div class="tools">
+        <span class="grow">
+          <input type="search" id="mxq" placeholder="Search a guest name" aria-label="Search the guest summary">
+        </span>
+        <span class="chips" role="group" aria-label="Filter by group">
+          <button class="chip" data-mf="all" aria-pressed="true">Everyone</button>
+          <button class="chip" data-mf="Lao" aria-pressed="false">Lao</button>
+          <button class="chip" data-mf="intl" aria-pressed="false">International</button>
+          <button class="chip" data-mf="Not clear" aria-pressed="false">Not clear</button>
+        </span>
+        <span class="count" id="mxCount"></span>
+      </div>
+
+      <div class="pass-acts">
+        <button class="btn" id="mxCsv">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="m8 11 4 4 4-4"/><path d="M4 21h16"/></svg>
+          Export this reading</button>
+      </div>
+
+      <div class="g-head" aria-hidden="true">
+        <span>Guest</span><span>Reads as</span><span>Why</span><span>Reference</span>
+      </div>
+      <div id="mxRows"></div>
     </div>
 
     <div class="panel-view" id="viewDoor">
@@ -3087,6 +3133,7 @@ function enter(v){
   $('tabSurvey').hidden = false;   // everyone who can sign in may read it
   $('tabQr').hidden = false;
   $('tabGuests').hidden = false;
+  $('tabMix').hidden = false;
   $('tabResend').hidden = !rights.edit;
   $('emails').hidden = !rights.contacts;
   $('csv').hidden = !rights.export;
@@ -3406,6 +3453,7 @@ function render(){
   if ($('viewPasses').classList.contains('on')) renderPasses();
   if ($('viewQr').classList.contains('on')) renderQr();
   if ($('viewGuests').classList.contains('on')) renderGuests();
+  if ($('viewMix').classList.contains('on')) renderMix();
 
   $('rows').innerHTML = list.map(function(r){
     var st = r.status || 'Confirmed';
@@ -6331,6 +6379,7 @@ function showTab(which){
   $('viewSurvey').classList.toggle('on', which === 'survey');
   $('viewQr').classList.toggle('on', which === 'qr');
   $('viewGuests').classList.toggle('on', which === 'guests');
+  $('viewMix').classList.toggle('on', which === 'mix');
   $('viewResend').classList.toggle('on', which === 'resend');
   $('viewDoor').classList.toggle('on', which === 'door');
   $('viewLog').classList.toggle('on', which === 'log');
@@ -6340,6 +6389,7 @@ function showTab(which){
   if (which === 'passes') renderPasses();
   if (which === 'qr') renderQr();
   if (which === 'guests') renderGuests();
+  if (which === 'mix') renderMix();
   if (which === 'survey') loadSurvey();
   if (which === 'door') renderDoor();
   if (which === 'resend') openResend();
@@ -6786,6 +6836,239 @@ $('gCsv').addEventListener('click', function(){
   toast(rows.length + ' guest' + (rows.length === 1 ? '' : 's') + ' exported');
 });
 
+
+/* ============================================================
+   GUEST SUMMARY
+   Reads every name on the list — the parent who replied and the
+   guest they are bringing — and estimates the mix.
+
+   This is a guess from spelling. Nobody was asked their
+   nationality, so a name is all there is to go on, and a name is
+   not a nationality: a Lao parent may use a Western given name, a
+   family may be mixed, a married name may say nothing about the
+   person carrying it. Anything the patterns do not clearly
+   recognise is left as "Not clear" rather than pushed to whichever
+   side is larger. Better an honest gap than a confident error.
+   ============================================================ */
+
+/* Script blocks decide it outright — no guessing needed. */
+var RX_LAO   = /[\u0E80-\u0EFF]/;
+var RX_THAI  = /[\u0E00-\u0E7F]/;
+var RX_HAN   = /[\u4E00-\u9FFF]/;
+var RX_KANA  = /[\u3040-\u30FF]/;
+var RX_HANGUL= /[\uAC00-\uD7AF]/;
+
+/* Strong Lao tells in transliteration. Most are syllables that turn up
+   again and again in Lao surnames and rarely elsewhere. */
+var LAO_STRONG = ['vong','vanh','xay','sack','sak','phone','thone','mixay',
+  'sengdala','souvong','phommas','chanthav','chanthal','sisouv','keophan',
+  'bounnh','phouman','sysanh','saisong','khamphav','vilay','viengk','xieng',
+  'somphon','sengsou','inthav','oudom','bouas','latsam','phimma','sivilay',
+  'siphan','thipph','vongsa','douang','duang','manivong','soukan'];
+
+var LAO_MID = ['kham','souk','souv','phou','phan','phet','phim','seng','sang',
+  'thong','thip','vila','vien','sith','sinh','anou','boun','chan','chit',
+  'khay','lath','maly','mani','nou','ounh','saeng','sida','somb','somp',
+  'sone','thav','vang','vien','xai','sy','deth','nakh','khon','vanna',
+  'phomm','panya','sisa','soul','souly','toun','viph','khoun',
+  'visay','savat','sava','vath','sanh','oulay','alay','phaeng','chanh',
+  'malar','saysa','noun','vanna','somsa','keth','loun','thoum',
+  'keoma','keo','somch','many','mani','bounm','xaya','phaiv','vieng'];
+
+/* Other groups, so "not Lao" does not become one undifferentiated lump. */
+var VN = ['nguyen','tran','pham','hoang','huynh','phan','vu','vo','dang','bui',
+  'do','ho','ngo','duong','ly','luong','truong','dinh','thi','minh','thanh'];
+var CN = ['wang','li','zhang','chen','liu','yang','huang','zhao','wu','zhou',
+  'xu','sun','ma','zhu','hu','guo','lin','he','gao','luo','zheng','liang',
+  'xie','song','tang','deng','han','feng','cao','peng','zeng','xiao','tian',
+  'dong','yuan','pan','jiang','cai','yan','shen','xia','lu','fan','qin','cui',
+  'zhong','shi','xiang','qing','jiao','fu','jun','yu','chengfeng','xiaoli'];
+var KR = ['kim','lee','park','choi','jung','jeong','kang','cho','yoon','jang',
+  'lim','oh','seo','shin','kwon','hwang','ahn','yoo','hong','moon','son',
+  'bae','baek','nam','noh','ha','koo','eun','hyun','kyung','young','soo',
+  'inhyang','eunyoung','sysanh'];
+var SA = ['singh','kumar','patel','sharma','shah','rao','reddy','das','devi',
+  'gupta','mehta','shrestha','bikram','sugirtha','jesu','anand','raj','nair',
+  'khan','ali','ahmed','hossain','rahman','begum','iqbal','thapa','gurung'];
+var ID_PH = ['putra','putri','sari','wijaya','santoso','budi','dewi','agus',
+  'santos','reyes','cruz','garcia','dela','bautista','mendoza','ramos'];
+
+/* A short list of unmistakably Western given names. Surnames are too
+   varied to list, so the scorer leans on these plus the absence of any
+   other signal. */
+var WEST = ['andrew','stephen','richard','david','michael','john','james',
+  'robert','peter','paul','mark','simon','thomas','daniel','matthew','luke',
+  'george','henry','william','edward','charles','anthony','brian','kevin',
+  'sarah','emma','laura','linda','maria','anna','elena','sophie','claire',
+  'julia','katherine','catherine','cathrine','elizabeth','jennifer','rachel',
+  'nicole','nicola','melanie','monica','patricia','christine','caroline',
+  'skyler','evan','phillip','philip','brendan','holmes','mullins','bailey',
+  'bernard','bernhard','gallagher','meenken','muir','russell','metzger',
+  'havib','antonio','maria','jose','carlos','pierre','marie','hans','klaus',
+  'olivier','lucas','victor','oscar','felix','ivan','sergey','olga','natalia'];
+
+function mixScore_(name){
+  var raw = String(name || '').trim();
+  if (!raw) return { group:'Not clear', why:'no name given', sure:0 };
+
+  if (RX_LAO.test(raw))    return { group:'Lao', why:'written in Lao script', sure:3 };
+  if (RX_THAI.test(raw))   return { group:'Thai', why:'written in Thai script', sure:3 };
+  if (RX_HANGUL.test(raw)) return { group:'Korean', why:'written in Hangul', sure:3 };
+  if (RX_KANA.test(raw))   return { group:'Japanese', why:'written in kana', sure:3 };
+  if (RX_HAN.test(raw))    return { group:'Chinese', why:'written in Chinese characters', sure:3 };
+
+  var low = raw.toLowerCase().replace(/[^a-z\s'-]/g, ' ');
+  var toks = low.split(/[\s'-]+/).filter(function(t){ return t.length > 1; });
+  if (!toks.length) return { group:'Not clear', why:'nothing to read', sure:0 };
+
+  var sc = { Lao:0, Vietnamese:0, Chinese:0, Korean:0, 'South Asian':0,
+             'Southeast Asian':0, Western:0 };
+  var hit = '';
+
+  toks.forEach(function(t){
+    LAO_STRONG.forEach(function(m){ if (t.indexOf(m) > -1){ sc.Lao += 4; hit = hit || m; } });
+    LAO_MID.forEach(function(m){ if (t.indexOf(m) > -1){ sc.Lao += 2; hit = hit || m; } });
+    if (VN.indexOf(t) > -1){ sc.Vietnamese += 4; hit = hit || t; }
+    if (CN.indexOf(t) > -1){ sc.Chinese += 3; hit = hit || t; }
+    if (KR.indexOf(t) > -1){ sc.Korean += 3; hit = hit || t; }
+    if (SA.indexOf(t) > -1){ sc['South Asian'] += 4; hit = hit || t; }
+    if (ID_PH.indexOf(t) > -1){ sc['Southeast Asian'] += 3; hit = hit || t; }
+    if (WEST.indexOf(t) > -1){ sc.Western += 3; hit = hit || t; }
+  });
+
+  /* Shape, not vocabulary: Lao transliteration is full of aspirated
+     clusters and these endings, and they survive spelling variation. */
+  if (/(vong|vanh|xay|sack|phone|thone|panh|sith|deth|souk|savat|vath|sanh|lack)$/
+      .test(toks[toks.length - 1])){
+    sc.Lao += 3;
+  }
+  if (/^(kh|ph|th|x)/.test(toks[0]) || /^(kh|ph|th|x)/.test(toks[toks.length - 1])){
+    sc.Lao += 1;
+  }
+
+  var best = 'Not clear', top = 0, second = 0;
+  Object.keys(sc).forEach(function(k){
+    if (sc[k] > top){ second = top; top = sc[k]; best = k; }
+    else if (sc[k] > second) second = sc[k];
+  });
+
+  /* Two groups scoring alike means the name genuinely reads both ways. */
+  if (top < 3 || top - second < 2) return { group:'Not clear', why:'no clear pattern', sure:1 };
+  return { group: best, why: hit ? '“' + hit + '”' : 'name pattern', sure: top >= 6 ? 3 : 2 };
+}
+
+var mxFilter = 'all';
+
+/* One entry per person, same expansion the All guests tab uses. */
+function mixRoster(){
+  var out = [];
+  data.filter(function(r){ return r.live !== false; }).forEach(function(r){
+    var lead = String(r.name || '').trim();
+    if (lead) out.push({ name: lead, ref: r.ref, kind: 'lead' });
+    var g = String(r.guest || '').trim();
+    if (g) out.push({ name: g, ref: r.ref, kind: 'guest' });
+  });
+  return out.map(function(p){
+    var v = mixScore_(p.name);
+    p.group = v.group; p.why = v.why; p.sure = v.sure;
+    p.side = v.group === 'Lao' ? 'Lao'
+           : v.group === 'Not clear' ? 'Not clear' : 'intl';
+    return p;
+  });
+}
+
+function renderMix(){
+  var all = mixRoster();
+  var lao = all.filter(function(p){ return p.side === 'Lao'; }).length;
+  var un  = all.filter(function(p){ return p.side === 'Not clear'; }).length;
+  var itl = all.length - lao - un;
+
+  $('mxLao').textContent    = lao;
+  $('mxIntl').textContent   = itl;
+  $('mxUnsure').textContent = un;
+
+  /* The share is of the names that could be read, not of everyone —
+     counting the unreadable ones as international would flatter one side. */
+  var known = lao + itl;
+  $('mxShare').textContent = known ? Math.round(lao / known * 100) + '%' : '\u2014';
+
+  var pc = function(n){ return all.length ? (n / all.length * 100) : 0; };
+  $('mxBar').innerHTML =
+    '<span class="seg lao"  style="width:' + pc(lao) + '%"></span>' +
+    '<span class="seg itl"  style="width:' + pc(itl) + '%"></span>' +
+    '<span class="seg unk"  style="width:' + pc(un)  + '%"></span>';
+
+  $('mxRead').textContent = !known ? 'Nothing to read yet.'
+    : 'Of the ' + known + ' names the patterns could read, ' + lao + ' look Lao and ' +
+      itl + ' look international' +
+      (un ? ', with ' + un + ' too ambiguous to call' : '') + '. ' +
+      (lao > itl ? 'The room reads as mostly Lao families.'
+                 : itl > lao ? 'The room reads as mostly international families.'
+                             : 'The room reads as evenly split.');
+
+  /* The breakdown behind "international", since that word covers a lot. */
+  var by = {};
+  all.forEach(function(p){ by[p.group] = (by[p.group] || 0) + 1; });
+  $('mxGroups').innerHTML = Object.keys(by)
+    .sort(function(a, b){ return by[b] - by[a]; })
+    .map(function(k){
+      return '<span class="mx-chip' + (k === 'Lao' ? ' is-lao' : '') + '">' +
+        esc(k) + '<b>' + by[k] + '</b></span>';
+    }).join('');
+
+  var q = ($('mxq').value || '').toLowerCase();
+  var list = all.filter(function(p){
+    if (mxFilter === 'Lao' && p.side !== 'Lao') return false;
+    if (mxFilter === 'intl' && p.side !== 'intl') return false;
+    if (mxFilter === 'Not clear' && p.side !== 'Not clear') return false;
+    if (q && (p.name + ' ' + p.ref).toLowerCase().indexOf(q) === -1) return false;
+    return true;
+  }).sort(function(a, b){ return a.name.localeCompare(b.name); });
+
+  $('mxCount').textContent = list.length + (list.length === 1 ? ' name' : ' names');
+  $('mxRows').innerHTML = list.map(function(p){
+    return '<div class="g-row">' +
+      '<span class="g-name"><b>' + esc(p.name) + '</b>' +
+        (p.kind === 'guest' ? '<span class="g-tag">Guest</span>' : '') + '</span>' +
+      '<span><span class="mx-tag ' + (p.side === 'Lao' ? 'lao' :
+          p.side === 'intl' ? 'itl' : 'unk') + '">' + esc(p.group) + '</span></span>' +
+      '<span class="g-with">' + esc(p.why) +
+        (p.sure < 2 ? '' : p.sure === 2 ? ' \u00b7 fair' : ' \u00b7 strong') + '</span>' +
+      '<span class="ref">' + esc(p.ref) + '</span>' +
+    '</div>';
+  }).join('');
+}
+
+$('mxq').addEventListener('input', renderMix);
+document.querySelectorAll('[data-mf]').forEach(function(b){
+  b.addEventListener('click', function(){
+    mxFilter = b.getAttribute('data-mf');
+    document.querySelectorAll('[data-mf]').forEach(function(x){
+      x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
+    });
+    renderMix();
+  });
+});
+
+$('mxCsv').addEventListener('click', function(){
+  if (role !== 'administrator'){ toast('Only an administrator can export this.'); return; }
+  var rows = mixRoster();
+  var head = ['Name','Reads as','Confidence','Why','Reference'];
+  var body = rows.map(function(p){
+    return [p.name, p.group, p.sure === 3 ? 'strong' : p.sure === 2 ? 'fair' : 'low',
+            p.why, p.ref]
+      .map(function(v){ return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; })
+      .join(',');
+  });
+  var blob = new Blob(['\ufeff' + [head.join(',')].concat(body).join('\r\n')],
+                      { type:'text/csv;charset=utf-8' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'PBIS-guest-summary-estimate.csv';
+  a.click();
+  toast('Exported \u2014 remember it is an estimate');
+});
+
 })();
 </script>
 
@@ -6912,5 +7195,35 @@ html[data-theme="dark"] .g-tag{border-color:var(--line);color:var(--cream-3)}
 </style>
 
 
+
+<style>
+/* ---- guest summary ---- */
+.mx-bar{display:flex;height:12px;border:1px solid var(--rule);overflow:hidden;
+  margin:.2rem 0 .9rem}
+html[data-theme="dark"] .mx-bar{border-color:var(--line)}
+.mx-bar .seg{display:block;height:100%}
+.mx-bar .seg.lao{background:var(--gold)}
+.mx-bar .seg.itl{background:var(--forest)}
+.mx-bar .seg.unk{background:var(--rule)}
+html[data-theme="dark"] .mx-bar .seg.itl{background:var(--gold-deep)}
+
+.mx-groups{display:flex;flex-wrap:wrap;gap:.45rem;margin:0 0 1.2rem}
+.mx-chip{display:inline-flex;align-items:center;gap:.45rem;padding:.3rem .65rem;
+  border:1px solid var(--rule);font-family:var(--f-label);font-size:.56rem;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+.mx-chip b{font-family:var(--f-ui);font-size:.8rem;letter-spacing:0;color:var(--ink)}
+.mx-chip.is-lao{border-color:var(--gold);color:var(--gold-deep)}
+html[data-theme="dark"] .mx-chip{border-color:var(--line);color:var(--cream-3)}
+html[data-theme="dark"] .mx-chip b{color:var(--cream)}
+html[data-theme="dark"] .mx-chip.is-lao{color:var(--gold-lit)}
+
+.mx-tag{display:inline-block;padding:.16rem .5rem;font-family:var(--f-label);
+  font-size:.5rem;letter-spacing:.14em;text-transform:uppercase;
+  border:1px solid var(--rule);color:var(--ink-2)}
+.mx-tag.lao{border-color:var(--gold);color:var(--gold-deep)}
+.mx-tag.unk{font-style:italic;opacity:.75}
+html[data-theme="dark"] .mx-tag{border-color:var(--line);color:var(--cream-3)}
+html[data-theme="dark"] .mx-tag.lao{color:var(--gold-lit)}
+</style>
 </body>
 </html>
