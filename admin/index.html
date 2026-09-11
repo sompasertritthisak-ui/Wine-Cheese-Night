@@ -4513,12 +4513,20 @@ function checkInRef(ref, sig){
    types the decoded text very fast and presses Enter. Everything below
    is about telling that apart from a person typing, and about not
    losing a scan when the radio stutters mid-string. */
-var hwBuf = '', hwAt = 0, hwFast = 0;
+var hwBuf = '', hwAt = 0, hwFast = 0, hwField = null, hwWas = '';
 function hwScanner(e){
-  /* Somebody typing into a field is not a scan — including the
-     reference box and the name search at the door. */
+  /* The scanner is listened for everywhere, including while the cursor
+     sits in a search box. At a desk doing manual look-ups and scanning
+     from the same keyboard, refusing to listen whenever a field has
+     focus means the scan after every typed name is lost — which is
+     precisely when it is needed.
+
+     A person and a scanner are told apart by speed: nobody types ninety
+     characters at one every few milliseconds. Once the burst is clearly
+     machine-made the keystrokes are swallowed, and anything that reached
+     the field before we were sure is put back afterwards. */
   var el = document.activeElement;
-  if (el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)) return;
+  var inField = !!(el && /^(INPUT|TEXTAREA)$/.test(el.tagName));
 
   var now = Date.now(), gap = now - hwAt;
 
@@ -4527,16 +4535,29 @@ function hwScanner(e){
      longer than a tenth of a second, and the old limit threw away the
      first half of the string when it did. A person cannot type a
      ninety-character URL at this rate either way. */
-  if (gap > 300){ hwBuf = ''; hwFast = 0; }
-  else if (gap < 60) hwFast++;
+  if (gap > 300){
+    hwBuf = ''; hwFast = 0;
+    /* Remember what the field held before this burst began. */
+    hwField = inField ? el : null;
+    hwWas = inField ? el.value : '';
+  } else if (gap < 60) hwFast++;
   hwAt = now;
 
   /* Some scanners end with Tab instead of Enter, and some send both. */
   if (e.key === 'Enter' || e.key === 'Tab'){
-    var text = hwBuf;
-    hwBuf = '';
+    var text = hwBuf, machine = hwFast > 4;
+    hwBuf = ''; hwFast = 0;
+
+    /* A short reference typed by hand into a box is that box's business. */
+    if (!machine && inField) return;
+
     if (text.length > 3){
       e.preventDefault();          // or Enter presses whatever is focused
+      /* Put the field back the way the operator left it. */
+      if (hwField){
+        try { hwField.value = hwWas; } catch (err) {}
+        hwField = null; hwWas = '';
+      }
       if (!$('scan').classList.contains('open')) openScanner();
       handleScan(text);
     }
