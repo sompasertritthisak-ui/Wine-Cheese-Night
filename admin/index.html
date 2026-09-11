@@ -2050,6 +2050,9 @@ input,select,textarea{font-size:1.05rem}
       <button class="tab" role="tab" data-tab="guests" aria-selected="false" id="tabGuests" hidden>
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.2 2.9-5.6 6.5-5.6s6.5 2.4 6.5 5.6"/><circle cx="17.5" cy="7.5" r="2.6"/><path d="M17.5 13.4c2.4 0 4 1.7 4 3.9"/></svg>
         All guests</button>
+      <button class="tab" role="tab" data-tab="follow" aria-selected="false" id="tabFollow" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H4z"/><path d="m4 7 8 5 8-5"/><path d="M8 20h8"/></svg>
+        Follow up &amp; thank you</button>
       <button class="tab" role="tab" data-tab="mix" aria-selected="false" id="tabMix" hidden>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M21 20H3"/></svg>
         Guest summary</button>
@@ -2289,6 +2292,41 @@ input,select,textarea{font-size:1.05rem}
         <span>Guest</span><span>Reads as</span><span>Why</span><span>Reference</span>
       </div>
       <div id="mxRows"></div>
+    </div>
+
+    <div class="panel-view" id="viewFollow">
+      <p class="note" style="margin-top:0">Two letters, either side of the evening. Both go
+        only to guests who gave an email address, both skip anyone already sent that letter,
+        and both are recorded in the sheet so a second press cannot send twice.</p>
+
+      <div class="fu-grid">
+        <div class="fu-card">
+          <span class="fu-k">Before the evening</span>
+          <h3>Reminder</h3>
+          <p>A short note on the day: when it starts, where it is, and to have the QR code
+            ready at the desk. It does not carry a pass — the code was sent separately,
+            and two codes in two emails is how a guest arrives holding the wrong one.</p>
+          <div class="fu-count"><b id="fuRemN">&mdash;</b><span>waiting to be sent</span></div>
+          <div class="fu-sent" id="fuRemSent"></div>
+          <button class="btn btn-solid" id="fuRemSend">Send the reminder</button>
+        </div>
+
+        <div class="fu-card">
+          <span class="fu-k">After the evening</span>
+          <h3>Thank you</h3>
+          <p>A warm note afterwards, thanking them for coming and pointing to the photographs
+            to follow. Best sent the morning after rather than the same night.</p>
+          <div class="fu-who">
+            <label><input type="radio" name="fuWho" value="attended" checked> Only guests who arrived</label>
+            <label><input type="radio" name="fuWho" value="all"> Everyone who replied</label>
+          </div>
+          <div class="fu-count"><b id="fuThxN">&mdash;</b><span>waiting to be sent</span></div>
+          <div class="fu-sent" id="fuThxSent"></div>
+          <button class="btn btn-solid" id="fuThxSend">Send the thank you</button>
+        </div>
+      </div>
+
+      <p class="note" id="fuNote"></p>
     </div>
 
     <div class="panel-view" id="viewDoor">
@@ -3134,6 +3172,7 @@ function enter(v){
   $('tabQr').hidden = false;
   $('tabGuests').hidden = false;
   $('tabMix').hidden = false;
+  $('tabFollow').hidden = !rights.edit;
   $('tabResend').hidden = !rights.edit;
   $('emails').hidden = !rights.contacts;
   $('csv').hidden = !rights.export;
@@ -3454,6 +3493,7 @@ function render(){
   if ($('viewQr').classList.contains('on')) renderQr();
   if ($('viewGuests').classList.contains('on')) renderGuests();
   if ($('viewMix').classList.contains('on')) renderMix();
+  if ($('viewFollow').classList.contains('on')) renderFollow();
 
   $('rows').innerHTML = list.map(function(r){
     var st = r.status || 'Confirmed';
@@ -6457,6 +6497,7 @@ function showTab(which){
   $('viewQr').classList.toggle('on', which === 'qr');
   $('viewGuests').classList.toggle('on', which === 'guests');
   $('viewMix').classList.toggle('on', which === 'mix');
+  $('viewFollow').classList.toggle('on', which === 'follow');
   $('viewResend').classList.toggle('on', which === 'resend');
   $('viewDoor').classList.toggle('on', which === 'door');
   $('viewLog').classList.toggle('on', which === 'log');
@@ -6467,6 +6508,7 @@ function showTab(which){
   if (which === 'qr') renderQr();
   if (which === 'guests') renderGuests();
   if (which === 'mix') renderMix();
+  if (which === 'follow') renderFollow();
   if (which === 'survey') loadSurvey();
   if (which === 'door') renderDoor();
   if (which === 'resend') openResend();
@@ -7146,6 +7188,115 @@ $('mxCsv').addEventListener('click', function(){
   toast('Exported \u2014 remember it is an estimate');
 });
 
+
+/* ============================================================
+   FOLLOW UP & THANK YOU
+   Two bulk letters. The rule that matters: the server decides
+   who still needs one, not this screen. Every success is written
+   to the sheet before the next is attempted, so a lost connection
+   half way through costs one duplicate at worst rather than a
+   second copy for everybody.
+   ============================================================ */
+var fuBusy = false;
+
+function fuWho(){
+  var el = document.querySelector('input[name="fuWho"]:checked');
+  return el ? el.value : 'attended';
+}
+
+function renderFollow(){
+  /* Counts come from the rows already in memory, so the tab opens
+     instantly; the server counts again before it sends anything. */
+  var live = data.filter(function(r){ return r.live !== false && r.email; });
+  var rem  = live.filter(function(r){ return !r.remindedAt; }).length;
+  var thx  = live.filter(function(r){
+    if (r.thankedAt) return false;
+    /* arrivedAt, not checkedIn — that is the field the list actually
+       sends, and the wrong one silently counts nobody. */
+    return fuWho() === 'all' ? true : !!r.arrivedAt;
+  }).length;
+
+  $('fuRemN').textContent = rem;
+  $('fuThxN').textContent = thx;
+
+  var remDone = live.filter(function(r){ return r.remindedAt; }).length;
+  var thxDone = live.filter(function(r){ return r.thankedAt; }).length;
+  $('fuRemSent').textContent = remDone ? remDone + ' already sent' : '';
+  $('fuThxSent').textContent = thxDone ? thxDone + ' already sent' : '';
+
+  $('fuRemSend').disabled = fuBusy || rem === 0;
+  $('fuThxSend').disabled = fuBusy || thx === 0;
+
+  var noMail = data.filter(function(r){ return r.live !== false && !r.email; }).length;
+  $('fuNote').textContent = noMail
+    ? noMail + ' guest' + (noMail === 1 ? '' : 's') + ' gave no email address and cannot ' +
+      'be reached by either letter. They are on the Generate QR tab if you need them.'
+    : '';
+}
+
+document.querySelectorAll('input[name="fuWho"]').forEach(function(el){
+  el.addEventListener('change', renderFollow);
+});
+
+/* Batches of twenty, one after the other, until the server says none
+   are left. Apps Script stops a request at six minutes; a single loop
+   over a hundred emails would be cut off mid-way with nothing written. */
+function fuRun(kind, btn, label){
+  fuBusy = true;
+  btn.disabled = true;
+  var total = 0;
+
+  function step(){
+    api({ action:'campaign', token:session, kind:kind, mode:'send',
+          batch:20, only:fuWho() })
+      .then(function(res){
+        if (res && res.error === 'expired'){ expire(); fuBusy = false; return; }
+        if (!res || !res.ok){
+          fuBusy = false; btn.disabled = false; btn.textContent = label;
+          toast('That could not be sent.');
+          return;
+        }
+        total += res.sent || 0;
+        btn.textContent = 'Sending\u2026 ' + total + ' sent';
+        if (res.left > 0 && res.sent > 0){ setTimeout(step, 400); return; }
+
+        fuBusy = false;
+        btn.textContent = label;
+        load(true);
+        toast(total + ' email' + (total === 1 ? '' : 's') + ' sent' +
+              (res.failed ? ', ' + res.failed + ' failed' : ''));
+      })
+      .catch(function(){
+        fuBusy = false; btn.disabled = false; btn.textContent = label;
+        toast('No connection \u2014 ' + total + ' sent before it stopped.');
+      });
+  }
+  step();
+}
+
+$('fuRemSend').addEventListener('click', function(){
+  var btn = this;
+  var n = parseInt($('fuRemN').textContent, 10) || 0;
+  ask({ title:'Send the reminder to ' + n + '?',
+        body:'A short note about this evening goes to <b>' + n + ' guest' +
+             (n === 1 ? '' : 's') + '</b> who have not had one. It cannot be ' +
+             'unsent. Guests with no email address are not included.',
+        yes:'Send it', no:'Not yet' },
+    function(){ fuRun('reminder', btn, 'Send the reminder'); });
+});
+
+$('fuThxSend').addEventListener('click', function(){
+  var btn = this;
+  var n = parseInt($('fuThxN').textContent, 10) || 0;
+  var who = fuWho() === 'all' ? 'everyone who replied' : 'guests who arrived';
+  ask({ title:'Send the thank you to ' + n + '?',
+        body:'A thank-you goes to <b>' + n + '</b> of ' + who + '. It cannot be ' +
+             'unsent. If the evening has not finished, wait \u2014 thanking ' +
+             'somebody for coming before they have is worse than sending nothing.',
+        yes:'Send it', no:'Not yet' },
+    function(){ fuRun('thanks', btn, 'Send the thank you'); });
+});
+
 })();
 </script>
 
@@ -7301,6 +7452,31 @@ html[data-theme="dark"] .mx-chip.is-lao{color:var(--gold-lit)}
 .mx-tag.unk{font-style:italic;opacity:.75}
 html[data-theme="dark"] .mx-tag{border-color:var(--line);color:var(--cream-3)}
 html[data-theme="dark"] .mx-tag.lao{color:var(--gold-lit)}
+</style>
+
+<style>
+/* ---- follow up & thank you ---- */
+.fu-grid{display:grid;gap:1.2rem;grid-template-columns:1fr;margin-bottom:1.2rem}
+@media (min-width:900px){ .fu-grid{grid-template-columns:1fr 1fr} }
+.fu-card{border:1px solid var(--rule);background:var(--paper-2);padding:1.5rem 1.6rem}
+html[data-theme="dark"] .fu-card{background:rgba(244,241,232,.03);border-color:var(--line)}
+.fu-k{display:block;font-family:var(--f-label);font-size:.54rem;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--gold-deep)}
+html[data-theme="dark"] .fu-k{color:var(--gold-lit)}
+.fu-card h3{font-family:var(--f-display);font-weight:600;font-size:1.4rem;
+  margin:.4rem 0 .7rem}
+.fu-card p{font-size:.95rem;line-height:1.6;color:var(--ink-2);margin:0 0 1rem;
+  max-width:52ch}
+html[data-theme="dark"] .fu-card p{color:var(--cream-3)}
+.fu-who{display:grid;gap:.4rem;margin:0 0 1rem}
+.fu-who label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;cursor:pointer}
+.fu-count{display:flex;align-items:baseline;gap:.5rem;margin-bottom:.4rem}
+.fu-count b{font-family:var(--f-display);font-size:2rem;color:var(--gold-deep)}
+html[data-theme="dark"] .fu-count b{color:var(--gold-lit)}
+.fu-count span{font-family:var(--f-label);font-size:.56rem;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-2)}
+.fu-sent{font-size:.85rem;color:var(--ink-3);margin-bottom:1rem;min-height:1.1em}
+html[data-theme="dark"] .fu-sent{color:var(--cream-3)}
 </style>
 </body>
 </html>
