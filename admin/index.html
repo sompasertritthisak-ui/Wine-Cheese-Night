@@ -4309,17 +4309,37 @@ function openScanner(){
   $('scanCount').textContent = '';
   scanSay('', 'Ready', 'Point the camera at a pass');
   paintQueue();
-  document.addEventListener('keydown', hwScanner);
   withQR(startCamera, function(){
     scanSay('warn', 'Camera scanning unavailable',
             'Type the reference below, or use a hardware scanner.');
   });
 }
 
+/* Chrome and most Android browsers decode barcodes natively, in C++ on
+   a background thread. Where it exists it is several times faster than
+   jsQR on the main thread, which is the difference between a code being
+   read as the parent lifts their phone and them holding it there. */
+var nativeDet = null;
+(function(){
+  try {
+    if ('BarcodeDetector' in window){
+      BarcodeDetector.getSupportedFormats().then(function(f){
+        if (f.indexOf('qr_code') > -1){
+          nativeDet = new BarcodeDetector({ formats: ['qr_code'] });
+        }
+      }).catch(function(){});
+    }
+  } catch (err){}
+})();
+
 function startCamera(){
   var video = $('scanVideo');
   navigator.mediaDevices.getUserMedia({
-    video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 } },
+    /* A tighter frame focuses faster and gives the decoder less to chew
+       through. 1280 was more pixels than the job needs. */
+    video: { facingMode: { ideal: 'environment' },
+             width: { ideal: 960 }, height: { ideal: 960 },
+             frameRate: { ideal: 30 } },
     audio: false
   }).then(function(stream){
     scanStream = stream;
@@ -4333,24 +4353,50 @@ function startCamera(){
   });
 }
 
+var scanFrame = 0, nativeBusy = false;
+
 function scanLoop(){
   var video = $('scanVideo'), canvas = $('scanCanvas');
   if (!$('scan').classList.contains('open')) return;
   scanRAF = requestAnimationFrame(scanLoop);
-  if (video.readyState !== video.HAVE_ENOUGH_DATA || typeof jsQR === 'undefined') return;
+  if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
 
-  /* Scan a centre crop at a modest size. Reading a full 1280px frame
-     every tick is more work than a phone can finish, and the code is in
-     the middle of the frame anyway. */
+  scanFrame++;
+
+  /* Native first, on the whole frame — it handles the cropping and the
+     angles better than we can, and costs the main thread almost nothing. */
+  if (nativeDet){
+    if (nativeBusy) return;
+    nativeBusy = true;
+    nativeDet.detect(video)
+      .then(function(codes){
+        nativeBusy = false;
+        if (codes && codes.length && codes[0].rawValue) handleScan(codes[0].rawValue);
+      })
+      .catch(function(){ nativeBusy = false; nativeDet = null; });  // fall back for good
+    return;
+  }
+
+  if (typeof jsQR === 'undefined') return;
+
+  /* Centre crop, because the code is in the middle of the frame and a
+     full frame is more than a phone can finish between ticks. */
   var side = Math.min(video.videoWidth, video.videoHeight);
-  var box = Math.round(side * 0.7);
+  var box = Math.round(side * 0.72);
   var sx = Math.round((video.videoWidth - box) / 2);
   var sy = Math.round((video.videoHeight - box) / 2);
-  canvas.width = 360; canvas.height = 360;
-  var ctx = canvas.getContext('2d', { willReadFrequently: true });
-  ctx.drawImage(video, sx, sy, box, box, 0, 0, 360, 360);
-  var img = ctx.getImageData(0, 0, 360, 360);
-  var code = jsQR(img.data, img.width, img.height, { inversionAttempts: 'attemptBoth' });
+  canvas.width = 320; canvas.height = 320;
+  var ctx = canvas.getContext('2d', { willReadFrequently: true, alpha: false });
+  ctx.drawImage(video, sx, sy, box, box, 0, 0, 320, 320);
+  var img = ctx.getImageData(0, 0, 320, 320);
+
+  /* Our passes are dark on white, so trying the inverted reading every
+     frame doubles the work for a case that almost never happens. It is
+     still tried every fifth frame, which catches a phone in dark mode
+     without slowing the common path. */
+  var code = jsQR(img.data, img.width, img.height, {
+    inversionAttempts: (scanFrame % 5 === 0) ? 'attemptBoth' : 'dontInvert'
+  });
   if (code && code.data) handleScan(code.data);
 }
 
@@ -4423,25 +4469,56 @@ function checkInRef(ref, sig){
 }
 
 /* A hardware scanner types very fast and ends with Enter. */
-var hwBuf = '', hwAt = 0;
+/* A HID scanner is a keyboard as far as the browser is concerned: it
+   types the decoded text very fast and presses Enter. Everything below
+   is about telling that apart from a person typing, and about not
+   losing a scan when the radio stutters mid-string. */
+var hwBuf = '', hwAt = 0, hwFast = 0;
 function hwScanner(e){
-  if (!$('scan').classList.contains('open')) return;
-  if (document.activeElement === $('scanRef')) return;
-  var now = Date.now();
-  if (now - hwAt > 120) hwBuf = '';
+  /* Somebody typing into a field is not a scan — including the
+     reference box and the name search at the door. */
+  var el = document.activeElement;
+  if (el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)) return;
+
+  var now = Date.now(), gap = now - hwAt;
+
+  /* 300ms rather than 120ms. A wireless scanner sending ninety
+     characters over a crowded 2.4GHz room will occasionally pause
+     longer than a tenth of a second, and the old limit threw away the
+     first half of the string when it did. A person cannot type a
+     ninety-character URL at this rate either way. */
+  if (gap > 300){ hwBuf = ''; hwFast = 0; }
+  else if (gap < 60) hwFast++;
   hwAt = now;
-  if (e.key === 'Enter'){
-    if (hwBuf.length > 3) handleScan(hwBuf);
+
+  /* Some scanners end with Tab instead of Enter, and some send both. */
+  if (e.key === 'Enter' || e.key === 'Tab'){
+    var text = hwBuf;
     hwBuf = '';
+    if (text.length > 3){
+      e.preventDefault();          // or Enter presses whatever is focused
+      if (!$('scan').classList.contains('open')) openScanner();
+      handleScan(text);
+    }
     return;
   }
-  if (e.key.length === 1) hwBuf += e.key;
+
+  if (e.key.length === 1){
+    hwBuf += e.key;
+    /* Once it is clearly a machine typing, keep the characters out of
+       the page — otherwise a long URL lands in whatever has focus. */
+    if (hwFast > 4) e.preventDefault();
+  }
 }
+
+/* Listening on the whole dashboard, not only inside the scanner panel.
+   A scan arriving while the panel is shut used to go nowhere; now it
+   opens the panel and checks the guest in. */
+document.addEventListener('keydown', hwScanner);
 
 function closeScanner(){
   $('scan').classList.remove('open');
   document.documentElement.classList.remove('modal-open');
-  document.removeEventListener('keydown', hwScanner);
   if (scanRAF) cancelAnimationFrame(scanRAF);
   if (scanStream){ scanStream.getTracks().forEach(function(t){ t.stop(); }); scanStream = null; }
   $('scanVideo').srcObject = null;
