@@ -3854,21 +3854,7 @@ else init();
   font-size:clamp(1rem,2.6vw,1.16rem);line-height:1.3;color:var(--cream);
   overflow-wrap:anywhere}
 
-/* What to send, so one message is enough and nobody is chased twice. */
-.shut-ask{margin:1.5rem auto 0;max-width:26rem;padding:1.2rem 1.35rem;
-  border:1px solid rgba(208,169,58,.3);border-radius:10px;
-  background:rgba(4,20,12,.28);text-align:left}
-.shut-ask h4{margin:0 0 .9rem;font-family:var(--f-label);font-weight:700;
-  font-style:italic;font-size:.68rem;letter-spacing:.2em;
-  text-transform:uppercase;color:var(--accent)}
-.shut-ask ul{list-style:none;margin:0;padding:0;display:grid;gap:.65rem}
-.shut-ask li{font-family:var(--f-body);font-style:italic;
-  font-size:clamp(.92rem,2.3vw,1rem);line-height:1.45;color:var(--cream);
-  opacity:.92;padding-left:1.3rem;position:relative;max-width:none}
-.shut-ask li::before{content:"";position:absolute;left:.1rem;top:.6em;
-  width:6px;height:6px;border-radius:50%;background:var(--gold);opacity:.8}
-.shut-ask li b{font-weight:700;font-style:italic;color:var(--cream);opacity:1}
-.shut-ask li .q{color:var(--cream);opacity:.62}
+/* The "please include" panel was removed — its styles went with it. */
 
 @media (max-width:520px){
   .shut-eyebrow{font-size:.54rem;letter-spacing:.2em;text-indent:.2em}
@@ -3917,17 +3903,6 @@ else init();
           <span class="val">+856 20 5538 6672</span>
         </span>
       </a>
-    </div>
-
-    <div class="shut-ask">
-      <h4>Please include:</h4>
-      <ul>
-        <li>Your <b>full name</b></li>
-        <li>Your <b>additional guest’s full name</b> <span class="q">(optional)</span></li>
-        <li>Your <b>phone number</b></li>
-        <li>Your <b>email address</b> <span class="q">(optional, but strongly recommended)</span></li>
-        <li>Your <b>child at PBIS</b> <span class="q">&mdash; full name and year group</span></li>
-      </ul>
     </div>
 
     <div class="modal-actions">
