@@ -1426,6 +1426,7 @@ html[data-theme="dark"] .bh-row .ref{color:var(--gold-lit)}
   body > *{display:none!important}
   #printArea.on{display:block!important}
   #doorPrint.on{display:block!important}
+  #qrPrintArea.on{display:block!important}
 }
 #printArea{display:none}
 .pp-sheet{page-break-after:always;padding:14mm;text-align:center;
@@ -1459,6 +1460,7 @@ html[data-theme="dark"] .bh-row .ref{color:var(--gold-lit)}
    stand on its own.
    ============================================================ */
 #doorPrint{display:none}
+#qrPrintArea{display:none}
 
 @page{size:A4 portrait;margin:12mm 10mm 14mm}
 @media print{ html,body{background:#FFF!important} }
@@ -3014,6 +3016,7 @@ input,select,textarea{font-size:1.05rem}
 
 <div id="printArea" aria-hidden="true"></div>
 <div id="doorPrint" aria-hidden="true"></div>
+<div id="qrPrintArea" aria-hidden="true"></div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -6895,16 +6898,61 @@ $('qrGrid').addEventListener('click', function(e){
 });
 
 $('qrPrint').addEventListener('click', function(){
-  /* On only for this print, off again straight after, so no other
-     printout inherits it. */
-  document.documentElement.classList.add('print-qr');
-  window.print();
-  setTimeout(function(){
-    document.documentElement.classList.remove('print-qr');
-  }, 1200);
-});
-window.addEventListener('afterprint', function(){
-  document.documentElement.classList.remove('print-qr');
+  var rows = qrList();
+  if (!rows.length){ toast('Nothing to print in this list.'); return; }
+
+  var btn = this;
+  btn.disabled = true;
+  var label = btn.textContent;
+  btn.textContent = 'Preparing\u2026';
+
+  var crest = getComputedStyle(document.documentElement)
+                .getPropertyValue('--logo').replace(/^\s*url\((['"]?)(.*?)\1\)\s*$/, '$2');
+  var when = new Date().toLocaleDateString('en-GB',
+               { day:'numeric', month:'long', year:'numeric' });
+
+  $('qrPrintArea').innerHTML =
+    '<div class="qp-head"><img src="' + crest + '" alt="">' +
+      '<div><h1>Parent Appreciation Night &mdash; entry codes</h1>' +
+      '<p>' + rows.length + ' guest' + (rows.length === 1 ? '' : 's') + ' \u00b7 ' +
+        (qrTab === 'none' ? 'no email address on file' : 'emailed their pass') +
+        ' \u00b7 printed ' + esc(when) + '</p></div></div>' +
+    '<div class="qp-rule"></div>' +
+    '<div class="qp-grid">' +
+      rows.map(function(r){
+        return '<div class="qp-card">' +
+          '<img src="' + qrSrc(r) + '" alt="">' +
+          '<b>' + esc(r.name) + '</b>' +
+          '<span class="ref">' + esc(r.ref) + '</span>' +
+          '<span class="sub">' + (r.party || 1) +
+            ((r.party || 1) === 1 ? ' place' : ' places') +
+            (r.guest ? ' \u00b7 with ' + esc(r.guest) : '') + '</span>' +
+        '</div>';
+      }).join('') +
+    '</div>';
+
+  /* Every code is fetched from a QR service. Printing before they land
+     gives a sheet of empty boxes, so wait for them \u2014 with a ceiling, so
+     one slow image cannot hold the whole thing up. */
+  var imgs = Array.prototype.slice.call($('qrPrintArea').querySelectorAll('img'));
+  var waits = imgs.map(function(im){
+    if (im.complete && im.naturalWidth) return Promise.resolve();
+    return new Promise(function(res){
+      im.addEventListener('load', res);
+      im.addEventListener('error', res);
+    });
+  });
+
+  Promise.race([
+    Promise.all(waits),
+    new Promise(function(res){ setTimeout(res, 8000); })
+  ]).then(function(){
+    $('qrPrintArea').classList.add('on');
+    window.print();
+    $('qrPrintArea').classList.remove('on');
+    btn.disabled = false;
+    btn.textContent = label;
+  });
 });
 
 /* ============================================================
@@ -7465,21 +7513,29 @@ html[data-theme="dark"] .qr-card .sub{color:var(--cream-3)}
 .qr-card .state.done{border-color:rgba(26,107,65,.4);color:var(--good);
   background:var(--good-bg)}
 
-/* Scoped to html.print-qr, set only while the Generate QR tab is
-   printing its codes. Unscoped, this hid every element on the page for
-   every print in the dashboard — which is why the guest list came out
-   as a blank sheet with nothing but the browser's own header. */
-@media print{
-  html.print-qr body *{visibility:hidden}
-  html.print-qr #viewQr, html.print-qr #viewQr *{visibility:visible}
-  html.print-qr #viewQr{position:absolute;left:0;top:0;width:100%;display:block}
-  html.print-qr .subtabs,
-  html.print-qr .tools,
-  html.print-qr .pass-acts,
-  html.print-qr #qrNote{display:none}
-  html.print-qr .qr-grid{grid-template-columns:repeat(3,1fr)}
-  html.print-qr .qr-card{break-inside:avoid;border:1px solid #999}
-}
+/* The codes print from their own sheet, the way the door list does.
+   Hiding the app and revealing a panel inside it could never work: the
+   page-level rule sets every child of body to display:none, so anything
+   nested in the app is gone before a visibility rule gets a say. */
+.qp-head{display:flex;align-items:center;gap:5mm;padding:0 0 3mm;
+  border-bottom:2.4pt solid #0D4128;margin-bottom:1mm}
+.qp-head img{width:20mm;height:auto;display:block}
+.qp-head h1{margin:0;font-family:Georgia,'Times New Roman',serif;font-size:14pt;
+  color:#0A2318}
+.qp-head p{margin:1mm 0 0;font-size:8.5pt;color:#4E6555}
+.qp-rule{height:0;border-top:0.9pt solid #D0A93A;margin:0 0 5mm;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+.qp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6mm}
+.qp-card{border:0.8pt solid #D0A93A;padding:4mm 3mm;text-align:center;
+  break-inside:avoid;page-break-inside:avoid;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+.qp-card img{width:100%;max-width:44mm;height:auto;display:block;margin:0 auto 3mm}
+.qp-card b{display:block;font-family:Georgia,'Times New Roman',serif;font-size:10pt;
+  color:#0A2318;line-height:1.3}
+.qp-card .ref{display:block;font-family:'Courier New',monospace;font-size:8.5pt;
+  font-weight:bold;color:#7A6011;margin-top:1.5mm}
+.qp-card .sub{display:block;font-size:7.5pt;color:#4E6555;margin-top:1.5mm;
+  line-height:1.4}
 
 /* ---- all guests ---- */
 .g-head{display:grid;grid-template-columns:2fr 1.6fr .9fr auto;gap:1rem;
