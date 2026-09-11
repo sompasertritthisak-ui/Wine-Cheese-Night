@@ -1463,41 +1463,73 @@ html[data-theme="dark"] .bh-row .ref{color:var(--gold-lit)}
 @page{size:A4 portrait;margin:12mm 10mm 14mm}
 @media print{ html,body{background:#FFF!important} }
 
-.dp-head{display:flex;justify-content:space-between;align-items:flex-end;
-  border-bottom:2pt solid #0D4128;padding-bottom:3mm;margin-bottom:5mm}
+/* The house colours carry onto paper: forest for the band, gold for the
+   rules, ivory for the alternating rows. Every coloured area asks for
+   print-color-adjust, and every one of them has a border or a weight
+   behind it as well — a printer with backgrounds switched off should
+   still produce a list that reads as ours rather than a blank grid. */
+.dp-head{display:flex;justify-content:space-between;align-items:center;
+  gap:6mm;padding:0 0 3mm;margin-bottom:2mm;border-bottom:2.4pt solid #0D4128}
+.dp-head .mark{display:flex;align-items:center;gap:4mm}
+.dp-head .mark img{width:21mm;height:auto;display:block}
 .dp-head h1{margin:0;font-family:Georgia,'Times New Roman',serif;font-size:15pt;
-  color:#0A2318;font-weight:bold}
-.dp-head p{margin:1mm 0 0;font-size:8.5pt;color:#4E6555}
-.dp-head .when{text-align:right;font-size:8pt;color:#7C8B80}
+  color:#0A2318;font-weight:bold;letter-spacing:.2pt}
+.dp-head p{margin:1.2mm 0 0;font-size:8.5pt;color:#4E6555}
+.dp-head .when{text-align:right;font-size:8pt;color:#7C8B80;line-height:1.5}
 
-/* A fixed table, so a long name wraps instead of squeezing the
-   reference column into nothing. */
+/* A gold hairline under the forest rule, the same pairing the screens use. */
+.dp-rule{height:0;border-top:0.9pt solid #D0A93A;margin:0 0 5mm;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+.dp-count{margin:0 0 4mm;font-size:9pt;color:#0A2318;
+  font-family:Georgia,'Times New Roman',serif}
+.dp-count b{font-size:12pt;color:#0D4128}
+.dp-count .sep{color:#D0A93A;padding:0 1.5mm}
+
 .dp-table{width:100%;border-collapse:collapse;table-layout:fixed;
   font-family:Georgia,'Times New Roman',serif}
-.dp-table th{font-size:7.5pt;letter-spacing:1.2pt;text-transform:uppercase;
-  text-align:left;color:#FFF;background:#0D4128;padding:2.2mm 2mm;
-  border:0.4pt solid #0D4128}
-.dp-table td{font-size:9pt;padding:2.2mm 2mm;border:0.4pt solid #C9C3B2;
-  vertical-align:top;word-wrap:break-word;overflow-wrap:break-word}
-.dp-table tr:nth-child(even) td{background:#F7F5EF}
 
-.dp-tick{width:9mm;text-align:center}
-.dp-tick div{width:4.5mm;height:4.5mm;border:0.8pt solid #4E6555;margin:0 auto}
+.dp-table th{font-size:7.5pt;letter-spacing:1.4pt;text-transform:uppercase;
+  text-align:left;color:#FFF;background:#0D4128;padding:2.6mm 2mm;
+  border:0.4pt solid #0D4128;border-bottom:1.2pt solid #D0A93A;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+.dp-table td{font-size:9pt;padding:2.6mm 2mm;vertical-align:top;
+  border-bottom:0.4pt solid #D8D2C2;word-wrap:break-word;overflow-wrap:break-word}
+
+/* No zebra striping. It counted the letter bands as rows, so the shading
+   fell out of step, and it fought the bands for the same cells. The rules
+   between rows do the work on their own and the sheet reads calmer. */
+
+/* A letter down the page, so a name is found by jumping rather than
+   reading. Two selectors deep, because a band that loses its background
+   loses its white letter with it. */
+.dp-table tbody tr.dp-letter td{background:#0D4128;color:#F4F1E8;font-size:8.5pt;
+  font-weight:bold;letter-spacing:2.6pt;padding:1.8mm 2mm;
+  border-bottom:0.8pt solid #D0A93A;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+.dp-tick{width:10mm;text-align:center}
+.dp-tick div{width:5mm;height:5mm;border:0.9pt solid #7A6011;margin:0 auto;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
 .dp-name{width:34%}
 .dp-name b{font-size:9.5pt;color:#0A2318}
-.dp-name span{display:block;font-size:7.5pt;color:#4E6555;margin-top:.6mm}
-.dp-ref{width:22mm;font-family:'Courier New',monospace;font-size:8.5pt;
-  letter-spacing:.3pt;white-space:nowrap}
-.dp-party{width:11mm;text-align:center;font-size:10pt;font-weight:bold}
-.dp-kids{font-size:7.5pt;color:#4E6555;line-height:1.35}
+.dp-name span{display:block;font-size:7.5pt;color:#4E6555;margin-top:.7mm}
+.dp-name .warn{color:#9A4A12;font-weight:bold}
+.dp-ref{width:24mm;font-family:'Courier New',monospace;font-size:8.5pt;
+  letter-spacing:.3pt;white-space:nowrap;color:#7A6011;font-weight:bold}
+.dp-party{width:12mm;text-align:center}
+.dp-party span{display:inline-block;min-width:5.5mm;padding:.6mm 0;
+  border:0.8pt solid #D0A93A;font-size:9pt;font-weight:bold;color:#0A2318;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+.dp-kids{font-size:7.5pt;color:#4E6555;line-height:1.4}
 
 thead{display:table-header-group}   /* repeat the header on every page */
 tr{page-break-inside:avoid}
 
-.dp-foot{margin-top:6mm;padding-top:3mm;border-top:0.4pt solid #C9C3B2;
-  font-size:7.5pt;color:#7C8B80;line-height:1.5}
-.dp-count{margin:0 0 4mm;font-size:9pt;color:#0A2318}
-.dp-count b{font-size:11pt}
+.dp-foot{margin-top:6mm;padding-top:3mm;border-top:0.9pt solid #D0A93A;
+  font-size:7.5pt;color:#7C8B80;line-height:1.55;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
 
 
 /* ============================================================
@@ -4043,21 +4075,42 @@ $('printBtn').addEventListener('click', function(){
     return out.join(', ');
   }
 
+  /* An <img> rather than a CSS background: a printer with backgrounds
+     switched off drops the latter and keeps the former, and the crest is
+     the one thing that makes the sheet look like the school's. */
+  var crest = getComputedStyle(document.documentElement)
+                .getPropertyValue('--logo').replace(/^\s*url\((['"]?)(.*?)\1\)\s*$/, '$2');
+
+  /* Surname initial, since the list is sorted by surname. */
+  function initial(name){
+    var parts = String(name || '').trim().split(/\s+/);
+    var last = parts[parts.length - 1] || '';
+    var ch = last.charAt(0).toUpperCase();
+    return /[A-Z]/.test(ch) ? ch : '\u2026';   // Lao and Chinese names group together
+  }
+
+  var seen = '';
+
   $('doorPrint').innerHTML =
     '<div class="dp-head">' +
-      '<div>' +
-        '<h1>Parent Appreciation Night &mdash; door list</h1>' +
-        '<p>Friday 11 September 2026 &middot; 5:30 &ndash; 8:30 PM &middot; ' +
-          'Secondary Campus, canteen area</p>' +
+      '<div class="mark">' +
+        '<img src="' + crest + '" alt="">' +
+        '<div>' +
+          '<h1>Parent Appreciation Night</h1>' +
+          '<p>Door list &middot; Friday 11 September 2026 &middot; 5:30 &ndash; 8:30 PM ' +
+            '&middot; Secondary Campus, canteen area</p>' +
+        '</div>' +
       '</div>' +
       '<div class="when">Printed ' +
         esc(now.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' })) +
         '<br>at ' + esc(now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' })) +
       '</div>' +
     '</div>' +
+    '<div class="dp-rule"></div>' +
 
-    '<p class="dp-count"><b>' + rows.length + '</b> families &middot; <b>' + heads +
-      '</b> people expected</p>' +
+    '<p class="dp-count"><b>' + rows.length + '</b> families' +
+      '<span class="sep">&#9670;</span><b>' + heads + '</b> people expected' +
+      '<span class="sep">&#9670;</span>sorted by surname</p>' +
 
     '<table class="dp-table"><thead><tr>' +
       '<th class="dp-tick">In</th>' +
@@ -4068,14 +4121,19 @@ $('printBtn').addEventListener('click', function(){
     '</tr></thead><tbody>' +
 
     rows.map(function(r){
-      return '<tr>' +
+      var letter = initial(r.name), band = '';
+      if (letter !== seen){
+        seen = letter;
+        band = '<tr class="dp-letter"><td colspan="5">' + esc(letter) + '</td></tr>';
+      }
+      return band + '<tr>' +
         '<td class="dp-tick"><div></div></td>' +
         '<td class="dp-name"><b>' + esc(r.name) + '</b>' +
           (r.guest ? '<span>with ' + esc(r.guest) + '</span>' : '') +
-          (r.photos === 'No' ? '<span>&#9888; not to be photographed</span>' : '') +
+          (r.photos === 'No' ? '<span class="warn">&#9888; not to be photographed</span>' : '') +
         '</td>' +
         '<td class="dp-ref">' + esc(r.ref) + '</td>' +
-        '<td class="dp-party">' + (r.party || 1) + '</td>' +
+        '<td class="dp-party"><span>' + (r.party || 1) + '</span></td>' +
         '<td class="dp-kids">' + esc(bands(r.children)) + '</td>' +
       '</tr>';
     }).join('') +
