@@ -6836,7 +6836,18 @@ $('qrGrid').addEventListener('click', function(e){
   showPass(parseInt(c.getAttribute('data-qr'), 10));
 });
 
-$('qrPrint').addEventListener('click', function(){ window.print(); });
+$('qrPrint').addEventListener('click', function(){
+  /* On only for this print, off again straight after, so no other
+     printout inherits it. */
+  document.documentElement.classList.add('print-qr');
+  window.print();
+  setTimeout(function(){
+    document.documentElement.classList.remove('print-qr');
+  }, 1200);
+});
+window.addEventListener('afterprint', function(){
+  document.documentElement.classList.remove('print-qr');
+});
 
 /* ============================================================
    ALL GUESTS — one line per person, not per reply
@@ -7396,13 +7407,20 @@ html[data-theme="dark"] .qr-card .sub{color:var(--cream-3)}
 .qr-card .state.done{border-color:rgba(26,107,65,.4);color:var(--good);
   background:var(--good-bg)}
 
+/* Scoped to html.print-qr, set only while the Generate QR tab is
+   printing its codes. Unscoped, this hid every element on the page for
+   every print in the dashboard — which is why the guest list came out
+   as a blank sheet with nothing but the browser's own header. */
 @media print{
-  body *{visibility:hidden}
-  #viewQr, #viewQr *{visibility:visible}
-  #viewQr{position:absolute;left:0;top:0;width:100%}
-  .subtabs,.tools,.pass-acts,#qrNote{display:none}
-  .qr-grid{grid-template-columns:repeat(3,1fr)}
-  .qr-card{break-inside:avoid;border:1px solid #999}
+  html.print-qr body *{visibility:hidden}
+  html.print-qr #viewQr, html.print-qr #viewQr *{visibility:visible}
+  html.print-qr #viewQr{position:absolute;left:0;top:0;width:100%;display:block}
+  html.print-qr .subtabs,
+  html.print-qr .tools,
+  html.print-qr .pass-acts,
+  html.print-qr #qrNote{display:none}
+  html.print-qr .qr-grid{grid-template-columns:repeat(3,1fr)}
+  html.print-qr .qr-card{break-inside:avoid;border:1px solid #999}
 }
 
 /* ---- all guests ---- */
