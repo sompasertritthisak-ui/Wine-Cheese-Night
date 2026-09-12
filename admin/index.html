@@ -7130,7 +7130,9 @@ var LAO_MID = ['kham','souk','souv','phou','phan','phet','phim','seng','sang',
   'phomm','panya','sisa','soul','souly','toun','viph','khoun',
   'visay','savat','sava','vath','sanh','oulay','alay','phaeng','chanh',
   'malar','saysa','noun','vanna','somsa','keth','loun','thoum',
-  'keoma','keo','somch','many','mani','bounm','xaya','phaiv','vieng'];
+  'keoma','keo','somch','many','mani','bounm','xaya','phaiv','vieng',
+  'bodhis','siliwath','sanani','khanthaly','bouakeo','namfon','southsada',
+  'deanna','somdeth','sengphet','vilaysack','khamm','phaeng','saly'];
 
 /* Other groups, so "not Lao" does not become one undifferentiated lump. */
 var VN = ['nguyen','tran','pham','hoang','huynh','phan','vu','vo','dang','bui',
@@ -7139,16 +7141,19 @@ var CN = ['wang','li','zhang','chen','liu','yang','huang','zhao','wu','zhou',
   'xu','sun','ma','zhu','hu','guo','lin','he','gao','luo','zheng','liang',
   'xie','song','tang','deng','han','feng','cao','peng','zeng','xiao','tian',
   'dong','yuan','pan','jiang','cai','yan','shen','xia','lu','fan','qin','cui',
-  'zhong','shi','xiang','qing','jiao','fu','jun','yu','chengfeng','xiaoli'];
+  'zhong','shi','xiang','qing','jiao','fu','jun','yu','chengfeng','xiaoli',
+  'mao','xue','qiu','du','cifeng','changqing','lili','weng','tan','geng'];
 var KR = ['kim','lee','park','choi','jung','jeong','kang','cho','yoon','jang',
   'lim','oh','seo','shin','kwon','hwang','ahn','yoo','hong','moon','son',
   'bae','baek','nam','noh','ha','koo','eun','hyun','kyung','young','soo',
-  'inhyang','eunyoung','sysanh'];
+  'inhyang','eunyoung','woo','jeon','khil','chanmi','hyojeong','kyungsang',
+  'yeon','joo','jin','mi','hee','seok','ryu','chae'];
 var SA = ['singh','kumar','patel','sharma','shah','rao','reddy','das','devi',
   'gupta','mehta','shrestha','bikram','sugirtha','jesu','anand','raj','nair',
   'khan','ali','ahmed','hossain','rahman','begum','iqbal','thapa','gurung'];
 var ID_PH = ['putra','putri','sari','wijaya','santoso','budi','dewi','agus',
-  'santos','reyes','cruz','garcia','dela','bautista','mendoza','ramos'];
+  'santos','reyes','cruz','garcia','dela','bautista','mendoza','ramos',
+  'makinano','sario','tabenas','samawati','fiska','liezel','shielden'];
 
 /* A short list of unmistakably Western given names. Surnames are too
    varied to list, so the scorer leans on these plus the absence of any
@@ -7162,7 +7167,10 @@ var WEST = ['andrew','stephen','richard','david','michael','john','james',
   'skyler','evan','phillip','philip','brendan','holmes','mullins','bailey',
   'bernard','bernhard','gallagher','meenken','muir','russell','metzger',
   'havib','antonio','maria','jose','carlos','pierre','marie','hans','klaus',
-  'olivier','lucas','victor','oscar','felix','ivan','sergey','olga','natalia'];
+  'olivier','lucas','victor','oscar','felix','ivan','sergey','olga','natalia',
+  'mudge','hamos','lips','channas','martijn','seda','tessa','ildiko','maeville',
+  'jordan','mathew','matthew','deus','lurdes','fonciana','brenda','ncube',
+  'nolwandle','komugisha','abdurahman','sharry','monroe','william'];
 
 function mixScore_(name){
   var raw = String(name || '').trim();
@@ -7174,7 +7182,12 @@ function mixScore_(name){
   if (RX_KANA.test(raw))   return { group:'Japanese', why:'written in kana', sure:3 };
   if (RX_HAN.test(raw))    return { group:'Chinese', why:'written in Chinese characters', sure:3 };
 
-  var low = raw.toLowerCase().replace(/[^a-z\s'-]/g, ' ');
+  /* Strip accents first. Vietnamese names arrive fully marked up, and
+     without folding "Nguyễn" never matches "nguyen" — the single most
+     common surname in the list went unrecognised because of it. */
+  var low = raw.toLowerCase().normalize ? raw.toLowerCase().normalize('NFD')
+              .replace(/[\u0300-\u036f]/g, '') : raw.toLowerCase();
+  low = low.replace(/[^a-z\s'-]/g, ' ');
   var toks = low.split(/[\s'-]+/).filter(function(t){ return t.length > 1; });
   if (!toks.length) return { group:'Not clear', why:'nothing to read', sure:0 };
 
