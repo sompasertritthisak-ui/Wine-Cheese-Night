@@ -7635,7 +7635,20 @@ html[data-theme="dark"] .fu-k{color:var(--gold-lit)}
   max-width:52ch}
 html[data-theme="dark"] .fu-card p{color:var(--cream-3)}
 .fu-who{display:grid;gap:.4rem;margin:0 0 1rem}
-.fu-who label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;cursor:pointer}
+.fu-who label{display:flex;align-items:center;gap:.6rem;font-size:.92rem;cursor:pointer}
+/* The base rule gives every input a full width and a 48px height, which
+   turned these two radios into empty boxes with the label stranded beside
+   them. Size them like the check boxes on the RSVP rows instead. */
+.fu-who input[type="radio"]{appearance:none;-webkit-appearance:none;
+  width:18px;height:18px;min-height:18px;flex:0 0 18px;margin:0;border-radius:50%;
+  border:1px solid var(--gold-dim);background:transparent;cursor:pointer;
+  display:inline-grid;place-content:center}
+.fu-who input[type="radio"]::before{content:"";width:9px;height:9px;border-radius:50%;
+  transform:scale(0);transition:transform var(--t-micro) var(--e-out);
+  background:var(--gold)}
+.fu-who input[type="radio"]:checked{border-color:var(--gold)}
+.fu-who input[type="radio"]:checked::before{transform:scale(1)}
+.fu-who input[type="radio"]:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .fu-count{display:flex;align-items:baseline;gap:.5rem;margin-bottom:.4rem}
 .fu-count b{font-family:var(--f-display);font-size:2rem;color:var(--gold-deep)}
 html[data-theme="dark"] .fu-count b{color:var(--gold-lit)}
