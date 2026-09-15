@@ -5952,21 +5952,70 @@ $('svClear').addEventListener('click', function(){
   });
 });
 
+/* The survey answers arrive as one column in Excel when the machine's list
+   separator is a semicolon rather than a comma — the file is correct, the
+   spreadsheet simply refuses to split it. Rather than argue with the
+   setting, this writes a small HTML workbook: Excel, Numbers and Sheets
+   all open it with the columns already in place, and it can carry the
+   school's colours, which a CSV never could. */
 $('svExport').addEventListener('click', function(){
   var rows = svVisible();
   if (!rows.length){ toast('Nothing to export.'); return; }
-  var body = rows.map(function(r){
-    return svHeads.map(function(_, i){ return r['c' + i] || ''; });
-  });
-  var csv = [svHeads].concat(body).map(function(line){
-    return line.map(function(cell){
-      return '"' + String(cell).replace(/"/g, '""') + '"';
-    }).join(',');
-  }).join('\n');
+
+  var FOREST = '#0D4128', GOLD = '#D0A93A', IVORY = '#FBF9F3',
+      RULE = '#E4DED0', INK = '#1A1A1A';
+
+  /* Long answers need room; the short ones should not get it. */
+  function width(h){
+    var n = String(h).toLowerCase();
+    if (/when|slot|claimed|recommend|another|age|timing|involve/.test(n)) return 90;
+    if (/first|last|years|connected/.test(n)) return 120;
+    if (/reference|nationalit|channels|heard/.test(n)) return 160;
+    return 300;
+  }
+
+  var head = '<tr>' + svHeads.map(function(h){
+    return '<th style="background:' + FOREST + ';color:#FFFFFF;font-family:Calibri;' +
+      'font-size:10pt;font-weight:bold;text-align:left;padding:7px 9px;' +
+      'border-bottom:2px solid ' + GOLD + ';white-space:nowrap;">' + esc(h) + '</th>';
+  }).join('') + '</tr>';
+
+  var body = rows.map(function(r, ri){
+    return '<tr>' + svHeads.map(function(_, i){
+      var v = r['c' + i] || '';
+      /* A date that Excel is left to guess at becomes a number. */
+      if (i === 0 && v){
+        var d = new Date(v);
+        if (!isNaN(d)) v = d.toLocaleString('en-GB', { day:'2-digit', month:'short',
+                            year:'numeric', hour:'2-digit', minute:'2-digit' });
+      }
+      return '<td style="background:' + (ri % 2 ? IVORY : '#FFFFFF') + ';color:' + INK +
+        ';font-family:Calibri;font-size:10pt;padding:6px 9px;border-bottom:1px solid ' +
+        RULE + ';vertical-align:top;mso-number-format:\\@;">' + esc(v) + '</td>';
+    }).join('') + '</tr>';
+  }).join('');
+
+  var html =
+    '<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8">' +
+    '<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>' +
+    '<x:Name>Parent survey</x:Name><x:WorksheetOptions><x:FrozenNoSplit/>' +
+    '<x:SplitHorizontal>1</x:SplitHorizontal><x:TopRowBottomPane>1</x:TopRowBottomPane>' +
+    '<x:ActivePane>2</x:ActivePane></x:WorksheetOptions>' +
+    '</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->' +
+    '</head><body>' +
+    '<table cellspacing="0" cellpadding="0" border="0">' +
+      '<colgroup>' + svHeads.map(function(h){
+        return '<col style="width:' + width(h) + 'px">';
+      }).join('') + '</colgroup>' +
+      '<thead>' + head + '</thead><tbody>' + body + '</tbody>' +
+    '</table></body></html>';
+
   var a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob(['\ufeff' + csv], { type:'text/csv;charset=utf-8' }));
-  a.download = 'PBIS-parent-survey.csv';
+  a.href = URL.createObjectURL(new Blob(['\ufeff' + html],
+            { type:'application/vnd.ms-excel;charset=utf-8' }));
+  a.download = 'PBIS-parent-survey.xls';
   a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 4000);
   toast(rows.length + ' response' + (rows.length === 1 ? '' : 's') + ' exported');
 });
 
