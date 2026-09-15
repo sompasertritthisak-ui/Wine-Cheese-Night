@@ -2342,7 +2342,10 @@ input,select,textarea{font-size:1.05rem}
             and two codes in two emails is how a guest arrives holding the wrong one.</p>
           <div class="fu-count"><b id="fuRemN">&mdash;</b><span>waiting to be sent</span></div>
           <div class="fu-sent" id="fuRemSent"></div>
-          <button class="btn btn-solid" id="fuRemSend">Send the reminder</button>
+          <div class="fu-acts">
+            <button class="btn" id="fuRemTest">Test it on the office address</button>
+            <button class="btn btn-solid" id="fuRemSend">Send the reminder</button>
+          </div>
         </div>
 
         <div class="fu-card">
@@ -2356,7 +2359,13 @@ input,select,textarea{font-size:1.05rem}
           </div>
           <div class="fu-count"><b id="fuThxN">&mdash;</b><span>waiting to be sent</span></div>
           <div class="fu-sent" id="fuThxSent"></div>
-          <button class="btn btn-solid" id="fuThxSend">Send the thank you</button>
+          <div class="fu-acts">
+            <button class="btn" id="fuThxTest">Test it on the office address</button>
+            <button class="btn btn-solid" id="fuThxSend">Send the thank you</button>
+          </div>
+          <p class="fu-warn" id="fuThxWarn">Send one to yourself first. It goes through
+            exactly the same deployed code as the real send, and nothing is recorded \u2014
+            so if the wrong letter arrives, it cost one email instead of seventy.</p>
         </div>
       </div>
 
@@ -7474,6 +7483,31 @@ function fuRun(kind, btn, label){
   step();
 }
 
+/* The test and the real send travel the same road: same action, same
+   deployed code, same builder. The only difference is that this one has a
+   single recipient and writes nothing down. */
+function fuTest(kind, btn){
+  var label = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Sending one\u2026';
+  api({ action:'campaign', token:session, kind:kind, mode:'test', only:fuWho() })
+    .then(function(res){
+      btn.disabled = false;
+      btn.textContent = label;
+      if (res && res.error === 'expired'){ expire(); return; }
+      if (res && res.ok) toast('Test sent to ' + (res.to || 'the office') +
+                               ' \u2014 read it before sending the rest');
+      else toast((res && res.message) || 'The test did not send.');
+    })
+    .catch(function(){
+      btn.disabled = false; btn.textContent = label;
+      toast('No connection \u2014 the test did not run.');
+    });
+}
+
+$('fuRemTest').addEventListener('click', function(){ fuTest('reminder', this); });
+$('fuThxTest').addEventListener('click', function(){ fuTest('thanks', this); });
+
 $('fuRemSend').addEventListener('click', function(){
   var btn = this;
   var n = parseInt($('fuRemN').textContent, 10) || 0;
@@ -7491,8 +7525,9 @@ $('fuThxSend').addEventListener('click', function(){
   var who = fuWho() === 'all' ? 'everyone who replied' : 'guests who arrived';
   ask({ title:'Send the thank you to ' + n + '?',
         body:'A thank-you goes to <b>' + n + '</b> of ' + who + '. It cannot be ' +
-             'unsent. If the evening has not finished, wait \u2014 thanking ' +
-             'somebody for coming before they have is worse than sending nothing.',
+             'unsent.<br><br>Have you sent one to yourself with the test button and ' +
+             'read it? That is the only way to know what the deployed code actually ' +
+             'sends.',
         yes:'Send it', no:'Not yet' },
     function(){ fuRun('thanks', btn, 'Send the thank you'); });
 });
@@ -7704,6 +7739,10 @@ html[data-theme="dark"] .fu-count b{color:var(--gold-lit)}
 .fu-count span{font-family:var(--f-label);font-size:.56rem;letter-spacing:.16em;
   text-transform:uppercase;color:var(--ink-2)}
 .fu-sent{font-size:.85rem;color:var(--ink-3);margin-bottom:1rem;min-height:1.1em}
+.fu-acts{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+.fu-warn{margin:.9rem 0 0;font-size:.82rem;line-height:1.5;color:var(--ink-3);
+  max-width:46ch}
+html[data-theme="dark"] .fu-warn{color:var(--cream-3)}
 html[data-theme="dark"] .fu-sent{color:var(--cream-3)}
 </style>
 </body>
