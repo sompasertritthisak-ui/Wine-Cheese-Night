@@ -3033,7 +3033,14 @@ input,select,textarea{font-size:1.05rem}
 (function(){
 'use strict';
 
-var ENDPOINT = 'https://script.google.com/macros/s/AKfycbyyp8ihiEzN1cG_YHdJsGSQNPGZap9dYy-izSIcF-B11fxVxb3XVJpRYmW8m9kbVaGVUw/exec';
+/* The deployment this dashboard talks to.
+   There is more than one deployment in the Apps Script project, and the
+   old address here pointed at one that had not been updated in weeks:
+   every change was being deployed to a different URL, which is why the
+   editor preview looked right while parents kept receiving the old
+   letter. This is the deployment that is actually being maintained.
+   If it ever changes, this line is the single place to change it. */
+var ENDPOINT = 'https://script.google.com/macros/s/AKfycbxQl1OoQXdO-NTpcu8-iW9ytRLhDYtRP8eINKYJ4Lf4SJVEgVNhf_NexT7GnchdZMzASA/exec';
 
 var session = '', role = '', data = [], filter = 'all';
 var meta = { capacity:150, arrived:0, noShow:0, years:{}, now:null };
